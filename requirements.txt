@@ -1,0 +1,5 @@
+flask
+gevent
+waitress
+pymongo
+flask_cors
