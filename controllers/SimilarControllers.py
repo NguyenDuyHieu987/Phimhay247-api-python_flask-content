@@ -26,7 +26,7 @@ def get_similar(type, movieid):
                     "id": {
                         "$nin": [int(movieid)],
                     },
-                    "$and": [
+                    "$or": [
                         {"original_language": {"$regex": country}},
                         {"genres": {"$elemMatch": {"$or": [ChainMap(*new_genres)]}}},
                     ],
@@ -54,7 +54,7 @@ def get_similar(type, movieid):
                     "id": {
                         "$nin": [int(movieid)],
                     },
-                    "$and": [
+                    "$or": [
                         {"original_language": {"$regex": country}},
                         {"genres": {"$elemMatch": {"$or": [ChainMap(*new_genres)]}}},
                     ],

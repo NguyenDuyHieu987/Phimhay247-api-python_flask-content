@@ -18,8 +18,10 @@ db = myclient["Phimhay247_DB"]
 def get_recommend(userid):
     skip = request.args.get("skip", default=1, type=int) - 1
 
-    list = db["lists"].find_one({"id": str(userid)})
-    watchlist = db["watchlists"].find_one({"id": str(userid)})
+    list = db["lists"].find_one({"id": str(userid)}, {"items": {"$slice": [0, 20]}})
+    watchlist = db["watchlists"].find_one(
+        {"id": str(userid)}, {"items": {"$slice": [0, 20]}}
+    )
 
     genres = []
     countries = []
