@@ -25,6 +25,7 @@ db = myclient["Phimhay247_DB"]
 # db["accounts"].update_many({}, {"$set": {"role": "normal"}})
 
 # db["hieus"].update_many({}, {"$rename": {"popularity": "views"}})
+# db["hieus"].update_many({}, {"$set": {"dominant_poster_color": []}})
 
 
 def rating_movie_tv(type, id):

@@ -4,12 +4,16 @@ from utils.JsonResponse import ConvertJsonResponse as cvtJson
 from utils.ErrorMessage import errorMessage
 from flask import *
 from pymongo import ReturnDocument
+from datetime import datetime
 
 myclient = pymongo.MongoClient(
     "mongodb+srv://admin:hieusen123@the-movie-database.fczrzon.mongodb.net/Phimhay247_DB"
 )
 
 db = myclient["Phimhay247_DB"]
+
+#   createdAt: { type: Date, default: Date.now },
+#   updatedAt: { type: Date, default: Date.now },
 
 
 def getwatchlist(idwatchlist):
@@ -143,9 +147,17 @@ def additem_watchlist(idwatchlist):
                                             "genres": movie["genres"],
                                             "backdrop_path": movie["backdrop_path"],
                                             "poster_path": movie["poster_path"],
+                                            "dominant_backdrop_color": movie[
+                                                "dominant_backdrop_color"
+                                            ],
+                                            "dominant_poster_color": movie[
+                                                "dominant_poster_color"
+                                            ],
                                             "duration": float(duration),
                                             "percent": float(percent),
                                             "seconds": float(seconds),
+                                            "created_at": str(datetime.now()),
+                                            "updated_at": str(datetime.now()),
                                         }
                                     ],
                                     "$position": 0,
@@ -207,9 +219,17 @@ def additem_watchlist(idwatchlist):
                                                 "genres": movie["genres"],
                                                 "backdrop_path": movie["backdrop_path"],
                                                 "poster_path": movie["poster_path"],
+                                                "dominant_backdrop_color": movie[
+                                                    "dominant_backdrop_color"
+                                                ],
+                                                "dominant_poster_color": movie[
+                                                    "dominant_poster_color"
+                                                ],
                                                 "duration": float(duration),
                                                 "percent": float(percent),
                                                 "seconds": float(seconds),
+                                                "created_at": str(datetime.now()),
+                                                "updated_at": str(datetime.now()),
                                             }
                                         ],
                                         "$position": 0,
@@ -248,9 +268,17 @@ def additem_watchlist(idwatchlist):
                                                 "genres": movie["genres"],
                                                 "backdrop_path": movie["backdrop_path"],
                                                 "poster_path": movie["poster_path"],
+                                                "dominant_backdrop_color": movie[
+                                                    "dominant_backdrop_color"
+                                                ],
+                                                "dominant_poster_color": movie[
+                                                    "dominant_poster_color"
+                                                ],
                                                 "duration": float(old_duration),
                                                 "percent": float(old_percent),
                                                 "seconds": float(old_seconds),
+                                                "created_at": str(datetime.now()),
+                                                "updated_at": str(datetime.now()),
                                             }
                                         ],
                                         "$position": 0,
@@ -309,9 +337,17 @@ def additem_watchlist(idwatchlist):
                                             "genres": tv["genres"],
                                             "backdrop_path": tv["backdrop_path"],
                                             "poster_path": tv["poster_path"],
+                                            "dominant_backdrop_color": tv[
+                                                "dominant_backdrop_color"
+                                            ],
+                                            "dominant_poster_color": tv[
+                                                "dominant_poster_color"
+                                            ],
                                             "duration": float(duration),
                                             "percent": float(percent),
                                             "seconds": float(seconds),
+                                            "created_at": str(datetime.now()),
+                                            "updated_at": str(datetime.now()),
                                         }
                                     ],
                                     "$position": 0,
@@ -372,9 +408,17 @@ def additem_watchlist(idwatchlist):
                                                 "genres": tv["genres"],
                                                 "backdrop_path": tv["backdrop_path"],
                                                 "poster_path": tv["poster_path"],
+                                                "dominant_backdrop_color": tv[
+                                                    "dominant_backdrop_color"
+                                                ],
+                                                "dominant_poster_color": tv[
+                                                    "dominant_poster_color"
+                                                ],
                                                 "duration": float(duration),
                                                 "percent": float(percent),
                                                 "seconds": float(seconds),
+                                                "created_at": str(datetime.now()),
+                                                "updated_at": str(datetime.now()),
                                             }
                                         ],
                                         "$position": 0,
@@ -411,9 +455,17 @@ def additem_watchlist(idwatchlist):
                                                 "genres": tv["genres"],
                                                 "backdrop_path": tv["backdrop_path"],
                                                 "poster_path": tv["poster_path"],
+                                                "dominant_backdrop_color": tv[
+                                                    "dominant_backdrop_color"
+                                                ],
+                                                "dominant_poster_color": tv[
+                                                    "dominant_poster_color"
+                                                ],
                                                 "duration": float(old_duration),
                                                 "percent": float(old_percent),
                                                 "seconds": float(old_seconds),
+                                                "created_at": str(datetime.now()),
+                                                "updated_at": str(datetime.now()),
                                             }
                                         ],
                                         "$position": 0,

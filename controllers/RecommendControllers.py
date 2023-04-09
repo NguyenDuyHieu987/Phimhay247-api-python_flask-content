@@ -26,8 +26,6 @@ def get_recommend(userid):
     genres = []
     countries = []
     for x in list["items"]:
-        # print("genres:", x["genres"])
-        # print("original_language:", x["original_language"])
         genres.append([x1["id"] for x1 in x["genres"]])
         countries.append([x["original_language"]])
 
@@ -40,6 +38,9 @@ def get_recommend(userid):
     else:
         patterns_genres = pyfpgrowth.find_frequent_patterns(genres, 5)
 
+        if len(patterns_genres) == 0:
+            patterns_genres = pyfpgrowth.find_frequent_patterns(genres, 1)
+
         patterns_genres_single = [
             (item[0], item1)
             for item, item1 in patterns_genres.items()
@@ -47,6 +48,9 @@ def get_recommend(userid):
         ]
 
         patterns_countries = pyfpgrowth.find_frequent_patterns(countries, 3)
+
+        if len(patterns_countries) == 0:
+            patterns_countries = pyfpgrowth.find_frequent_patterns(countries, 1)
 
         patterns_genres_desc = sorted(
             patterns_genres_single,
