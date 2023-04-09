@@ -36,10 +36,36 @@ def detail_movie(id):
         return {}
 
 
+def add_movie():
+    try:
+        formMovie = request.form.to_dict()
+
+        db["tans"].insert_one(
+            {
+                "id": int(formMovie["id"]),
+                "title": formMovie["title"],
+                "original_title": formMovie["original_title"],
+                "original_language": formMovie["original_language"],
+                "release_date": formMovie["release_date"],
+                "genres": json.loads(formMovie["genres"]),
+                "overview": formMovie["overview"],
+                "budget": int(formMovie["budget"]),
+                "revenue": int(formMovie["revenue"]),
+                "runtime": int(formMovie["runtime"]),
+                "views": int(formMovie["views"]),
+                "status": formMovie["status"],
+            },
+        )
+        return {"success": True, "result": "Add movie successfully"}
+    except:
+        return {"success": False, "result": "Add movie failed"}
+
+
 def edit_movie(id):
     try:
-        formMovie = request.form
-        db["movies"].update_one(
+        formMovie = request.form.to_dict()
+
+        db["tans"].update_one(
             {"id": int(id)},
             {
                 "$set": {
@@ -47,11 +73,12 @@ def edit_movie(id):
                     "original_title": formMovie["original_title"],
                     "original_language": formMovie["original_language"],
                     "release_date": formMovie["release_date"],
-                    "genres": formMovie["genres"],
+                    "genres": json.loads(formMovie["genres"]),
                     "overview": formMovie["overview"],
                     "budget": int(formMovie["budget"]),
                     "revenue": int(formMovie["revenue"]),
                     "runtime": int(formMovie["runtime"]),
+                    "views": int(formMovie["views"]),
                     "status": formMovie["status"],
                 },
             },

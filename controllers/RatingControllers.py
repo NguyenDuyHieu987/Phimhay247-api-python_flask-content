@@ -77,4 +77,4 @@ def rating_movie_tv(type, id):
                 "vote_count": new_tv["vote_count"],
             }
     except PyMongoError as e:
-        return {"success": e._message}
+        return {"success": False, "message": e._message}
