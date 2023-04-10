@@ -3,6 +3,7 @@ from pymongo.errors import PyMongoError
 from utils.JsonResponse import ConvertJsonResponse as cvtJson
 from utils.ErrorMessage import errorMessage
 from flask import *
+from pymongo import ReturnDocument
 
 myclient = pymongo.MongoClient(
     "mongodb+srv://admin:hieusen123@the-movie-database.fczrzon.mongodb.net/Phimhay247_DB"
@@ -36,29 +37,64 @@ def detail_tv(id):
         return {}
 
 
+def add_tv():
+    try:
+        formMovie = request.form.to_dict()
+
+        db["phimbos"].insert_one(
+            {
+                "id": int(formMovie["id"]),
+                "name": formMovie["name"],
+                "original_name": formMovie["original_name"],
+                "original_language": formMovie["original_language"],
+                "poster_path": formMovie["poster_path"],
+                "backdrop_path": formMovie["backdrop_path"],
+                "first_air_date": formMovie["first_air_date"],
+                "last_air_date": formMovie["last_air_date"],
+                "genres": json.loads(formMovie["genres"]),
+                "overview": formMovie["overview"],
+                "episode_run_time": int(formMovie["episode_run_time"]),
+                "number_of_episodes": int(formMovie["number_of_episodes"]),
+                "status": formMovie["status"],
+                "views": 0,
+                "media_type": "tv",
+            },
+        )
+        return {"success": True, "result": "Add tv successfully"}
+    except:
+        return {"success": False, "result": "Add tv failed"}
+
+
 def edit_tv(id):
     try:
-        formMovie = request.form
-        db["hieus"].update_one(
+        formMovie = request.form.to_dict()
+
+        tv = db["hieus"].find_one_and_update(
             {"id": int(id)},
             {
                 "$set": {
-                    "title": formMovie["title"],
-                    "original_title": formMovie["original_title"],
+                    "name": formMovie["name"],
+                    "original_name": formMovie["original_name"],
                     "original_language": formMovie["original_language"],
-                    "release_date": formMovie["release_date"],
-                    "genres": formMovie["genres"],
+                    "first_air_date": formMovie["first_air_date"],
+                    "last_air_date": formMovie["last_air_date"],
+                    "genres": json.loads(formMovie["genres"]),
                     "overview": formMovie["overview"],
-                    "budget": int(formMovie["budget"]),
-                    "revenue": int(formMovie["revenue"]),
-                    "runtime": int(formMovie["runtime"]),
+                    "episode_run_time": int(formMovie["episode_run_time"]),
+                    "number_of_episodes": int(formMovie["number_of_episodes"]),
+                    "views": int(formMovie["views"]),
                     "status": formMovie["status"],
                 },
             },
+            return_document=ReturnDocument.AFTER,
         )
-        return {"success": True, "result": "Edit tv successfully"}
+        return {
+            "success": True,
+            "result": cvtJson(tv),
+            "message": "Edit tv successfully",
+        }
     except:
-        return {"success": False, "result": "Edit tv failed"}
+        return {"success": False, "message": "Edit tv failed"}
 
 
 def update_view_tv(id):

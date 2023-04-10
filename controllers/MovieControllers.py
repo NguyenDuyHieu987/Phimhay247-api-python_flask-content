@@ -3,6 +3,8 @@ from pymongo.errors import PyMongoError
 from utils.JsonResponse import ConvertJsonResponse as cvtJson
 from utils.ErrorMessage import errorMessage
 from flask import *
+from pymongo import ReturnDocument
+import uuid
 
 myclient = pymongo.MongoClient(
     "mongodb+srv://admin:hieusen123@the-movie-database.fczrzon.mongodb.net/Phimhay247_DB"
@@ -39,21 +41,30 @@ def detail_movie(id):
 def add_movie():
     try:
         formMovie = request.form.to_dict()
+        id = uuid.uuid1().time_mid
+        movie = db["phimles"].find_one({"id": int(id)})
 
-        db["tans"].insert_one(
+        while movie != None:
+            id = uuid.uuid1().time_mid
+            movie = db["phimles"].find_one({"id": int(id)})
+
+        db["phimles"].insert_one(
             {
-                "id": int(formMovie["id"]),
+                "id": int(id),
                 "title": formMovie["title"],
                 "original_title": formMovie["original_title"],
                 "original_language": formMovie["original_language"],
+                "poster_path": formMovie["poster_path"],
+                "backdrop_path": formMovie["backdrop_path"],
                 "release_date": formMovie["release_date"],
                 "genres": json.loads(formMovie["genres"]),
                 "overview": formMovie["overview"],
                 "budget": int(formMovie["budget"]),
                 "revenue": int(formMovie["revenue"]),
                 "runtime": int(formMovie["runtime"]),
-                "views": int(formMovie["views"]),
                 "status": formMovie["status"],
+                "views": 0,
+                "media_type": "movie",
             },
         )
         return {"success": True, "result": "Add movie successfully"}
@@ -65,7 +76,7 @@ def edit_movie(id):
     try:
         formMovie = request.form.to_dict()
 
-        db["tans"].update_one(
+        movie = db["tans"].find_one_and_update(
             {"id": int(id)},
             {
                 "$set": {
@@ -82,10 +93,16 @@ def edit_movie(id):
                     "status": formMovie["status"],
                 },
             },
+            return_document=ReturnDocument.AFTER,
         )
-        return {"success": True, "result": "Edit movie successfully"}
+
+        return {
+            "success": True,
+            "result": cvtJson(movie),
+            "message": "Edit movie successfully",
+        }
     except:
-        return {"success": False, "result": "Edit movie failed"}
+        return {"success": False, "message": "Edit movie failed"}
 
 
 def update_view_movie(id):

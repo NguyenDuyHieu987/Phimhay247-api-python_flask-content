@@ -9,6 +9,13 @@ def tv_routes(app):
     def detail_tv_route(id):
         return detail_tv(id)
 
+    ## Add Tv
+    from controllers.TvControllers import add_tv
+
+    @app.route("/tv/add", methods=["POST"])
+    def add_tv_route():
+        return add_tv()
+
     ## Edit Tv
     from controllers.TvControllers import edit_tv
 

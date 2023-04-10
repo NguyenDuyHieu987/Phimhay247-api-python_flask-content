@@ -9,6 +9,13 @@ def movie_routes(app):
     def detail_movie_route(id):
         return detail_movie(id)
 
+    ## Add movie
+    from controllers.MovieControllers import add_movie
+
+    @app.route("/movie/add", methods=["POST"])
+    def add_movie_route():
+        return add_movie()
+
     ## Edit movie
     from controllers.MovieControllers import edit_movie
 
