@@ -39,7 +39,7 @@ def detail_tv(id):
 
 def add_tv():
     try:
-        formMovie = request.form.to_dict()
+        formMovie = request.form
 
         db["phimbos"].insert_one(
             {
@@ -67,7 +67,7 @@ def add_tv():
 
 def edit_tv(id):
     try:
-        formMovie = request.form.to_dict()
+        formMovie = request.form
 
         tv = db["hieus"].find_one_and_update(
             {"id": int(id)},

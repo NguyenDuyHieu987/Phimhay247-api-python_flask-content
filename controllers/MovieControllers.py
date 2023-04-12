@@ -40,41 +40,50 @@ def detail_movie(id):
 
 def add_movie():
     try:
-        formMovie = request.form.to_dict()
+        formMovie = request.form
+
         id = uuid.uuid1().time_mid
-        movie = db["phimles"].find_one({"id": int(id)})
+        movie = db["phimles"].find_one({"id": int(formMovie["id"])})
+        tv = db["phimbos"].find_one({"id": int(formMovie["id"])})
+        # while movie != None and tv != None:
+        #     id = uuid.uuid1().time_mid
+        #     movie = db["phimles"].find_one({"id": int(id)})
 
-        while movie != None:
-            id = uuid.uuid1().time_mid
-            movie = db["phimles"].find_one({"id": int(id)})
+        if movie == None and tv == None:
+            db["phimles"].insert_one(
+                {
+                    "id": int(formMovie["id"]),
+                    "title": formMovie["title"],
+                    "original_title": formMovie["original_title"],
+                    "original_language": formMovie["original_language"],
+                    "poster_path": formMovie["poster_path"],
+                    "backdrop_path": formMovie["backdrop_path"],
+                    "release_date": formMovie["release_date"],
+                    "genres": json.loads(formMovie["genres"]),
+                    "overview": formMovie["overview"],
+                    "budget": int(formMovie["budget"]),
+                    "revenue": int(formMovie["revenue"]),
+                    "runtime": int(formMovie["runtime"]),
+                    "status": formMovie["status"],
+                    "views": 0,
+                    "media_type": "movie",
+                },
+            )
+            return {"success": True, "result": "Add movie successfully"}
+        else:
+            return {
+                "success": False,
+                "already": True,
+                "result": "Movie is already exist",
+            }
 
-        db["phimles"].insert_one(
-            {
-                "id": int(id),
-                "title": formMovie["title"],
-                "original_title": formMovie["original_title"],
-                "original_language": formMovie["original_language"],
-                "poster_path": formMovie["poster_path"],
-                "backdrop_path": formMovie["backdrop_path"],
-                "release_date": formMovie["release_date"],
-                "genres": json.loads(formMovie["genres"]),
-                "overview": formMovie["overview"],
-                "budget": int(formMovie["budget"]),
-                "revenue": int(formMovie["revenue"]),
-                "runtime": int(formMovie["runtime"]),
-                "status": formMovie["status"],
-                "views": 0,
-                "media_type": "movie",
-            },
-        )
-        return {"success": True, "result": "Add movie successfully"}
     except:
         return {"success": False, "result": "Add movie failed"}
 
 
 def edit_movie(id):
     try:
-        formMovie = request.form.to_dict()
+        formMovie = request.form
 
         movie = db["tans"].find_one_and_update(
             {"id": int(id)},
