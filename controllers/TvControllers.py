@@ -40,27 +40,36 @@ def detail_tv(id):
 def add_tv():
     try:
         formMovie = request.form
+        movie = db["phimles"].find_one({"id": int(formMovie["id"])})
+        tv = db["phimbos"].find_one({"id": int(formMovie["id"])})
+        if movie == None and tv == None:
+            db["phimbos"].insert_one(
+                {
+                    "id": int(formMovie["id"]),
+                    "name": formMovie["name"],
+                    "original_name": formMovie["original_name"],
+                    "original_language": formMovie["original_language"],
+                    "poster_path": formMovie["poster_path"],
+                    "backdrop_path": formMovie["backdrop_path"],
+                    "first_air_date": formMovie["first_air_date"],
+                    "last_air_date": formMovie["last_air_date"],
+                    "genres": json.loads(formMovie["genres"]),
+                    "overview": formMovie["overview"],
+                    "episode_run_time": int(formMovie["episode_run_time"]),
+                    "number_of_episodes": int(formMovie["number_of_episodes"]),
+                    "status": formMovie["status"],
+                    "views": 0,
+                    "media_type": "tv",
+                },
+            )
+            return {"success": True, "result": "Add tv successfully"}
+        else:
+            return {
+                "success": False,
+                "already": True,
+                "result": "Tv is already exist",
+            }
 
-        db["phimbos"].insert_one(
-            {
-                "id": int(formMovie["id"]),
-                "name": formMovie["name"],
-                "original_name": formMovie["original_name"],
-                "original_language": formMovie["original_language"],
-                "poster_path": formMovie["poster_path"],
-                "backdrop_path": formMovie["backdrop_path"],
-                "first_air_date": formMovie["first_air_date"],
-                "last_air_date": formMovie["last_air_date"],
-                "genres": json.loads(formMovie["genres"]),
-                "overview": formMovie["overview"],
-                "episode_run_time": int(formMovie["episode_run_time"]),
-                "number_of_episodes": int(formMovie["number_of_episodes"]),
-                "status": formMovie["status"],
-                "views": 0,
-                "media_type": "tv",
-            },
-        )
-        return {"success": True, "result": "Add tv successfully"}
     except:
         return {"success": False, "result": "Add tv failed"}
 
