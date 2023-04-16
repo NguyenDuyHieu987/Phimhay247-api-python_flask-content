@@ -62,28 +62,24 @@ def get_recommend(userid):
             patterns_countries.items(), key=lambda item: item[1], reverse=True
         )
 
-        patterns_genres_dict = []
+        frequency_genres_dict = []
 
         for pattern in patterns_genres_desc:
-            # if len(pattern[0]) == 1:
-            #     patterns_genres_dict.append([{"id": x} for x in pattern[0]])
-            # else:
-            # patterns_genres_dict.append(({"id": pattern[0][0]}))
-            patterns_genres_dict.append(({"id": pattern[0]}))
+            frequency_genres_dict.append(({"id": pattern[0]}))
+
+        frequency_countries_list = [x for x in patterns_countries_desc[0][0]]
 
         movie = cvtJson(
             db["movies"]
             .find(
                 {
                     "$and": [
-                        {
-                            "original_language": {
-                                "$in": [x for x in patterns_countries_desc[0][0]]
-                            }
-                        },
+                        {"original_language": {"$in": frequency_countries_list}},
                         {
                             "genres": {
-                                "$elemMatch": {"$or": [ChainMap(*patterns_genres_dict)]}
+                                "$elemMatch": {
+                                    "$or": [ChainMap(*frequency_genres_dict)]
+                                }
                             }
                         },
                     ]
@@ -100,14 +96,12 @@ def get_recommend(userid):
             .find(
                 {
                     "$and": [
-                        {
-                            "original_language": {
-                                "$in": [x for x in patterns_countries_desc[0][0]]
-                            }
-                        },
+                        {"original_language": {"$in": frequency_countries_list}},
                         {
                             "genres": {
-                                "$elemMatch": {"$or": [ChainMap(*patterns_genres_dict)]}
+                                "$elemMatch": {
+                                    "$or": [ChainMap(*frequency_genres_dict)]
+                                }
                             }
                         },
                     ]
