@@ -12,7 +12,7 @@ app = Flask(__name__)
 
 api_normal_cors_config1 = {
     "allow_headers": "*",
-    "origins": ["http://localhost:8080", "https://phimhay247.site/"],
+    "origins": ["http://localhost:8080", "https://phimhay247.site"],
     "methods": ["GET"],
 }
 
