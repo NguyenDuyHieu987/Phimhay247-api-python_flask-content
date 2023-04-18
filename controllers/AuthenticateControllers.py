@@ -116,11 +116,12 @@ def loginfacebook():
                 {
                     "$set": {
                         "user_token": formUser["user_token"],
-                        "avatar": formUser["avatar"],
+                        # "avatar": formUser["avatar"],
                     },
                 },
                 return_document=ReturnDocument.AFTER,
             )
+
             return {
                 "isLogin": True,
                 "result": {
