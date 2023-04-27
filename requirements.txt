@@ -4,3 +4,4 @@ waitress
 pymongo
 flask_cors
 pyfpgrowth
+PyJWT

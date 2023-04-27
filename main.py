@@ -4,6 +4,9 @@ from waitress import serve
 from gevent.pywsgi import WSGIServer
 from bson import json_util, ObjectId
 import sys
+from dotenv import load_dotenv
+
+load_dotenv()
 
 sys.path.insert(0, "D:\Python\Phimhay247-api-python_flask-content")
 
@@ -60,5 +63,6 @@ route(app)
 
 if __name__ == "__main__":
     # app.run(debug=True, port=5000, use_reloader=True)
+
     http_server = WSGIServer(("", 5000), app)
     http_server.serve_forever()
