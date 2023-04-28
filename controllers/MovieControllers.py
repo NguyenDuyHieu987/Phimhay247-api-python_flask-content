@@ -4,7 +4,8 @@ from utils.JsonResponse import ConvertJsonResponse as cvtJson
 from utils.ErrorMessage import errorMessage
 from flask import *
 from pymongo import ReturnDocument
-import uuid
+
+# import uuid
 
 myclient = pymongo.MongoClient(
     "mongodb+srv://admin:hieusen123@the-movie-database.fczrzon.mongodb.net/Phimhay247_DB"
@@ -42,7 +43,7 @@ def add_movie():
     try:
         formMovie = request.form
 
-        id = uuid.uuid1().time_mid
+        # id = uuid.uuid1().time_mid
         movie = db["phimles"].find_one({"id": int(formMovie["id"])})
         tv = db["phimbos"].find_one({"id": int(formMovie["id"])})
         # while movie != None and tv != None:

@@ -9,6 +9,13 @@ def authenticate_routes(app):
     def loginfacebook_route():
         return loginfacebook()
 
+    ## Login Google
+    from controllers.AuthenticateControllers import logingoogle
+
+    @app.route("/auth/logingoogle", methods=["POST"])
+    def logingoogle_route():
+        return logingoogle()
+
     ## Log in
     from controllers.AuthenticateControllers import login
 

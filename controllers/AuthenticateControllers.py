@@ -7,7 +7,8 @@ from pymongo import ReturnDocument
 import jwt
 import os
 from datetime import datetime, timezone, timedelta
-
+import requests
+import configs
 
 myclient = pymongo.MongoClient(
     "mongodb+srv://admin:hieusen123@the-movie-database.fczrzon.mongodb.net/Phimhay247_DB"
@@ -21,7 +22,7 @@ db = myclient["Phimhay247_DB"]
 #             "email": 123,
 #             "password": 456,
 #             "exp": datetime.now(tz=timezone.utc)
-#             + timedelta(seconds=int(os.getenv("TIME_OFFSET")) * 60 * 60),
+#             + timedelta(seconds=configs.TIME_OFFSET ),
 #         },
 #         str(os.getenv("ACCESS_TOKEN_SECRET")),
 #         algorithm="HS256",
@@ -37,7 +38,7 @@ db = myclient["Phimhay247_DB"]
 #     print(decode)
 #     print(int(datetime.now(tz=timezone.utc).timestamp()))
 #     if int(decode["exp"]) - int(datetime.now(tz=timezone.utc).timestamp()) > (
-#         int(os.getenv("TIME_OFFSET")) * 60 * 60
+#         configs.TIME_OFFSET
 #     ):
 #         print("decode")
 
@@ -67,27 +68,38 @@ def login():
 
                 encoded = jwt.encode(
                     {
+                        "id": get_account["id"],
+                        "username": get_account["username"],
+                        "full_name": get_account["full_name"],
+                        "avatar": get_account["avatar"],
+                        "role": get_account["role"],
                         "email": formUser["email"],
                         "password": formUser["password"],
                         "exp": datetime.now(tz=timezone.utc)
-                        + timedelta(seconds=int(os.getenv("TIME_OFFSET")) * 60 * 60),
+                        + timedelta(seconds=configs.TIME_OFFSET),
                     },
                     str(os.getenv("ACCESS_TOKEN_SECRET")),
                     algorithm="HS256",
                 )
 
-                return {
-                    "isLogin": True,
-                    "result": {
-                        "id": get_account["id"],
-                        "username": get_account["username"],
-                        "full_name": get_account["full_name"],
-                        "avatar": get_account["avatar"],
-                        "email": get_account["email"],
-                        "user_token": encoded,
-                        "role": get_account["role"],
-                    },
-                }
+                response = make_response(
+                    {
+                        "isLogin": True,
+                        "result": {
+                            "id": get_account["id"],
+                            "username": get_account["username"],
+                            "full_name": get_account["full_name"],
+                            "avatar": get_account["avatar"],
+                            "email": get_account["email"],
+                            "role": get_account["role"],
+                            # "user_token": encoded,
+                        },
+                    }
+                )
+                response.headers.set("Access-Control-Expose-Headers", "Authorization")
+                response.headers.set("Authorization", encoded)
+
+                return response
             else:
                 return {"isWrongPassword": True, "result": "Wrong Password"}
         else:
@@ -97,8 +109,15 @@ def login():
 
 
 def loginfacebook():
-    formUser = request.form.to_dict()
+    accessToken = request.headers["Authorization"].replace("Bearer ", "")
+
+    faceBookUser = requests.get(
+        f"https://graph.facebook.com/v15.0/me?access_token={accessToken}&fields=id,name,email,picture"
+    )
+    formUser = faceBookUser.json()
+
     account = db["accounts"].find_one({"id": formUser["id"]})
+
     try:
         if account == None:
             list = db["lists"].find_one(
@@ -139,7 +158,11 @@ def loginfacebook():
                 db["watchlists"].insert_one(newWatchList)
 
             db["accounts"].insert_one(
-                formUser | {"role": "normal"},
+                formUser
+                | {
+                    "role": "normal",
+                    "auth_type": "facebook",
+                },
             )
 
             get_account = db["accounts"].find_one(
@@ -150,62 +173,244 @@ def loginfacebook():
 
             encoded = jwt.encode(
                 {
-                    "facebook_id": formUser["id"],
-                    "exp": datetime.now(tz=timezone.utc)
-                    + timedelta(seconds=int(os.getenv("TIME_OFFSET")) * 60 * 60),
-                },
-                str(os.getenv("ACCESS_TOKEN_SECRET")),
-                algorithm="HS256",
-            )
-
-            return {
-                "isSignUp": True,
-                "result": {
                     "id": get_account["id"],
                     "username": get_account["username"],
                     "full_name": get_account["full_name"],
                     "avatar": get_account["avatar"],
                     "email": get_account["email"],
-                    "user_token": encoded,
-                    "role": get_account["role"],
+                    "auth_type": account["auth_type"],
+                    "role": "normal",
+                    "exp": datetime.now(tz=timezone.utc)
+                    + timedelta(seconds=configs.TIME_OFFSET),
                 },
-            }
+                str(os.getenv("ACCESS_TOKEN_SECRET")),
+                algorithm="HS256",
+            )
+
+            response = make_response(
+                {
+                    "isSignUp": True,
+                    "result": {
+                        "id": get_account["id"],
+                        "username": get_account["username"],
+                        "full_name": get_account["full_name"],
+                        "avatar": get_account["avatar"],
+                        "email": get_account["email"],
+                        "auth_type": account["auth_type"],
+                        "role": get_account["role"],
+                        # "user_token": encoded,
+                    },
+                }
+            )
+            response.headers.set("Access-Control-Expose-Headers", "Authorization")
+            response.headers.set("Authorization", encoded)
+
+            return response
 
         else:
             encoded = jwt.encode(
                 {
-                    "facebook_id": formUser["id"],
+                    "id": account["id"],
+                    "username": account["username"],
+                    "full_name": account["full_name"],
+                    "avatar": account["avatar"],
+                    "email": account["email"],
+                    "auth_type": account["auth_type"],
+                    "role": "normal",
                     "exp": datetime.now(tz=timezone.utc)
-                    + timedelta(seconds=int(os.getenv("TIME_OFFSET")) * 60 * 60),
+                    + timedelta(seconds=configs.TIME_OFFSET),
                 },
                 str(os.getenv("ACCESS_TOKEN_SECRET")),
                 algorithm="HS256",
             )
 
             # get_account = db["accounts"].find_one_and_update(
-            get_account = db["accounts"].find_one(
-                {"id": formUser["id"]},
-                # {
-                #     "$set": {
-                #         "user_token": encoded,
-                #         # "avatar": formUser["avatar"],
-                #     },
-                # },
-                # return_document=ReturnDocument.AFTER,
+            # get_account = db["accounts"].find_one(
+            #     {"id": formUser["id"]},
+            #     # {
+            #     #     "$set": {
+            #     #         "user_token": encoded,
+            #     #         # "avatar": formUser["avatar"],
+            #     #     },
+            #     # },
+            #     # return_document=ReturnDocument.AFTER,
+            # )
+            response = make_response(
+                {
+                    "isLogin": True,
+                    "result": {
+                        "id": account["id"],
+                        "username": account["username"],
+                        "full_name": account["full_name"],
+                        "avatar": account["avatar"],
+                        "email": account["email"],
+                        "auth_type": account["auth_type"],
+                        "role": account["role"],
+                        # "user_token": encoded,
+                    },
+                }
+            )
+            response.headers.set("Access-Control-Expose-Headers", "Authorization")
+            response.headers.set("Authorization", encoded)
+
+            return response
+
+    except:
+        return {"isLogin": False, "result": "Log in Facebook failed"}
+
+
+def logingoogle():
+    accessToken = request.headers["Authorization"]
+
+    Headers = {"Authorization": accessToken}
+    faceBookUser = requests.get(
+        f"https://www.googleapis.com/oauth2/v3/userinfo", headers=Headers
+    )
+
+    formUser = faceBookUser.json()
+
+    account = db["accounts"].find_one({"id": formUser["sub"]})
+
+    try:
+        if account == None:
+            list = db["lists"].find_one(
+                {
+                    "id": formUser["sub"],
+                },
             )
 
-            return {
-                "isLogin": True,
-                "result": {
+            newList = {
+                "created_by": formUser["name"],
+                "description": "List movie which users are added",
+                "favorite_count": 0,
+                "id": formUser["sub"],
+                "name": "List",
+                "items": [],
+            }
+
+            if list == None:
+                db["lists"].insert_one(newList)
+
+            watchlist = db["watchlists"].find_one(
+                {
+                    "id": formUser["sub"],
+                },
+            )
+
+            newWatchList = {
+                "created_by": formUser["name"],
+                "description": "Videos which users watched",
+                "favorite_count": 0,
+                "id": formUser["sub"],
+                "item_count": 0,
+                "name": "WatchList",
+                "items": [],
+            }
+
+            if watchlist == None:
+                db["watchlists"].insert_one(newWatchList)
+
+            db["accounts"].insert_one(
+                {
+                    "id": formUser["sub"],
+                    "username": formUser["name"],
+                    "full_name": formUser["name"],
+                    "avatar": formUser["picture"],
+                    "email": formUser["email"],
+                    "auth_type": "google",
+                    "role": "normal",
+                },
+            )
+
+            get_account = db["accounts"].find_one(
+                {
+                    "id": formUser["sub"],
+                },
+            )
+
+            encoded = jwt.encode(
+                {
                     "id": get_account["id"],
                     "username": get_account["username"],
                     "full_name": get_account["full_name"],
                     "avatar": get_account["avatar"],
                     "email": get_account["email"],
-                    "user_token": encoded,
-                    "role": get_account["role"],
+                    "auth_type": get_account["auth_type"],
+                    "role": "normal",
+                    "exp": datetime.now(tz=timezone.utc)
+                    + timedelta(seconds=configs.TIME_OFFSET),
                 },
-            }
+                str(os.getenv("ACCESS_TOKEN_SECRET")),
+                algorithm="HS256",
+            )
+
+            response = make_response(
+                {
+                    "isSignUp": True,
+                    "result": {
+                        "id": get_account["id"],
+                        "username": get_account["username"],
+                        "full_name": get_account["full_name"],
+                        "avatar": get_account["avatar"],
+                        "email": get_account["email"],
+                        "auth_type": get_account["auth_type"],
+                        "role": get_account["role"],
+                        # "user_token": encoded,
+                    },
+                }
+            )
+            response.headers.set("Access-Control-Expose-Headers", "Authorization")
+            response.headers.set("Authorization", encoded)
+
+            return response
+
+        else:
+            encoded = jwt.encode(
+                {
+                    "id": account["id"],
+                    "username": account["username"],
+                    "full_name": account["full_name"],
+                    "avatar": account["avatar"],
+                    "email": account["email"],
+                    "auth_type": account["auth_type"],
+                    "role": "normal",
+                    "exp": datetime.now(tz=timezone.utc)
+                    + timedelta(seconds=configs.TIME_OFFSET),
+                },
+                str(os.getenv("ACCESS_TOKEN_SECRET")),
+                algorithm="HS256",
+            )
+
+            # get_account = db["accounts"].find_one_and_update(
+            # get_account = db["accounts"].find_one(
+            #     {"id": formUser["id"]},
+            #     # {
+            #     #     "$set": {
+            #     #         "user_token": encoded,
+            #     #         # "avatar": formUser["avatar"],
+            #     #     },
+            #     # },
+            #     # return_document=ReturnDocument.AFTER,
+            # )
+            response = make_response(
+                {
+                    "isLogin": True,
+                    "result": {
+                        "id": account["id"],
+                        "username": account["username"],
+                        "full_name": account["full_name"],
+                        "avatar": account["avatar"],
+                        "email": account["email"],
+                        "auth_type": account["auth_type"],
+                        "role": account["role"],
+                        # "user_token": encoded,
+                    },
+                }
+            )
+            response.headers.set("Access-Control-Expose-Headers", "Authorization")
+            response.headers.set("Authorization", encoded)
+
+            return response
 
     except:
         return {"isLogin": False, "result": "Log in Facebook failed"}
@@ -254,10 +459,19 @@ def signup():
                 db["watchlists"].insert_one(newWatchList)
 
             if "role" in formUser.to_dict():
-                db["accounts"].insert_one(formUser.to_dict())
+                db["accounts"].insert_one(
+                    formUser.to_dict()
+                    | {
+                        "auth_type": "email",
+                    }
+                )
             else:
                 db["accounts"].insert_one(
-                    formUser.to_dict() | {"role": "normal"},
+                    formUser.to_dict()
+                    | {
+                        "role": "normal",
+                        "auth_type": "email",
+                    },
                 )
 
             get_account = db["accounts"].find_one(
@@ -273,6 +487,7 @@ def signup():
                     "avatar": get_account["avatar"],
                     "email": get_account["email"],
                     "user_token": get_account["user_token"],
+                    "auth_type": get_account["auth_type"],
                     "role": get_account["role"],
                 },
             }
@@ -292,26 +507,59 @@ def getuser_by_token():
             algorithms=["HS256"],
         )
 
-        if "facebook_id" in jwtUser:
+        if jwtUser["auth_type"] == "facebook":
             facebook_account = db["accounts"].find_one(
-                {"id": jwtUser["facebook_id"]},
+                {"id": jwtUser["id"]},
             )
             if facebook_account == None:
                 return {"isNotExist": True, "result": "Account does not exists"}
             else:
-                return {
-                    "isLogin": True,
-                    "result": {
-                        "id": facebook_account["id"],
-                        "username": facebook_account["username"],
-                        "full_name": facebook_account["full_name"],
-                        "avatar": facebook_account["avatar"],
-                        "email": facebook_account["email"],
-                        "user_token": user_token,
-                        "role": facebook_account["role"],
-                    },
-                }
-        else:
+                response = make_response(
+                    {
+                        "isLogin": True,
+                        "result": {
+                            "id": facebook_account["id"],
+                            "username": facebook_account["username"],
+                            "full_name": facebook_account["full_name"],
+                            "avatar": facebook_account["avatar"],
+                            "email": facebook_account["email"],
+                            "auth_type": facebook_account["auth_type"],
+                            "role": facebook_account["role"],
+                            # "user_token": user_token,
+                        },
+                    }
+                )
+                response.headers.set("Access-Control-Expose-Headers", "Authorization")
+                response.headers.set("Authorization", user_token)
+
+                return response
+        elif jwtUser["auth_type"] == "google":
+            google_account = db["accounts"].find_one(
+                {"id": jwtUser["id"]},
+            )
+            if google_account == None:
+                return {"isNotExist": True, "result": "Account does not exists"}
+            else:
+                response = make_response(
+                    {
+                        "isLogin": True,
+                        "result": {
+                            "id": google_account["id"],
+                            "username": google_account["username"],
+                            "full_name": google_account["full_name"],
+                            "avatar": google_account["avatar"],
+                            "email": google_account["email"],
+                            "auth_type": google_account["auth_type"],
+                            "role": google_account["role"],
+                            # "user_token": user_token,
+                        },
+                    }
+                )
+                response.headers.set("Access-Control-Expose-Headers", "Authorization")
+                response.headers.set("Authorization", user_token)
+
+                return response
+        elif jwtUser["auth_type"] == "email":
             account = db["accounts"].find_one({"email": jwtUser["email"]})
 
             if account != None:
@@ -326,25 +574,34 @@ def getuser_by_token():
                     #         "password": jwtUser["password"],
                     #         "exp": datetime.now(tz=timezone.utc)
                     #         + timedelta(
-                    #             seconds=int(os.getenv("TIME_OFFSET")) * 60 * 60
+                    #             seconds=configs.TIME_OFFSET
                     #         ),
                     #     },
                     #     str(os.getenv("ACCESS_TOKEN_SECRET")),
                     #     algorithm="HS256",
                     # )
 
-                    return {
-                        "isLogin": True,
-                        "result": {
-                            "id": get_account["id"],
-                            "username": get_account["username"],
-                            "full_name": get_account["full_name"],
-                            "avatar": get_account["avatar"],
-                            "email": get_account["email"],
-                            "user_token": user_token,
-                            "role": get_account["role"],
-                        },
-                    }
+                    response = make_response(
+                        {
+                            "isLogin": True,
+                            "result": {
+                                "id": get_account["id"],
+                                "username": get_account["username"],
+                                "full_name": get_account["full_name"],
+                                "avatar": get_account["avatar"],
+                                "email": get_account["email"],
+                                "auth_type": get_account["auth_type"],
+                                "role": get_account["role"],
+                                # "user_token": user_token,
+                            },
+                        }
+                    )
+                    response.headers.set(
+                        "Access-Control-Expose-Headers", "Authorization"
+                    )
+                    response.headers.set("Authorization", user_token)
+
+                    return response
                 else:
                     return {"isWrongPassword": True, "result": "Wrong Password"}
             else:
