@@ -6,3 +6,4 @@ flask_cors
 pyfpgrowth
 PyJWT
 python-dotenv
+requests
