@@ -16,6 +16,7 @@ myclient = pymongo.MongoClient(
 
 db = myclient["Phimhay247_DB"]
 
+
 # try:
 #     encoded = jwt.encode(
 #         {
@@ -422,54 +423,64 @@ def logingoogle():
 
 def signup():
     formUser = request.form
-    account = db["accounts"].find_one({"email": formUser["email"]})
+
     try:
-        if account == None:
-            list = db["lists"].find_one(
-                {
-                    "id": formUser["id"],
-                },
+        emailValidate = requests.get(
+            f"https://emailvalidation.abstractapi.com/v1/?api_key=e23c5b9c07dc432796eea058c9d99e82&email={formUser['email']}"
+        )
+        emailValidateResponse = emailValidate.json()
+
+        if emailValidateResponse["is_smtp_valid"]["value"] == True:
+            account = db["accounts"].find_one(
+                {"$and": [{"email": formUser["email"]}, {"auth_type": "email"}]}
             )
-
-            newList = {
-                "full_name": formUser["full_name"],
-                "description": "List movie which users are added",
-                "favorite_count": 0,
-                "id": formUser["id"],
-                "name": "List",
-                "items": [],
-            }
-
-            if list == None:
-                db["lists"].insert_one(newList)
-
-            watchlist = db["watchlists"].find_one(
-                {
-                    "id": formUser["id"],
-                },
-            )
-
-            newWatchList = {
-                "full_name": formUser["full_name"],
-                "description": "Videos which users watched",
-                "favorite_count": 0,
-                "id": formUser["id"],
-                "item_count": 0,
-                "name": "WatchList",
-                "items": [],
-            }
-
-            if watchlist == None:
-                db["watchlists"].insert_one(newWatchList)
-
-            if "role" in formUser.to_dict():
-                db["accounts"].insert_one(
-                    formUser.to_dict()
-                    | {
-                        "auth_type": "email",
-                    }
+            if account == None:
+                list = db["lists"].find_one(
+                    {
+                        "id": formUser["id"],
+                    },
                 )
-            else:
+
+                newList = {
+                    "full_name": formUser["full_name"],
+                    "description": "List movie which users are added",
+                    "favorite_count": 0,
+                    "id": formUser["id"],
+                    "name": "List",
+                    "items": [],
+                }
+
+                if list == None:
+                    db["lists"].insert_one(newList)
+
+                watchlist = db["watchlists"].find_one(
+                    {
+                        "id": formUser["id"],
+                    },
+                )
+
+                newWatchList = {
+                    "full_name": formUser["full_name"],
+                    "description": "Videos which users watched",
+                    "favorite_count": 0,
+                    "id": formUser["id"],
+                    "item_count": 0,
+                    "name": "WatchList",
+                    "items": [],
+                }
+
+                if watchlist == None:
+                    db["watchlists"].insert_one(newWatchList)
+
+                    # if "role" in formUser.to_dict():
+                    #     db["accounts"].insert_one(
+                    #         formUser.to_dict()
+                    #         | {
+                    #             "auth_type": "email",
+                    #         }
+                    #     )
+                    # else:
+
                 db["accounts"].insert_one(
                     formUser.to_dict()
                     | {
@@ -478,25 +489,27 @@ def signup():
                     },
                 )
 
-            get_account = db["accounts"].find_one(
-                {"id": formUser["id"]},
-            )
+                # get_account = db["accounts"].find_one(
+                #     {"id": formUser["id"]},
+                # )
 
-            return {
-                "isSignUp": True,
-                "result": {
-                    "id": get_account["id"],
-                    "username": get_account["username"],
-                    "full_name": get_account["full_name"],
-                    "avatar": get_account["avatar"],
-                    "email": get_account["email"],
-                    "user_token": get_account["user_token"],
-                    "auth_type": get_account["auth_type"],
-                    "role": get_account["role"],
-                },
-            }
+                return {
+                    "isSignUp": True,
+                    "result": "Sign up account successfully"
+                    # {
+                    # "id": get_account["id"],
+                    # "username": get_account["username"],
+                    # "full_name": get_account["full_name"],
+                    # "avatar": get_account["avatar"],
+                    # "email": get_account["email"],
+                    # "auth_type": get_account["auth_type"],
+                    # "role": get_account["role"],
+                    # },
+                }
+            else:
+                return {"isEmailExist": True, "result": "Email is already exists"}
         else:
-            return {"isEmailExist": True, "result": "Email is already exists"}
+            return {"isInValidEmail": True, "result": "Email is Invalid"}
     except:
         return {"isSignUp": False, "result": "Sign Up Failed"}
 
