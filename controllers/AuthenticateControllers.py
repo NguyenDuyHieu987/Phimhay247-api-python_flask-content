@@ -127,7 +127,7 @@ def loginfacebook():
             )
 
             newList = {
-                "created_by": formUser["full_name"],
+                "created_by": formUser["name"],
                 "description": "List movie which users are added",
                 "favorite_count": 0,
                 "id": formUser["id"],
@@ -145,7 +145,7 @@ def loginfacebook():
             )
 
             newWatchList = {
-                "created_by": formUser["full_name"],
+                "created_by": formUser["name"],
                 "description": "Videos which users watched",
                 "favorite_count": 0,
                 "id": formUser["id"],
@@ -158,10 +158,14 @@ def loginfacebook():
                 db["watchlists"].insert_one(newWatchList)
 
             db["accounts"].insert_one(
-                formUser
-                | {
-                    "role": "normal",
+                {
+                    "id": formUser["id"],
+                    "username": formUser["name"],
+                    "full_name": formUser["name"],
+                    "avatar": formUser["picture"]["data"]["url"],
+                    "email": formUser.get("email", ""),
                     "auth_type": "facebook",
+                    "role": "normal",
                 },
             )
 
