@@ -221,7 +221,7 @@ def discover(type):
 
         elif type == "movieall":
             if sort_by != "":
-                if sort_by == "views_desc_desc":
+                if sort_by == "views_desc":
                     movie = discover_movie(
                         release_date,
                         genres,
