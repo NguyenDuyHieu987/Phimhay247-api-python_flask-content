@@ -7,3 +7,4 @@ pyfpgrowth
 PyJWT
 python-dotenv
 requests
+sib_api_v3_sdk

@@ -9,12 +9,16 @@ import os
 from datetime import datetime, timezone, timedelta
 import requests
 import configs
+from utils.Sendinblue_Email_Verification import Email_Verification
 
 myclient = pymongo.MongoClient(
     "mongodb+srv://admin:hieusen123@the-movie-database.fczrzon.mongodb.net/Phimhay247_DB"
 )
 
 db = myclient["Phimhay247_DB"]
+
+
+# Email_Verification(to="ddom6941@gmail.com")
 
 
 # try:
@@ -74,8 +78,9 @@ def login():
                         "full_name": get_account["full_name"],
                         "avatar": get_account["avatar"],
                         "role": get_account["role"],
-                        "email": formUser["email"],
-                        "password": formUser["password"],
+                        "email": get_account["email"],
+                        "auth_type": get_account["auth_type"],
+                        "password": get_account["password"],
                         "exp": datetime.now(tz=timezone.utc)
                         + timedelta(seconds=configs.TIME_OFFSET),
                     },
@@ -92,6 +97,7 @@ def login():
                             "full_name": get_account["full_name"],
                             "avatar": get_account["avatar"],
                             "email": get_account["email"],
+                            "auth_type": get_account["auth_type"],
                             "role": get_account["role"],
                             # "user_token": encoded,
                         },
@@ -577,7 +583,9 @@ def getuser_by_token():
 
                 return response
         elif jwtUser["auth_type"] == "email":
-            account = db["accounts"].find_one({"email": jwtUser["email"]})
+            account = db["accounts"].find_one(
+                {"$and": [{"email": jwtUser["email"]}, {"auth_type": "email"}]}
+            )
 
             if account != None:
                 if account["password"] == jwtUser["password"]:
