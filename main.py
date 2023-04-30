@@ -21,6 +21,10 @@ api_normal_cors_config1 = {
         "http://localhost:3000",
         "https://phimhay247.site",
         "https://phimhay247.tech",
+        "https://dashboard.phimhay247.site",
+        "https://dashboard.phimhay247.tech",
+        "https://dash.phimhay247.site",
+        "https://dash.phimhay247.tech",
     ],
     "methods": ["GET"],
 }
@@ -33,6 +37,10 @@ api_normal_cors_config2 = {
         "http://localhost:3000",
         "https://phimhay247.site",
         "https://phimhay247.tech",
+        "https://dashboard.phimhay247.site",
+        "https://dashboard.phimhay247.tech",
+        "https://dash.phimhay247.site",
+        "https://dash.phimhay247.tech",
     ],
     "methods": ["GET", "POST"],
 }
@@ -42,10 +50,12 @@ api_admin_cors_config = {
     "allow_headers": "*",
     "origins": [
         "http://localhost:8080",
-        "http://localhost:3000",
         "http://localhost:8081",
+        "http://localhost:3000",
         "https://dashboard.phimhay247.site",
         "https://dashboard.phimhay247.tech",
+        "https://dash.phimhay247.site",
+        "https://dash.phimhay247.tech",
     ],
     "methods": ["OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"],
 }
