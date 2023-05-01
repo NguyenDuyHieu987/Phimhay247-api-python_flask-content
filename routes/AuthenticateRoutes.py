@@ -28,14 +28,6 @@ def authenticate_routes(app):
     def login_route():
         return login()
 
-    ## Sigin up
-    from controllers.AuthenticateControllers import signup
-
-    @app.route("/auth/signup", methods=["POST"])
-    @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    def signup_route():
-        return signup()
-
     ## Get user by token
     from controllers.AuthenticateControllers import getuser_by_token
 
@@ -43,3 +35,19 @@ def authenticate_routes(app):
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def getuser_by_token_route():
         return getuser_by_token()
+
+    ## Sign up
+    from controllers.AuthenticateControllers import signup
+
+    @app.route("/auth/signup", methods=["POST"])
+    @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
+    def signup_route():
+        return signup()
+
+    ## Verify Email by token
+    from controllers.AuthenticateControllers import verify_email
+
+    @app.route("/auth/verify/email", methods=["POST"])
+    @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
+    def verify_email_route():
+        return verify_email()

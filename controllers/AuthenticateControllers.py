@@ -10,15 +10,14 @@ from datetime import datetime, timezone, timedelta
 import requests
 import configs
 from utils.Sendinblue_Email_Verification import Email_Verification
+from utils.OTP_Generation import generateOTP
+
 
 myclient = pymongo.MongoClient(
     "mongodb+srv://admin:hieusen123@the-movie-database.fczrzon.mongodb.net/Phimhay247_DB"
 )
 
 db = myclient["Phimhay247_DB"]
-
-
-# Email_Verification(to="ddom6941@gmail.com")
 
 
 # try:
@@ -57,7 +56,9 @@ db = myclient["Phimhay247_DB"]
 def login():
     formUser = request.form
     try:
-        account = db["accounts"].find_one({"email": formUser["email"]})
+        account = db["accounts"].find_one(
+            {"$and": [{"email": formUser["email"]}, {"auth_type": "email"}]}
+        )
         if account != None:
             if account["password"] == formUser["password"]:
                 # get_account = db["accounts"].find_one_and_update(
@@ -75,12 +76,12 @@ def login():
                     {
                         "id": get_account["id"],
                         "username": get_account["username"],
+                        "password": get_account["password"],
                         "full_name": get_account["full_name"],
                         "avatar": get_account["avatar"],
                         "role": get_account["role"],
                         "email": get_account["email"],
                         "auth_type": get_account["auth_type"],
-                        "password": get_account["password"],
                         "exp": datetime.now(tz=timezone.utc)
                         + timedelta(seconds=configs.TIME_OFFSET),
                     },
@@ -427,102 +428,10 @@ def logingoogle():
         return {"isLogin": False, "result": "Log in Facebook failed"}
 
 
-def signup():
-    formUser = request.form
-
-    try:
-        emailValidate = requests.get(
-            f"https://emailvalidation.abstractapi.com/v1/?api_key=e23c5b9c07dc432796eea058c9d99e82&email={formUser['email']}"
-        )
-        emailValidateResponse = emailValidate.json()
-
-        if emailValidateResponse["is_smtp_valid"]["value"] == True:
-            account = db["accounts"].find_one(
-                {"$and": [{"email": formUser["email"]}, {"auth_type": "email"}]}
-            )
-            if account == None:
-                list = db["lists"].find_one(
-                    {
-                        "id": formUser["id"],
-                    },
-                )
-
-                newList = {
-                    "full_name": formUser["full_name"],
-                    "description": "List movie which users are added",
-                    "favorite_count": 0,
-                    "id": formUser["id"],
-                    "name": "List",
-                    "items": [],
-                }
-
-                if list == None:
-                    db["lists"].insert_one(newList)
-
-                watchlist = db["watchlists"].find_one(
-                    {
-                        "id": formUser["id"],
-                    },
-                )
-
-                newWatchList = {
-                    "full_name": formUser["full_name"],
-                    "description": "Videos which users watched",
-                    "favorite_count": 0,
-                    "id": formUser["id"],
-                    "item_count": 0,
-                    "name": "WatchList",
-                    "items": [],
-                }
-
-                if watchlist == None:
-                    db["watchlists"].insert_one(newWatchList)
-
-                    # if "role" in formUser.to_dict():
-                    #     db["accounts"].insert_one(
-                    #         formUser.to_dict()
-                    #         | {
-                    #             "auth_type": "email",
-                    #         }
-                    #     )
-                    # else:
-
-                db["accounts"].insert_one(
-                    formUser.to_dict()
-                    | {
-                        "role": "normal",
-                        "auth_type": "email",
-                    },
-                )
-
-                # get_account = db["accounts"].find_one(
-                #     {"id": formUser["id"]},
-                # )
-
-                return {
-                    "isSignUp": True,
-                    "result": "Sign up account successfully"
-                    # {
-                    # "id": get_account["id"],
-                    # "username": get_account["username"],
-                    # "full_name": get_account["full_name"],
-                    # "avatar": get_account["avatar"],
-                    # "email": get_account["email"],
-                    # "auth_type": get_account["auth_type"],
-                    # "role": get_account["role"],
-                    # },
-                }
-            else:
-                return {"isEmailExist": True, "result": "Email is already exists"}
-        else:
-            return {"isInValidEmail": True, "result": "Email is Invalid"}
-    except:
-        return {"isSignUp": False, "result": "Sign Up Failed"}
-
-
 def getuser_by_token():
     # formUser = request.form
     user_token = request.headers["Authorization"].replace("Bearer ", "")
+
     try:
         jwtUser = jwt.decode(
             user_token,
@@ -634,3 +543,235 @@ def getuser_by_token():
 
     except:
         return {"isLogin": False, "result": "Log in failed"}
+
+
+# def signup():
+#     formUser = request.form
+
+#     try:
+#         emailValidate = requests.get(
+#             f"https://emailvalidation.abstractapi.com/v1/?api_key=e23c5b9c07dc432796eea058c9d99e82&email={formUser['email']}"
+#         )
+#         emailValidateResponse = emailValidate.json()
+
+#         if emailValidateResponse["is_smtp_valid"]["value"] == True:
+#             account = db["accounts"].find_one(
+#                 {"$and": [{"email": formUser["email"]}, {"auth_type": "email"}]}
+#             )
+#             if account == None:
+#                 list = db["lists"].find_one(
+#                     {
+#                         "id": formUser["id"],
+#                     },
+#                 )
+
+#                 newList = {
+#                     "full_name": formUser["full_name"],
+#                     "description": "List movie which users are added",
+#                     "favorite_count": 0,
+#                     "id": formUser["id"],
+#                     "name": "List",
+#                     "items": [],
+#                 }
+
+#                 if list == None:
+#                     db["lists"].insert_one(newList)
+
+#                 watchlist = db["watchlists"].find_one(
+#                     {
+#                         "id": formUser["id"],
+#                     },
+#                 )
+
+#                 newWatchList = {
+#                     "full_name": formUser["full_name"],
+#                     "description": "Videos which users watched",
+#                     "favorite_count": 0,
+#                     "id": formUser["id"],
+#                     "item_count": 0,
+#                     "name": "WatchList",
+#                     "items": [],
+#                 }
+
+#                 if watchlist == None:
+#                     db["watchlists"].insert_one(newWatchList)
+
+#                     # if "role" in formUser.to_dict():
+#                     #     db["accounts"].insert_one(
+#                     #         formUser.to_dict()
+#                     #         | {
+#                     #             "auth_type": "email",
+#                     #         }
+#                     #     )
+#                     # else:
+
+#                 db["accounts"].insert_one(
+#                     formUser.to_dict()
+#                     | {
+#                         "role": "normal",
+#                         "auth_type": "email",
+#                     },
+#                 )
+
+#                 # get_account = db["accounts"].find_one(
+#                 #     {"id": formUser["id"]},
+#                 # )
+
+#                 return {
+#                     "isSignUp": True,
+#                     "result": "Sign up account successfully"
+#                     # {
+#                     # "id": get_account["id"],
+#                     # "username": get_account["username"],
+#                     # "full_name": get_account["full_name"],
+#                     # "avatar": get_account["avatar"],
+#                     # "email": get_account["email"],
+#                     # "auth_type": get_account["auth_type"],
+#                     # "role": get_account["role"],
+#                     # },
+#                 }
+#             else:
+#                 return {"isEmailExist": True, "result": "Email is already exists"}
+#         else:
+#             return {"isInValidEmail": True, "result": "Email is Invalid"}
+#     except:
+#         return {"isSignUp": False, "result": "Sign Up Failed"}
+
+
+def signup():
+    formUser = request.form
+    user_token = request.headers["Authorization"].replace("Bearer ", "")
+
+    try:
+        jwtUser = jwt.decode(
+            user_token,
+            str(formUser["otp"]),
+            algorithms=["HS256"],
+        )
+        account = db["accounts"].find_one(
+            {"$and": [{"id": jwtUser["id"]}, {"auth_type": "email"}]}
+        )
+        if account == None:
+            list = db["lists"].find_one(
+                {
+                    "id": jwtUser["id"],
+                },
+            )
+
+            newList = {
+                "full_name": jwtUser["full_name"],
+                "description": "List movie which users are added",
+                "favorite_count": 0,
+                "id": jwtUser["id"],
+                "name": "List",
+                "items": [],
+            }
+
+            if list == None:
+                db["lists"].insert_one(newList)
+
+            watchlist = db["watchlists"].find_one(
+                {
+                    "id": jwtUser["id"],
+                },
+            )
+
+            newWatchList = {
+                "full_name": jwtUser["full_name"],
+                "description": "Videos which users watched",
+                "favorite_count": 0,
+                "id": jwtUser["id"],
+                "item_count": 0,
+                "name": "WatchList",
+                "items": [],
+            }
+
+            if watchlist == None:
+                db["watchlists"].insert_one(newWatchList)
+
+                # if "role" in formUser.to_dict():
+                #     db["accounts"].insert_one(
+                #         formUser.to_dict()
+                #         | {
+                #             "auth_type": "email",
+                #         }
+                #     )
+                # else:
+
+            db["accounts"].insert_one(
+                {
+                    "id": jwtUser["id"],
+                    "username": jwtUser["username"],
+                    "password": jwtUser["password"],
+                    "full_name": jwtUser["full_name"],
+                    "avatar": jwtUser["avatar"],
+                    "email": jwtUser["email"],
+                    "auth_type": jwtUser["auth_type"],
+                    "role": jwtUser["role"],
+                }
+            )
+
+            return {
+                # "isSignUp": True, "result": jwtUser
+                "isSignUp": True,
+                "result": "Sign up account successfully",
+            }
+        else:
+            return {"isAccountExist": True, "result": "Account is already exists"}
+    except jwt.ExpiredSignatureError as e:
+        return {"isOTPExpired": True, "result": "OTP is expired"}
+
+    except jwt.exceptions.DecodeError as e:
+        return {"isInvalidOTP": True, "result": "OTP is invalid"}
+    except:
+        return {"isSignUp": False, "result": "Sign Up Failed"}
+
+
+def verify_email():
+    formUser = request.form
+
+    try:
+        emailValidate = requests.get(
+            f"https://emailvalidation.abstractapi.com/v1/?api_key=e23c5b9c07dc432796eea058c9d99e82&email={formUser['email']}"
+        )
+        emailValidateResponse = emailValidate.json()
+
+        if emailValidateResponse["is_smtp_valid"]["value"] == True:
+            account = db["accounts"].find_one(
+                {"$and": [{"email": formUser["email"]}, {"auth_type": "email"}]}
+            )
+            if account == None:
+                OTP = generateOTP(length=6)
+                encoded = jwt.encode(
+                    {
+                        "id": formUser["id"],
+                        "username": formUser["username"],
+                        "password": formUser["password"],
+                        "full_name": formUser["full_name"],
+                        "avatar": formUser["avatar"],
+                        "role": "normal",
+                        "email": formUser["email"],
+                        "auth_type": "email",
+                        "exp": datetime.now(tz=timezone.utc) + timedelta(seconds=60),
+                    },
+                    str(OTP),
+                    algorithm="HS256",
+                )
+                response = make_response(
+                    {"isVerify": True, "result": "Send otp email successfully"}
+                )
+                response.headers.set("Access-Control-Expose-Headers", "Authorization")
+                response.headers.set("Authorization", encoded)
+                email_response = Email_Verification(to=formUser["email"], otp=OTP)
+
+                # print(email_response)
+                # if "message_id" in dict(email_response):
+                return response
+                # else:
+                #     return {"isSendEmail": False, "result": "Send otp email failed"}
+            else:
+                return {"isEmailExist": True, "result": "Email is already exists"}
+        else:
+            return {"isInValidEmail": True, "result": "Email is Invalid"}
+    except:
+        return {"isVerify": False, "result": "Send otp email failed"}

@@ -1,5 +1,4 @@
 from string import Template
-from utils.OTP_Generation import generateOTP
 import os
 import sib_api_v3_sdk
 from sib_api_v3_sdk.rest import ApiException
@@ -17,22 +16,20 @@ html_content = """<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schema
 # Define the campaign settings\
 
 
-def Email_Verification(to):
+def Email_Verification(to, otp):
     try:
         email_campaigns = sib_api_v3_sdk.SendSmtpEmail(
             subject="Mã xác thực email của bạn",
             sender={"name": "Phimhay247", "email": "duyhieu@phimhay247.site"},
             to=[{"email": to}],
-            html_content=Template(html_content).safe_substitute(
-                code=generateOTP(length=6)
-            ),
+            html_content=Template(html_content).safe_substitute(code=otp),
             headers={
                 "accept": "application/json",
                 "content-type": "application/json",
             },
         )
         api_response = api_instance.send_transac_email(send_smtp_email=email_campaigns)
-        print(api_response)
+        return api_response
     except ApiException as e:
         print(
             "Exception when calling EmailCampaignsApi->create_email_campaign: %s\n" % e
