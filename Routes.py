@@ -1,24 +1,24 @@
-def route(app):
+def route(app, cache):
     # Movie slug
     from routes.MovieSlugRoutes import movie_slug_routes
 
-    movie_slug_routes(app)
+    movie_slug_routes(app, cache)
 
     # Tv slug
     from routes.TvSlugRoutes import tv_slug_routes
 
-    tv_slug_routes(app)
+    tv_slug_routes(app, cache)
 
     # Movie
 
     from routes.MovieRoutes import movie_routes
 
-    movie_routes(app)
+    movie_routes(app, cache)
 
     # Tv
     from routes.TvRoutes import tv_routes
 
-    tv_routes(app)
+    tv_routes(app, cache)
 
     # Tv seasons
     from routes.TvSeasonsRoutes import tv_seasons_routes
@@ -38,7 +38,7 @@ def route(app):
     # Search
     from routes.SearchRoutes import search_routes
 
-    search_routes(app)
+    search_routes(app, cache)
 
     # Get sortby
     from routes.SortByRoutes import sortbys_routes
@@ -63,7 +63,7 @@ def route(app):
     # Discover
     from routes.DiscoverRoutes import discover_routes
 
-    discover_routes(app)
+    discover_routes(app, cache)
 
     # Similar
     from routes.SimilarRoutes import similar_routes
@@ -73,21 +73,21 @@ def route(app):
     # List
     from routes.ListRoutes import list_routes
 
-    list_routes(app)
+    list_routes(app, cache)
 
     # WatchList (View History)
 
     ## Get history
     from routes.WatchListRoutes import watchlist_routes
 
-    watchlist_routes(app)
+    watchlist_routes(app, cache)
 
     # Recommend (Suggest)
 
     ## Get Recommend
     from routes.RecommendRoutes import recommend_routes
 
-    recommend_routes(app)
+    recommend_routes(app, cache)
 
     # Ranking
     from routes.RankingRoutes import ranking_routes

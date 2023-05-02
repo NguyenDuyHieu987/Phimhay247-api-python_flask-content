@@ -3,10 +3,11 @@ from flask_cors import cross_origin
 import configs
 
 
-def list_routes(app):
+def list_routes(app, cache):
     ## Get list
     from controllers.ListControllers import getlist
 
+    @cache.cached(timeout=3000)
     @app.route("/list/<idlist>/getlist", methods=["GET"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def getlist_route(idlist):
@@ -15,6 +16,7 @@ def list_routes(app):
     ## Search list
     from controllers.ListControllers import search_list
 
+    @cache.cached(timeout=3000)
     @app.route("/list/<idlist>/searchlist", methods=["GET"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def search_list_route(idlist):
@@ -23,6 +25,7 @@ def list_routes(app):
     ## Get item list
     from controllers.ListControllers import getitem_list
 
+    @cache.cached(timeout=3000)
     @app.route("/list/<idlist>/getitem/<idmovie>", methods=["GET"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def getitem_list_route(idlist, idmovie):

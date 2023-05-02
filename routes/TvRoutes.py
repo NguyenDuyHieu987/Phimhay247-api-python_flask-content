@@ -3,10 +3,11 @@ from flask_cors import cross_origin
 import configs
 
 
-def tv_routes(app):
+def tv_routes(app, cache):
     ## Detail Tv
     from controllers.TvControllers import detail_tv
 
+    @cache.cached(timeout=3000)
     @app.route("/tv/detail/<id>", methods=["GET"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def detail_tv_route(id):
