@@ -23,7 +23,7 @@ def route(app, cache):
     # Tv seasons
     from routes.TvSeasonsRoutes import tv_seasons_routes
 
-    tv_seasons_routes(app)
+    tv_seasons_routes(app, cache)
 
     # Rating
     from routes.RatingRoutes import rating_routes
@@ -33,7 +33,7 @@ def route(app, cache):
     # Trending
     from routes.TrendingRoutes import trending_routes
 
-    trending_routes(app)
+    trending_routes(app, cache)
 
     # Search
     from routes.SearchRoutes import search_routes
@@ -92,7 +92,7 @@ def route(app, cache):
     # Ranking
     from routes.RankingRoutes import ranking_routes
 
-    ranking_routes(app)
+    ranking_routes(app, cache)
 
     # Authentication
     from routes.AuthenticateRoutes import authenticate_routes

@@ -5,8 +5,8 @@ import configs
 
 def movie_slug_routes(app, cache):
     from controllers.MovieSlugControllers import movie_slug
-    
-    @cache.cached(timeout=3000)
+
+    @cache.cached(timeout=3600)
     @app.route("/movie/<slug>", methods=["GET"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def movie_slug_route(slug):

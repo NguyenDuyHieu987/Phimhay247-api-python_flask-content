@@ -7,7 +7,7 @@ def movie_routes(app, cache):
     ## Detail movie
     from controllers.MovieControllers import detail_movie
 
-    @cache.cached(timeout=3000)
+    @cache.cached(timeout=3600)
     @app.route("/movie/detail/<id>", methods=["GET"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def detail_movie_route(id):

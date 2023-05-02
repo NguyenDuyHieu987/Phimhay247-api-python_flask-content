@@ -6,7 +6,7 @@ import configs
 def search_routes(app, cache):
     from controllers.SearchControllers import search
 
-    @cache.cached(timeout=3000)
+    @cache.cached(timeout=3600)
     @app.route("/search/<type>", methods=["GET"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def search_route(type):
