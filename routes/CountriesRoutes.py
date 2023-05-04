@@ -1,12 +1,13 @@
 from flask import *
 from flask_cors import cross_origin
 import configs
+from controllers.CountriesControllers import Country
 
 
 def countries_routes(app):
-    from controllers.CountriesControllers import countries
+    country = Country()
 
     @app.route("/country/<type>", methods=["GET"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def countries_route(type):
-        return countries(type)
+        return country.countries(type)

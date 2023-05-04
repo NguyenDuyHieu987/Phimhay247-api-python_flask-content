@@ -1,53 +1,49 @@
 from flask import *
 from flask_cors import cross_origin
 import configs
+from controllers.AuthenticationControllers import Authentication
 
 
-def authenticate_routes(app):
+def authentication_routes(app):
+    authentication = Authentication()
     ## Login Facebook
-    from controllers.AuthenticateControllers import loginfacebook
 
     @app.route("/auth/loginfacebook", methods=["POST"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def loginfacebook_route():
-        return loginfacebook()
+        return authentication.loginfacebook()
 
     ## Login Google
-    from controllers.AuthenticateControllers import logingoogle
 
     @app.route("/auth/logingoogle", methods=["POST"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def logingoogle_route():
-        return logingoogle()
+        return authentication.logingoogle()
 
     ## Log in
-    from controllers.AuthenticateControllers import login
 
     @app.route("/auth/login", methods=["POST"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def login_route():
-        return login()
+        return authentication.login()
 
     ## Get user by token
-    from controllers.AuthenticateControllers import getuser_by_token
 
     @app.route("/auth/getusertoken", methods=["POST"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def getuser_by_token_route():
-        return getuser_by_token()
+        return authentication.getuser_by_token()
 
     ## Sign up
-    from controllers.AuthenticateControllers import signup
 
     @app.route("/auth/signup", methods=["POST"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def signup_route():
-        return signup()
+        return authentication.signup()
 
     ## Verify Email by token
-    from controllers.AuthenticateControllers import verify_email
 
     @app.route("/auth/verify/email", methods=["POST"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def verify_email_route():
-        return verify_email()
+        return authentication.verify_email()

@@ -1,13 +1,16 @@
 import pymongo
+import os
 
 
-def ConnectMongoDB():
-    try:
-        myclient = pymongo.MongoClient(
-            "mongodb+srv://admin:hieusen123@the-movie-database.fczrzon.mongodb.net/Phimhay247_DB"
-        )
+class Database:
+    def __init__(self):
+        self.__dbMongo = None
 
-        db = myclient["Phimhay247_DB"]
-        return db
-    except:
-        pass
+    def ConnectMongoDB(self):
+        try:
+            myclient = pymongo.MongoClient(os.getenv("MONGODB_URI"))
+
+            self.__dbMongo = myclient["Phimhay247_DB"]
+            return self.__dbMongo
+        except:
+            pass

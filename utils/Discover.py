@@ -3,15 +3,10 @@ from pymongo.errors import PyMongoError
 from utils.JsonResponse import ConvertJsonResponse as cvtJson
 from utils.ErrorMessage import errorMessage
 from flask import *
-
-myclient = pymongo.MongoClient(
-    "mongodb+srv://admin:hieusen123@the-movie-database.fczrzon.mongodb.net/Phimhay247_DB"
-)
-
-db = myclient["Phimhay247_DB"]
+from configs.database import Database
 
 
-def discover_movie(release_date, genres, original_language, page, sort_by, limit):
+def discover_movie(db, release_date, genres, original_language, page, sort_by, limit):
     if sort_by != None:
         movie = cvtJson(
             db["movies"]
@@ -49,7 +44,7 @@ def discover_movie(release_date, genres, original_language, page, sort_by, limit
         return movie
 
 
-def discover_tv(first_air_date, genres, original_language, page, sort_by, limit):
+def discover_tv(db, first_air_date, genres, original_language, page, sort_by, limit):
     if sort_by != None:
         tv = cvtJson(
             db["tvs"]

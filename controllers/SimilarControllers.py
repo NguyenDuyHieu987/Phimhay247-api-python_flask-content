@@ -2,71 +2,75 @@ import pymongo
 from collections import ChainMap
 from utils.JsonResponse import ConvertJsonResponse as cvtJson
 from flask import *
-from configs.database import ConnectMongoDB
-
-db = ConnectMongoDB()
-
-# myclient = pymongo.MongoClient(
-#     "mongodb+srv://admin:hieusen123@the-movie-database.fczrzon.mongodb.net/Phimhay247_DB"
-# )
-
-# db = myclient["Phimhay247_DB"]
+from configs.database import Database
 
 
-def get_similar(type, movieid):
-    if type == "movie":
-        movie_similar = db["movies"].find_one({"id": int(movieid)})
-        genres = movie_similar["genres"]
-        country = movie_similar["original_language"]
+class Similar(Database):
+    def __init__(self):
+        self.__db = self.ConnectMongoDB()
 
-        new_genres = [{"id": int(x["id"])} for x in genres]
+    def get_similar(self, type, movieid):
+        if type == "movie":
+            movie_similar = self.__db["movies"].find_one({"id": int(movieid)})
+            genres = movie_similar["genres"]
+            country = movie_similar["original_language"]
 
-        movie = cvtJson(
-            db["movies"]
-            .find(
-                {
-                    "id": {
-                        "$nin": [int(movieid)],
+            new_genres = [{"id": int(x["id"])} for x in genres]
+
+            movie = cvtJson(
+                self.__db["movies"]
+                .find(
+                    {
+                        "id": {
+                            "$nin": [int(movieid)],
+                        },
+                        "$or": [
+                            {"original_language": {"$regex": country}},
+                            {
+                                "genres": {
+                                    "$elemMatch": {"$or": [ChainMap(*new_genres)]}
+                                }
+                            },
+                        ],
                     },
-                    "$or": [
-                        {"original_language": {"$regex": country}},
-                        {"genres": {"$elemMatch": {"$or": [ChainMap(*new_genres)]}}},
-                    ],
-                },
-                {"images": 0, "credits": 0, "videos": 0, "production_companies": 0},
+                    {"images": 0, "credits": 0, "videos": 0, "production_companies": 0},
+                )
+                .skip(0)
+                .limit(20)
+                .sort([("views", pymongo.DESCENDING)])
             )
-            .skip(0)
-            .limit(20)
-            .sort([("views", pymongo.DESCENDING)])
-        )
-        return {
-            "results": movie,
-        }
-    elif type == "tv":
-        tv_similar = db["tvs"].find_one({"id": int(movieid)})
-        genres = tv_similar["genres"]
-        country = tv_similar["original_language"]
+            return {
+                "results": movie,
+            }
+        elif type == "tv":
+            tv_similar = self.__db["tvs"].find_one({"id": int(movieid)})
+            genres = tv_similar["genres"]
+            country = tv_similar["original_language"]
 
-        new_genres = [{"id": int(x["id"])} for x in genres]
+            new_genres = [{"id": int(x["id"])} for x in genres]
 
-        tv = cvtJson(
-            db["tvs"]
-            .find(
-                {
-                    "id": {
-                        "$nin": [int(movieid)],
+            tv = cvtJson(
+                self.__db["tvs"]
+                .find(
+                    {
+                        "id": {
+                            "$nin": [int(movieid)],
+                        },
+                        "$or": [
+                            {"original_language": {"$regex": country}},
+                            {
+                                "genres": {
+                                    "$elemMatch": {"$or": [ChainMap(*new_genres)]}
+                                }
+                            },
+                        ],
                     },
-                    "$or": [
-                        {"original_language": {"$regex": country}},
-                        {"genres": {"$elemMatch": {"$or": [ChainMap(*new_genres)]}}},
-                    ],
-                },
-                {"images": 0, "credits": 0, "videos": 0, "production_companies": 0},
+                    {"images": 0, "credits": 0, "videos": 0, "production_companies": 0},
+                )
+                .skip(0)
+                .limit(20)
+                .sort([("views", pymongo.DESCENDING)])
             )
-            .skip(0)
-            .limit(20)
-            .sort([("views", pymongo.DESCENDING)])
-        )
-        return {
-            "results": tv,
-        }
+            return {
+                "results": tv,
+            }

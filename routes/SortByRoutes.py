@@ -1,12 +1,13 @@
 from flask import *
 from flask_cors import cross_origin
 import configs
+from controllers.SortByControllers import Sortby
 
 
 def sortbys_routes(app):
-    from controllers.SortByControllers import sortby
+    sortby = Sortby()
 
     @app.route("/sortby/<type>", methods=["GET"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def sortbys_route(type):
-        return sortby(type)
+        return sortby.sortby(type)

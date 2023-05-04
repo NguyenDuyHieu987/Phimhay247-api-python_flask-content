@@ -95,6 +95,6 @@ def route(app, cache):
     ranking_routes(app, cache)
 
     # Authentication
-    from routes.AuthenticateRoutes import authenticate_routes
+    from routes.AuthenticationRoutes import authentication_routes
 
-    authenticate_routes(app)
+    authentication_routes(app)

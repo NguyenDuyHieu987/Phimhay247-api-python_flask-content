@@ -30,7 +30,7 @@ cache.init_app(app)
 
 
 # route app
-from Routes import route
+from routes import route
 
 route(app, cache)
 

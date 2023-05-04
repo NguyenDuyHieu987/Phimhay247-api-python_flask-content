@@ -3,43 +3,38 @@ from pymongo.errors import PyMongoError
 from utils.JsonResponse import ConvertJsonResponse as cvtJson
 from utils.ErrorMessage import errorMessage
 from flask import *
-from configs.database import ConnectMongoDB
-
-db = ConnectMongoDB()
-
-# myclient = pymongo.MongoClient(
-#     "mongodb+srv://admin:hieusen123@the-movie-database.fczrzon.mongodb.net/Phimhay247_DB"
-# )
-
-# db = myclient["Phimhay247_DB"]
+from configs.database import Database
 
 
-def tv_seasons(id, season_number):
-    # try:
-    tv = cvtJson(
-        db["tvs"].find_one(
-            {"id": int(id)},
-            {
-                "seasons": {
-                    "$elemMatch": {"season_number": int(season_number)},
+class TVSeason(Database):
+    def __init__(self):
+        self.__db = self.ConnectMongoDB()
+
+    def tv_seasons(self, id, season_number):
+        # try:
+        tv = cvtJson(
+            self.__db["tvs"].find_one(
+                {"id": int(id)},
+                {
+                    "seasons": {
+                        "$elemMatch": {"season_number": int(season_number)},
+                    },
                 },
-            },
+            )
         )
-    )
-    id_season = tv["seasons"][0]["id"]
+        id_season = tv["seasons"][0]["id"]
 
-    season = cvtJson(
-        db["seasons"].find_one(
-            {"id": int(id_season), "season_number": int(season_number)}
+        season = cvtJson(
+            self.__db["seasons"].find_one(
+                {"id": int(id_season), "season_number": int(season_number)}
+            )
         )
-    )
-    return season
+        return season
 
-
-# except:
-#     return {
-#         "results": [],
-#         "total_pages": 0,
-#     }
-# finally:
-#     return errorMessage(400)
+    # except:
+    #     return {
+    #         "results": [],
+    #         "total_pages": 0,
+    #     }
+    # finally:
+    #     return errorMessage(400)

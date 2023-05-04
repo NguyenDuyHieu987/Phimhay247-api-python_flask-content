@@ -3,23 +3,19 @@ from pymongo.errors import PyMongoError
 from utils.JsonResponse import ConvertJsonResponse as cvtJson
 from utils.ErrorMessage import errorMessage
 from flask import *
-from configs.database import ConnectMongoDB
-
-db = ConnectMongoDB()
-
-# myclient = pymongo.MongoClient(
-#     "mongodb+srv://admin:hieusen123@the-movie-database.fczrzon.mongodb.net/Phimhay247_DB"
-# )
-
-# db = myclient["Phimhay247_DB"]
+from configs.database import Database
 
 
-def sortby(type):
-    try:
-        if type == "all":
-            all_sortbys = cvtJson(db["sortbys"].find())
-            return all_sortbys
-        else:
-            return errorMessage(400)
-    except:
-        return []
+class Sortby(Database):
+    def __init__(self):
+        self.__db = self.ConnectMongoDB()
+
+    def sortby(self, type):
+        try:
+            if type == "all":
+                all_sortbys = cvtJson(self.__db["sortbys"].find())
+                return all_sortbys
+            else:
+                return errorMessage(400)
+        except:
+            return []
