@@ -11,13 +11,14 @@ import requests
 import configs
 from utils.Sendinblue_Email_Verification import Email_Verification
 from utils.OTP_Generation import generateOTP
+from configs.database import ConnectMongoDB
 
+db = ConnectMongoDB()
+# myclient = pymongo.MongoClient(
+#     "mongodb+srv://admin:hieusen123@the-movie-database.fczrzon.mongodb.net/Phimhay247_DB"
+# )
 
-myclient = pymongo.MongoClient(
-    "mongodb+srv://admin:hieusen123@the-movie-database.fczrzon.mongodb.net/Phimhay247_DB"
-)
-
-db = myclient["Phimhay247_DB"]
+# db = myclient["Phimhay247_DB"]
 
 
 # try:

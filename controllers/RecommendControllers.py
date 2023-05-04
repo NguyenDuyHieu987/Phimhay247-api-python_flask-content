@@ -6,13 +6,15 @@ import json
 from collections import defaultdict
 import pyfpgrowth
 from flask import *
+from configs.database import ConnectMongoDB
 
+db = ConnectMongoDB()
 
-myclient = pymongo.MongoClient(
-    "mongodb+srv://admin:hieusen123@the-movie-database.fczrzon.mongodb.net/Phimhay247_DB"
-)
+# myclient = pymongo.MongoClient(
+#     "mongodb+srv://admin:hieusen123@the-movie-database.fczrzon.mongodb.net/Phimhay247_DB"
+# )
 
-db = myclient["Phimhay247_DB"]
+# db = myclient["Phimhay247_DB"]
 
 
 def get_recommend(userid):
