@@ -86,8 +86,8 @@ class Recommend(Database):
                     },
                     {"images": 0, "credits": 0, "videos": 0, "production_companies": 0},
                 )
-                .skip(skip * 5)
-                .limit(5)
+                .skip(skip * 6)
+                .limit(6)
                 .sort([("views", pymongo.DESCENDING)])
             )
 
@@ -108,8 +108,8 @@ class Recommend(Database):
                     },
                     {"images": 0, "credits": 0, "videos": 0, "production_companies": 0},
                 )
-                .skip(skip * 5)
-                .limit(5)
+                .skip(skip * 6)
+                .limit(6)
                 .sort([("views", pymongo.DESCENDING)])
             )
             result = movie + tv
