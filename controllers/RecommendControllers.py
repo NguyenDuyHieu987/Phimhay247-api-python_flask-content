@@ -16,108 +16,148 @@ class Recommend(Database):
     def get_recommend(self, userid):
         skip = request.args.get("skip", default=1, type=int) - 1
 
-        list = self.__db["lists"].find_one(
-            {"id": str(userid)}, {"items": {"$slice": [0, 20]}}
-        )
-        watchlist = self.__db["watchlists"].find_one(
-            {"id": str(userid)}, {"items": {"$slice": [0, 20]}}
-        )
-
-        genres = []
-        countries = []
-        for x in list["items"]:
-            genres.append([x1["id"] for x1 in x["genres"]])
-            countries.append([x["original_language"]])
-
-        for x in watchlist["items"]:
-            genres.append([x1["id"] for x1 in x["genres"]])
-            countries.append([x["original_language"]])
-
-        if len(genres) == 0 and len(countries) == 0:
-            return {"results": []}
-        else:
-            patterns_genres = pyfpgrowth.find_frequent_patterns(genres, 5)
-
-            if len(patterns_genres) == 0:
-                patterns_genres = pyfpgrowth.find_frequent_patterns(genres, 1)
-
-            patterns_genres_single = [
-                (item[0], item1)
-                for item, item1 in patterns_genres.items()
-                if len(item) == 1
-            ]
-
-            patterns_countries = pyfpgrowth.find_frequent_patterns(countries, 3)
-
-            if len(patterns_countries) == 0:
-                patterns_countries = pyfpgrowth.find_frequent_patterns(countries, 1)
-
-            patterns_genres_desc = sorted(
-                patterns_genres_single,
-                key=lambda item: item[1],
-                reverse=True,
-            )
-
-            patterns_countries_desc = sorted(
-                patterns_countries.items(), key=lambda item: item[1], reverse=True
-            )
-
-            frequency_genres_dict = []
-
-            for pattern in patterns_genres_desc:
-                frequency_genres_dict.append(({"id": pattern[0]}))
-
-            frequency_countries_list = [x for x in patterns_countries_desc[0][0]]
-
-            movie = cvtJson(
-                self.__db["movies"]
-                .find(
-                    {
-                        "$and": [
-                            {"original_language": {"$in": frequency_countries_list}},
-                            {
-                                "genres": {
-                                    "$elemMatch": {
-                                        "$or": [ChainMap(*frequency_genres_dict)]
-                                    }
-                                }
-                            },
-                        ]
-                    },
-                    {"images": 0, "credits": 0, "videos": 0, "production_companies": 0},
+        try:
+            if userid != None:
+                list = self.__db["lists"].find_one(
+                    {"id": str(userid)}, {"items": {"$slice": [0, 20]}}
                 )
-                .skip(skip * 6)
-                .limit(6)
-                .sort([("views", pymongo.DESCENDING)])
-            )
-
-            tv = cvtJson(
-                self.__db["tvs"]
-                .find(
-                    {
-                        "$and": [
-                            {"original_language": {"$in": frequency_countries_list}},
-                            {
-                                "genres": {
-                                    "$elemMatch": {
-                                        "$or": [ChainMap(*frequency_genres_dict)]
-                                    }
-                                }
-                            },
-                        ]
-                    },
-                    {"images": 0, "credits": 0, "videos": 0, "production_companies": 0},
+                watchlist = self.__db["watchlists"].find_one(
+                    {"id": str(userid)}, {"items": {"$slice": [0, 20]}}
                 )
-                .skip(skip * 6)
-                .limit(6)
-                .sort([("views", pymongo.DESCENDING)])
-            )
-            result = movie + tv
+
+                genres = []
+                countries = []
+                for x in list["items"]:
+                    genres.append([x1["id"] for x1 in x["genres"]])
+                    countries.append([x["original_language"]])
+
+                for x in watchlist["items"]:
+                    genres.append([x1["id"] for x1 in x["genres"]])
+                    countries.append([x["original_language"]])
+
+                if len(genres) == 0 and len(countries) == 0:
+                    return {"results": []}
+                else:
+                    patterns_genres = pyfpgrowth.find_frequent_patterns(genres, 5)
+
+                    if len(patterns_genres) == 0:
+                        patterns_genres = pyfpgrowth.find_frequent_patterns(genres, 1)
+
+                    patterns_genres_single = [
+                        (item[0], item1)
+                        for item, item1 in patterns_genres.items()
+                        if len(item) == 1
+                    ]
+
+                    patterns_countries = pyfpgrowth.find_frequent_patterns(countries, 3)
+
+                    if len(patterns_countries) == 0:
+                        patterns_countries = pyfpgrowth.find_frequent_patterns(
+                            countries, 1
+                        )
+
+                    patterns_genres_desc = sorted(
+                        patterns_genres_single,
+                        key=lambda item: item[1],
+                        reverse=True,
+                    )
+
+                    patterns_countries_desc = sorted(
+                        patterns_countries.items(),
+                        key=lambda item: item[1],
+                        reverse=True,
+                    )
+
+                    frequency_genres_dict = []
+
+                    for pattern in patterns_genres_desc:
+                        frequency_genres_dict.append(({"id": pattern[0]}))
+
+                    frequency_countries_list = [
+                        x for x in patterns_countries_desc[0][0]
+                    ]
+
+                    movie = cvtJson(
+                        self.__db["movies"]
+                        .find(
+                            {
+                                "$and": [
+                                    {
+                                        "original_language": {
+                                            "$in": frequency_countries_list
+                                        }
+                                    },
+                                    {
+                                        "genres": {
+                                            "$elemMatch": {
+                                                "$or": [
+                                                    ChainMap(*frequency_genres_dict)
+                                                ]
+                                            }
+                                        }
+                                    },
+                                ]
+                            },
+                            {
+                                "images": 0,
+                                "credits": 0,
+                                "videos": 0,
+                                "production_companies": 0,
+                            },
+                        )
+                        .skip(skip * 6)
+                        .limit(6)
+                        .sort([("views", pymongo.DESCENDING)])
+                    )
+
+                    tv = cvtJson(
+                        self.__db["tvs"]
+                        .find(
+                            {
+                                "$and": [
+                                    {
+                                        "original_language": {
+                                            "$in": frequency_countries_list
+                                        }
+                                    },
+                                    {
+                                        "genres": {
+                                            "$elemMatch": {
+                                                "$or": [
+                                                    ChainMap(*frequency_genres_dict)
+                                                ]
+                                            }
+                                        }
+                                    },
+                                ]
+                            },
+                            {
+                                "images": 0,
+                                "credits": 0,
+                                "videos": 0,
+                                "production_companies": 0,
+                            },
+                        )
+                        .skip(skip * 6)
+                        .limit(6)
+                        .sort([("views", pymongo.DESCENDING)])
+                    )
+                    result = movie + tv
+                    return {
+                        "results": result,
+                        "movie": movie,
+                        "tv": tv,
+                        # "total": ,
+                        # "totalMovie": ,
+                        # "totalTv": ,
+                    }
+            else:
+                return {
+                    "success": False,
+                    "message": "Cannot find the recommended movie of this user",
+                }
+        except:
             return {
-                "results": result,
-                "movie": movie,
-                "tv": tv,
-                # "total": ,
-                # "totalMovie": ,
-                # "totalTv": ,
+                "success": False,
+                "message": "Something went wrong",
             }
