@@ -38,10 +38,17 @@ class Recommend(Database):
                 if len(genres) == 0 and len(countries) == 0:
                     return {"results": []}
                 else:
-                    patterns_genres = pyfpgrowth.find_frequent_patterns(genres, 5)
+                    minSup_Genres = 5
+                    minSup_Countries = 5
+                    patterns_genres = pyfpgrowth.find_frequent_patterns(
+                        genres, minSup_Genres
+                    )
 
-                    if len(patterns_genres) == 0:
-                        patterns_genres = pyfpgrowth.find_frequent_patterns(genres, 1)
+                    while len(patterns_genres) == 0:
+                        minSup_Genres -= 1
+                        patterns_genres = pyfpgrowth.find_frequent_patterns(
+                            genres, minSup_Genres
+                        )
 
                     patterns_genres_single = [
                         (item[0], item1)
@@ -49,11 +56,14 @@ class Recommend(Database):
                         if len(item) == 1
                     ]
 
-                    patterns_countries = pyfpgrowth.find_frequent_patterns(countries, 3)
+                    patterns_countries = pyfpgrowth.find_frequent_patterns(
+                        countries, minSup_Countries
+                    )
 
-                    if len(patterns_countries) == 0:
+                    while len(patterns_countries) == 0:
+                        minSup_Countries -= 1
                         patterns_countries = pyfpgrowth.find_frequent_patterns(
-                            countries, 1
+                            countries, minSup_Countries
                         )
 
                     patterns_genres_desc = sorted(
