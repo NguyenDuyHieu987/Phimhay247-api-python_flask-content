@@ -52,8 +52,8 @@ class Movie(Database):
                 self.__db["phimles"].insert_one(
                     {
                         "id": int(formMovie["id"]),
-                        "title": formMovie["title"],
-                        "original_title": formMovie["original_title"],
+                        "name": formMovie["name"],
+                        "original_name": formMovie["original_name"],
                         "original_language": formMovie["original_language"],
                         "poster_path": formMovie["poster_path"],
                         "backdrop_path": formMovie["backdrop_path"],
@@ -87,8 +87,8 @@ class Movie(Database):
                 {"id": int(id)},
                 {
                     "$set": {
-                        "title": formMovie["title"],
-                        "original_title": formMovie["original_title"],
+                        "name": formMovie["name"],
+                        "original_name": formMovie["original_name"],
                         "original_language": formMovie["original_language"],
                         "release_date": formMovie["release_date"],
                         "genres": json.loads(formMovie["genres"]),
