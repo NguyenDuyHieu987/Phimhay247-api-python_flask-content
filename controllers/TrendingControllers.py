@@ -22,6 +22,7 @@ class Trend(Database):
                     "page": page,
                     "results": trending,
                     "total": self.__db["trendings"].count_documents({}),
+                    "page_size": 20,
                 }
             else:
                 return errorMessage(400)

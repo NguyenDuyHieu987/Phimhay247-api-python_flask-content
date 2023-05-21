@@ -34,6 +34,7 @@ class TVSlug(Database):
                     "page": page + 1,
                     "results": phimbo,
                     "total": self.__db["tvs"].count_documents({}),
+                    "page_size": 20,
                 }
             elif slug == "airingtoday":
                 page = request.args.get("page", default=1, type=int) - 1
@@ -44,6 +45,7 @@ class TVSlug(Database):
                     "page": page + 1,
                     "results": nowplaying,
                     "total": self.__db["tvairingtodays"].count_documents({}),
+                    "page_size": 20,
                 }
             elif slug == "ontheair":
                 page = request.args.get("page", default=1, type=int) - 1
@@ -54,6 +56,7 @@ class TVSlug(Database):
                     "page": page + 1,
                     "results": upcoming,
                     "total": self.__db["tvontheairs"].count_documents({}),
+                    "page_size": 20,
                 }
             elif slug == "popular":
                 page = request.args.get("page", default=1, type=int) - 1
@@ -64,6 +67,7 @@ class TVSlug(Database):
                     "page": page + 1,
                     "results": popular,
                     "total": self.__db["tvpopulars"].count_documents({}),
+                    "page_size": 20,
                 }
             elif slug == "toprated":
                 page = request.args.get("page", default=1, type=int) - 1
@@ -74,6 +78,7 @@ class TVSlug(Database):
                     "page": page + 1,
                     "results": toprated,
                     "total": self.__db["tvtoprateds"].count_documents({}),
+                    "page_size": 20,
                 }
             else:
                 return errorMessage(400)

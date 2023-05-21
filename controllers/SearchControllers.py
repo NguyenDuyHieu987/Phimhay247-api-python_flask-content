@@ -28,8 +28,8 @@ class Search(Database):
                             ]
                         }
                     )
-                    .skip(page * 5)
-                    .limit(5)
+                    .skip(page * 10)
+                    .limit(10)
                     .sort([("views", pymongo.DESCENDING)])
                 )
 
@@ -52,13 +52,40 @@ class Search(Database):
                 result = movie + tv
                 # random.shuffle(result)
 
+                total_movie = cvtJson(
+                    self.__db["movies"].find(
+                        {
+                            "$or": [
+                                {"name": {"$regex": query, "$options": "i"}},
+                                {"title": {"$regex": query, "$options": "i"}},
+                                {"original_title": {"$regex": query, "$options": "i"}},
+                                {"original_name": {"$regex": query, "$options": "i"}},
+                            ]
+                        }
+                    )
+                )
+
+                total_tv = cvtJson(
+                    self.__db["tvs"].find(
+                        {
+                            "$or": [
+                                {"name": {"$regex": query, "$options": "i"}},
+                                {"title": {"$regex": query, "$options": "i"}},
+                                {"original_title": {"$regex": query, "$options": "i"}},
+                                {"original_name": {"$regex": query, "$options": "i"}},
+                            ]
+                        }
+                    )
+                )
+
                 return {
                     "results": result,
                     "movie": movie,
                     "tv": tv,
-                    "total": len(result),
-                    "totalMovie": len(movie),
-                    "totalTv": len(tv),
+                    "total": len(total_movie) + len(total_tv),
+                    "total_movie": len(total_movie),
+                    "total_tv": len(total_tv),
+                    "page_size": 20,
                 }
             elif type == "tv":
                 query = request.args.get("query", default="", type=str)
@@ -75,12 +102,29 @@ class Search(Database):
                             ]
                         }
                     )
-                    .skip(page * 10)
-                    .limit(10)
+                    .skip(page * 20)
+                    .limit(20)
                     .sort([("views", pymongo.DESCENDING)])
                 )
 
-                return {"results": tv, "total": len(tv)}
+                total = cvtJson(
+                    self.__db["tvs"].find(
+                        {
+                            "$or": [
+                                {"name": {"$regex": query, "$options": "i"}},
+                                {"title": {"$regex": query, "$options": "i"}},
+                                {"original_title": {"$regex": query, "$options": "i"}},
+                                {"original_name": {"$regex": query, "$options": "i"}},
+                            ]
+                        }
+                    )
+                )
+
+                return {
+                    "results": tv,
+                    "total": len(total),
+                    "page_size": 20,
+                }
             elif type == "movie":
                 query = request.args.get("query", default="", type=str)
                 movie = cvtJson(
@@ -95,12 +139,28 @@ class Search(Database):
                             ]
                         }
                     )
-                    .skip(page * 10)
-                    .limit(10)
+                    .skip(page * 20)
+                    .limit(20)
                     .sort([("views", pymongo.DESCENDING)])
                 )
+                total = cvtJson(
+                    self.__db["movies"].find(
+                        {
+                            "$or": [
+                                {"name": {"$regex": query, "$options": "i"}},
+                                {"title": {"$regex": query, "$options": "i"}},
+                                {"original_title": {"$regex": query, "$options": "i"}},
+                                {"original_name": {"$regex": query, "$options": "i"}},
+                            ]
+                        }
+                    )
+                )
 
-                return {"results": movie, "total": len(movie)}
+                return {
+                    "results": movie,
+                    "total": len(total),
+                    "page_size": 20,
+                }
             else:
                 return errorMessage(400)
         except:
