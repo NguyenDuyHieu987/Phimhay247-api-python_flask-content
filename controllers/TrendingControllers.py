@@ -14,12 +14,14 @@ class Trend(Database):
     def trending(self, type):
         try:
             if type == "all":
-                page = request.args.get("page", default=1, type=int)
-                trending = cvtJson(self.__db["trendings"].find_one({"page": page}))
+                page = request.args.get("page", default=1, type=int) - 1
+                trending = cvtJson(
+                    self.__db["trendings"].find({}).skip(page * 20).limit(20)
+                )
                 return {
                     "page": page,
-                    "results": trending["results"],
-                    "total_pages": trending["total_pages"],
+                    "results": trending,
+                    "total": self.__db["trendings"].count_documents({}),
                 }
             else:
                 return errorMessage(400)

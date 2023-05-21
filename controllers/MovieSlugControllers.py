@@ -36,43 +36,51 @@ class MovieSlug(Database):
                     "total": self.__db["movies"].count_documents({}),
                 }
             elif slug == "nowplaying":
-                page = request.args.get("page", default=1, type=int)
-                nowplaying = cvtJson(self.__db["nowplayings"].find_one({"page": page}))
+                page = request.args.get("page", default=1, type=int) - 1
+                nowplaying = cvtJson(
+                    self.__db["nowplayings"].find({}).skip(page * 20).limit(20)
+                )
                 return {
-                    "page": page,
-                    "results": nowplaying["results"],
-                    "total_pages": nowplaying["total_pages"],
+                    "page": page + 1,
+                    "results": nowplaying,
+                    "total": self.__db["nowplayings"].count_documents({}),
                 }
             elif slug == "upcoming":
-                page = request.args.get("page", default=1, type=int)
-                upcoming = cvtJson(self.__db["upcomings"].find_one({"page": page}))
+                page = request.args.get("page", default=1, type=int) - 1
+                upcoming = cvtJson(
+                    self.__db["upcomings"].find({}).skip(page * 20).limit(20)
+                )
                 return {
-                    "page": page,
-                    "results": upcoming["results"],
-                    "total_pages": upcoming["total_pages"],
+                    "page": page + 1,
+                    "results": upcoming,
+                    "total": self.__db["upcomings"].count_documents({}),
                 }
             elif slug == "popular":
-                page = request.args.get("page", default=1, type=int)
-                popular = cvtJson(self.__db["populars"].find_one({"page": page}))
+                page = request.args.get("page", default=1, type=int) - 1
+                popular = cvtJson(
+                    self.__db["populars"].find({}).skip(page * 20).limit(20)
+                )
                 return {
-                    "page": page,
-                    "results": popular["results"],
-                    "total_pages": popular["total_pages"],
+                    "page": page + 1,
+                    "results": popular,
+                    "total": self.__db["populars"].count_documents({}),
                 }
             elif slug == "toprated":
-                page = request.args.get("page", default=1, type=int)
-                toprated = cvtJson(self.__db["toprateds"].find_one({"page": page}))
+                page = request.args.get("page", default=1, type=int) - 1
+                toprated = cvtJson(
+                    self.__db["toprateds"].find({}).skip(page * 20).limit(20)
+                )
                 return {
-                    "page": page,
-                    "results": toprated["results"],
-                    "total_pages": toprated["total_pages"],
+                    "page": page + 1,
+                    "results": toprated,
+                    "total": self.__db["toprateds"].count_documents({}),
                 }
             else:
                 return errorMessage(400)
         except:
             return {
                 "results": [],
-                "total_pages": 0,
+                "total": 0,
             }
         # finally:
         #     return errorMessage(400)

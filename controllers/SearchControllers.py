@@ -56,9 +56,9 @@ class Search(Database):
                     "results": result,
                     "movie": movie,
                     "tv": tv,
-                    # "total": ,
-                    # "totalMovie": ,
-                    # "totalTv": ,
+                    "total": len(result),
+                    "totalMovie": len(movie),
+                    "totalTv": len(tv),
                 }
             elif type == "tv":
                 query = request.args.get("query", default="", type=str)
@@ -80,7 +80,7 @@ class Search(Database):
                     .sort([("views", pymongo.DESCENDING)])
                 )
 
-                return {"results": tv}
+                return {"results": tv, "total": len(tv)}
             elif type == "movie":
                 query = request.args.get("query", default="", type=str)
                 movie = cvtJson(
@@ -100,7 +100,7 @@ class Search(Database):
                     .sort([("views", pymongo.DESCENDING)])
                 )
 
-                return {"results": movie}
+                return {"results": movie, "total": len(movie)}
             else:
                 return errorMessage(400)
         except:
