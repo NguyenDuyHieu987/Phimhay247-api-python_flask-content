@@ -52,39 +52,13 @@ class Search(Database):
                 result = movie + tv
                 # random.shuffle(result)
 
-                total_movie = cvtJson(
-                    self.__db["movies"].find(
-                        {
-                            "$or": [
-                                {"name": {"$regex": query, "$options": "i"}},
-                                {"title": {"$regex": query, "$options": "i"}},
-                                {"original_title": {"$regex": query, "$options": "i"}},
-                                {"original_name": {"$regex": query, "$options": "i"}},
-                            ]
-                        }
-                    )
-                )
-
-                total_tv = cvtJson(
-                    self.__db["tvs"].find(
-                        {
-                            "$or": [
-                                {"name": {"$regex": query, "$options": "i"}},
-                                {"title": {"$regex": query, "$options": "i"}},
-                                {"original_title": {"$regex": query, "$options": "i"}},
-                                {"original_name": {"$regex": query, "$options": "i"}},
-                            ]
-                        }
-                    )
-                )
-
                 return {
                     "results": result,
                     "movie": movie,
                     "tv": tv,
-                    "total": len(total_movie) + len(total_tv),
-                    "total_movie": len(total_movie),
-                    "total_tv": len(total_tv),
+                    "total": len(result),
+                    "total_movie": len(movie),
+                    "total_tv": len(tv),
                     "page_size": 20,
                 }
             elif type == "tv":
@@ -107,22 +81,9 @@ class Search(Database):
                     .sort([("views", pymongo.DESCENDING)])
                 )
 
-                total = cvtJson(
-                    self.__db["tvs"].find(
-                        {
-                            "$or": [
-                                {"name": {"$regex": query, "$options": "i"}},
-                                {"title": {"$regex": query, "$options": "i"}},
-                                {"original_title": {"$regex": query, "$options": "i"}},
-                                {"original_name": {"$regex": query, "$options": "i"}},
-                            ]
-                        }
-                    )
-                )
-
                 return {
                     "results": tv,
-                    "total": len(total),
+                    "total": len(tv),
                     "page_size": 20,
                 }
             elif type == "movie":
@@ -143,22 +104,10 @@ class Search(Database):
                     .limit(20)
                     .sort([("views", pymongo.DESCENDING)])
                 )
-                total = cvtJson(
-                    self.__db["movies"].find(
-                        {
-                            "$or": [
-                                {"name": {"$regex": query, "$options": "i"}},
-                                {"title": {"$regex": query, "$options": "i"}},
-                                {"original_title": {"$regex": query, "$options": "i"}},
-                                {"original_name": {"$regex": query, "$options": "i"}},
-                            ]
-                        }
-                    )
-                )
 
                 return {
                     "results": movie,
-                    "total": len(total),
+                    "total": len(movie),
                     "page_size": 20,
                 }
             else:

@@ -7,23 +7,6 @@ from pymongo import ReturnDocument
 from configs.database import Database
 
 
-# db["seasons"].find_one_and_delete({"id": 182643})
-
-# db["tvs"].update_many(
-#     {"genres": {"$elemMatch": {"id": 10762}}},
-#     {"$set": {"genres.$[element].name": "Trẻ em"}},
-#     upsert=False,
-#     array_filters=[
-#         {"element.id": 10762},
-#     ],
-# )
-
-# db["accounts"].update_many({}, {"$set": {"role": "normal"}})
-
-# db["hieus"].update_many({}, {"$rename": {"popularity": "views"}})
-# db["hieus"].update_many({}, {"$set": {"dominant_poster_color": []}})
-
-
 class Rate(Database):
     def __init__(self):
         self.__db = self.ConnectMongoDB()
