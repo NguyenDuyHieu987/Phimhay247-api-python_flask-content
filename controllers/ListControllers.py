@@ -53,8 +53,6 @@ class List(Database):
                         "$elemMatch": {
                             "$or": [
                                 {"name": {"$regex": query, "$options": "i"}},
-                                {"title": {"$regex": query, "$options": "i"}},
-                                {"original_title": {"$regex": query, "$options": "i"}},
                                 {"original_name": {"$regex": query, "$options": "i"}},
                             ],
                         },
@@ -133,10 +131,8 @@ class List(Database):
                                         "$each": [
                                             {
                                                 "id": int(media_id),
-                                                "title": movie["title"],
-                                                "original_title": movie[
-                                                    "original_title"
-                                                ],
+                                                "name": movie["name"],
+                                                "original_name": movie["original_name"],
                                                 "original_language": movie[
                                                     "original_language"
                                                 ],

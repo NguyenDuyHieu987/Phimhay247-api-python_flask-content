@@ -22,8 +22,6 @@ class Search(Database):
                         {
                             "$or": [
                                 {"name": {"$regex": query, "$options": "i"}},
-                                {"title": {"$regex": query, "$options": "i"}},
-                                {"original_title": {"$regex": query, "$options": "i"}},
                                 {"original_name": {"$regex": query, "$options": "i"}},
                             ]
                         }
