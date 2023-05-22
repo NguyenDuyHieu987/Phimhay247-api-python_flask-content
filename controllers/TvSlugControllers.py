@@ -49,9 +49,10 @@ class TVSlug(Database):
                 }
             elif slug == "ontheair":
                 page = request.args.get("page", default=1, type=int) - 1
-                upcoming = (
-                    cvtJson(self.__db["tvontheairs"].find({})).skip(page * 20).limit(20)
+                upcoming = cvtJson(
+                    self.__db["tvontheairs"].find({}).skip(page * 20).limit(20)
                 )
+
                 return {
                     "page": page + 1,
                     "results": upcoming,
@@ -60,9 +61,10 @@ class TVSlug(Database):
                 }
             elif slug == "popular":
                 page = request.args.get("page", default=1, type=int) - 1
-                popular = (
-                    cvtJson(self.__db["tvpopulars"].find({})).skip(page * 20).limit(20)
+                popular = cvtJson(
+                    self.__db["tvpopulars"].find({}).skip(page * 20).limit(20)
                 )
+
                 return {
                     "page": page + 1,
                     "results": popular,
@@ -71,8 +73,8 @@ class TVSlug(Database):
                 }
             elif slug == "toprated":
                 page = request.args.get("page", default=1, type=int) - 1
-                toprated = (
-                    cvtJson(self.__db["tvtoprateds"].find({})).skip(page * 20).limit(20)
+                toprated = cvtJson(
+                    self.__db["tvtoprateds"].find({}).skip(page * 20).limit(20)
                 )
                 return {
                     "page": page + 1,

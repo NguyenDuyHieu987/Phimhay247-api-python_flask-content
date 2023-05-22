@@ -5,6 +5,8 @@ from utils.ErrorMessage import errorMessage
 from flask import *
 from pymongo import ReturnDocument
 from configs.database import Database
+import os
+import jwt
 
 
 class TV(Database):
@@ -27,13 +29,55 @@ class TV(Database):
                     exceptValue.pop("videos")
 
             tv = self.__db["tvs"].find_one({"id": int(id)}, exceptValue)
-            if tv != None:
-                return cvtJson(tv)
-            else:
-                return {"not_found": True}
 
+            headers = request.headers
+
+            if "Authorization" not in headers:
+                if tv != None:
+                    return cvtJson(tv)
+                else:
+                    return {"not_found": True, "result": "Can not find the tv"}
+            else:
+                user_token = request.headers["Authorization"].replace("Bearer ", "")
+
+                jwtUser = jwt.decode(
+                    user_token,
+                    str(os.getenv("JWT_TOKEN_SECRET")),
+                    algorithms=["HS256"],
+                )
+                item_lists = self.__db["lists"].find_one(
+                    {"id": jwtUser["id"]}, {"items": {"$elemMatch": {"id": int(id)}}}
+                )
+
+                if "items" in item_lists:
+                    tv = tv | {"in_list": True}
+                else:
+                    tv = tv | {"in_list": False}
+
+                item_watchlists = self.__db["watchlists"].find_one(
+                    {"id": jwtUser["id"]}, {"items": {"$elemMatch": {"id": int(id)}}}
+                )
+
+                if "items" in item_watchlists:
+                    tv = tv | {
+                        "in_history": True,
+                        "history_progress": {
+                            "duration": item_watchlists["items"][0]["duration"],
+                            "percent": item_watchlists["items"][0]["percent"],
+                            "seconds": item_watchlists["items"][0]["seconds"],
+                        },
+                    }
+                else:
+                    tv = tv | {"in_history": False}
+
+                return cvtJson(tv)
+
+        except jwt.ExpiredSignatureError as e:
+            return {"is_token_expired": True, "result": "Token is expired"}
+        except jwt.exceptions.DecodeError as e:
+            return {"is_invalid_token": True, "result": "Token is invalid"}
         except:
-            return {}
+            return {"not_found": True, "result": "Can not find the tv"}
 
     def add_tv(self):
         try:
