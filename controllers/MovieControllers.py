@@ -38,7 +38,7 @@ class Movie(Database):
                 if movie != None:
                     return cvtJson(movie)
                 else:
-                    return {"not_found": True, "result": "Can not find the movie"}
+                    return {"not_found": True, "result1": "Can not find the movie"}
             else:
                 user_token = request.headers["Authorization"].replace("Bearer ", "")
 
