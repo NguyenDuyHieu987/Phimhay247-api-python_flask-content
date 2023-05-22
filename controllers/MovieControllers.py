@@ -78,8 +78,8 @@ class Movie(Database):
             return {"is_token_expired": True, "result": "Token is expired"}
         except jwt.exceptions.DecodeError as e:
             return {"is_invalid_token": True, "result": "Token is invalid"}
-        except PyMongoError as e:
-            return {"not_found": True, "result": e._message}
+        except:
+            return {"not_found": True, "result": "Can not find the movie"}
 
     def add_movie(self):
         try:
