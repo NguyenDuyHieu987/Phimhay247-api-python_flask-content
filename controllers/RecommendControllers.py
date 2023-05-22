@@ -7,22 +7,32 @@ from collections import defaultdict
 import pyfpgrowth
 from flask import *
 from configs.database import Database
+import os
+import jwt
 
 
 class Recommend(Database):
     def __init__(self):
         self.__db = self.ConnectMongoDB()
 
-    def get_recommend(self, userid):
-        skip = request.args.get("skip", default=1, type=int) - 1
-
+    def get_recommend(self):
         try:
-            if userid != None:
+            user_token = request.headers["Authorization"].replace("Bearer ", "")
+
+            jwtUser = jwt.decode(
+                user_token,
+                str(os.getenv("JWT_TOKEN_SECRET")),
+                algorithms=["HS256"],
+            )
+
+            skip = request.args.get("skip", default=1, type=int) - 1
+
+            if jwtUser["id"] != None:
                 list = self.__db["lists"].find_one(
-                    {"id": str(userid)}, {"items": {"$slice": [0, 20]}}
+                    {"id": str(jwtUser["id"])}, {"items": {"$slice": [0, 20]}}
                 )
                 watchlist = self.__db["watchlists"].find_one(
-                    {"id": str(userid)}, {"items": {"$slice": [0, 20]}}
+                    {"id": str(jwtUser["id"])}, {"items": {"$slice": [0, 20]}}
                 )
 
                 genres = []
@@ -166,6 +176,11 @@ class Recommend(Database):
                     "success": False,
                     "message": "Cannot find the recommended movie of this user",
                 }
+
+        except jwt.ExpiredSignatureError as e:
+            return {"is_token_expired": True, "result": "Token is expired"}
+        except jwt.exceptions.DecodeError as e:
+            return {"is_invalid_token": True, "result": "Token is invalid"}
         except:
             return {
                 "success": False,

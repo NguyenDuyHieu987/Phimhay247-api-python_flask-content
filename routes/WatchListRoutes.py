@@ -9,44 +9,44 @@ def watchlist_routes(app, cache):
     ## Get history
 
     @cache.cached(timeout=3600)
-    @app.route("/history/<idwatchlist>/gethistory", methods=["GET"])
+    @app.route("/history/gethistory", methods=["GET"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    def getwatchlist_route(idwatchlist):
-        return watchlist.getwatchlist(idwatchlist)
+    def getwatchlist_route():
+        return watchlist.getwatchlist()
 
     ## Search history
 
     @cache.cached(timeout=3600)
-    @app.route("/history/<idwatchlist>/searchhistory", methods=["GET"])
+    @app.route("/history/searchhistory", methods=["GET"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    def search_watchlist_route(idwatchlist):
-        return watchlist.search_watchlist(idwatchlist)
+    def search_watchlist_route():
+        return watchlist.search_watchlist()
 
     ## Get item history
 
     @cache.cached(timeout=3600)
-    @app.route("/history/<idwatchlist>/getitem/<idmovie>", methods=["GET"])
+    @app.route("/history/getitem/<idmovie>", methods=["GET"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    def getitem_watchlist_route(idwatchlist, idmovie):
-        return watchlist.getitem_watchlist(idwatchlist, idmovie)
+    def getitem_watchlist_route(idmovie):
+        return watchlist.getitem_watchlist(idmovie)
 
     ## Add item to history
 
-    @app.route("/history/<idwatchlist>/add_item", methods=["POST"])
+    @app.route("/history/add_item", methods=["POST"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    def additem_watchlist_route(idwatchlist):
-        return watchlist.additem_watchlist(idwatchlist)
+    def additem_watchlist_route():
+        return watchlist.additem_watchlist()
 
     ## Remove item from history
 
-    @app.route("/history/<idwatchlist>/remove_item", methods=["POST"])
+    @app.route("/history/remove_item", methods=["POST"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    def remove_item_watchlist_route(idwatchlist):
-        return watchlist.remove_item_watchlist(idwatchlist)
+    def remove_item_watchlist_route():
+        return watchlist.remove_item_watchlist()
 
     ## Remove all item from history
 
-    @app.route("/history/<idwatchlist>/removeall_item", methods=["POST"])
+    @app.route("/history/removeall_item", methods=["POST"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    def removeall_item_watchlist_route(idwatchlist):
-        return watchlist.removeall_item_watchlist(idwatchlist)
+    def removeall_item_watchlist_route():
+        return watchlist.removeall_item_watchlist()

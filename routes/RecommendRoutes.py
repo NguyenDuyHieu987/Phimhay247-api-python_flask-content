@@ -8,7 +8,7 @@ def recommend_routes(app, cache):
     recomment = Recommend()
 
     @cache.cached(timeout=3600)
-    @app.route("/recommend/<userid>/getrecommend", methods=["GET"])
+    @app.route("/recommend/getrecommend", methods=["GET"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    def recommend_route(userid):
-        return recomment.get_recommend(userid)
+    def recommend_route():
+        return recomment.get_recommend()

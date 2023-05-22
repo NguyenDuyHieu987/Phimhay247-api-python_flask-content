@@ -6,97 +6,156 @@ from flask import *
 from pymongo import ReturnDocument
 from datetime import datetime
 from configs.database import Database
+import os
+import jwt
 
 
 class List(Database):
     def __init__(self):
         self.__db = self.ConnectMongoDB()
 
-    def getlist(self, idlist):
-        skip = request.args.get("skip", default=0, type=int)
-        if skip == 0:
-            list = self.__db["lists"].find_one(
-                {"id": idlist}, {"items": {"$slice": [skip * 20, 20]}}
-            )
-
-            total = self.__db["lists"].aggregate(
-                [
-                    {"$match": {"id": str(idlist)}},
-                    {
-                        "$project": {
-                            "total": {"$size": "$items"},
-                            #   "result": "$items"
-                        }
-                    },
-                ]
-            )
-            # total = self.__db["lists"].find_one({"id": idlist})
-
-            return {"result": cvtJson(list), "total": cvtJson(total)[0]["total"]}
-
-        elif skip > 0:
-            list = self.__db["lists"].find_one(
-                {"id": idlist}, {"items": {"$slice": [skip * 20, 20]}}
-            )
-
-            return {"result": cvtJson(list["items"]), "total": len(list["items"])}
-
-    def search_list(self, idlist):
-        # skip = request.args.get("skip", default=0, type=int)
-        query = request.args.get("query", default="", type=str)
-
-        if len(query) != 0:
-            list = self.__db["lists"].find_one(
-                {"id": idlist},
-                {
-                    "items": {
-                        "$elemMatch": {
-                            "$or": [
-                                {"name": {"$regex": query, "$options": "i"}},
-                                {"original_name": {"$regex": query, "$options": "i"}},
-                            ],
-                        },
-                    }
-                },
-            )
-            if "items" in list:
-                return {"results": cvtJson(list["items"]), "total": len(list["items"])}
-            else:
-                return {"results": [], "total": 0}
-
-        else:
-            list = self.__db["lists"].find_one({"id": idlist})
-            total = self.__db["lists"].aggregate(
-                [
-                    {"$match": {"id": str(idlist)}},
-                    {
-                        "$project": {
-                            "total": {"$size": "$items"},
-                            #   "result": "$items"
-                        }
-                    },
-                ]
-            )
-            return {
-                "results": cvtJson(list["items"]),
-                "total": cvtJson(total)[0]["total"],
-            }
-
-    def getitem_list(self, idlist, idmovie):
+    def getlist(self):
         try:
+            user_token = request.headers["Authorization"].replace("Bearer ", "")
+
+            jwtUser = jwt.decode(
+                user_token,
+                str(os.getenv("JWT_TOKEN_SECRET")),
+                algorithms=["HS256"],
+            )
+
+            skip = request.args.get("skip", default=0, type=int)
+            if skip == 0:
+                list = self.__db["lists"].find_one(
+                    {"id": jwtUser["id"]}, {"items": {"$slice": [skip * 20, 20]}}
+                )
+
+                total = self.__db["lists"].aggregate(
+                    [
+                        {"$match": {"id": str(jwtUser["id"])}},
+                        {
+                            "$project": {
+                                "total": {"$size": "$items"},
+                                #   "result": "$items"
+                            }
+                        },
+                    ]
+                )
+                # total = self.__db["lists"].find_one({"id": jwtUser["id"]})
+
+                return {"result": cvtJson(list), "total": cvtJson(total)[0]["total"]}
+
+            elif skip > 0:
+                list = self.__db["lists"].find_one(
+                    {"id": jwtUser["id"]}, {"items": {"$slice": [skip * 20, 20]}}
+                )
+
+                return {"result": cvtJson(list["items"]), "total": len(list["items"])}
+
+        except jwt.ExpiredSignatureError as e:
+            return {"is_token_expired": True, "result": "Token is expired"}
+        except jwt.exceptions.DecodeError as e:
+            return {"is_invalid_token": True, "result": "Token is invalid"}
+        except:
+            return {"success": False, "result": "Failed to get list"}
+
+    def search_list(self):
+        try:
+            user_token = request.headers["Authorization"].replace("Bearer ", "")
+
+            jwtUser = jwt.decode(
+                user_token,
+                str(os.getenv("JWT_TOKEN_SECRET")),
+                algorithms=["HS256"],
+            )
+            # skip = request.args.get("skip", default=0, type=int)
+            query = request.args.get("query", default="", type=str)
+
+            if len(query) != 0:
+                list = self.__db["lists"].find_one(
+                    {"id": jwtUser["id"]},
+                    {
+                        "items": {
+                            "$elemMatch": {
+                                "$or": [
+                                    {"name": {"$regex": query, "$options": "i"}},
+                                    {
+                                        "original_name": {
+                                            "$regex": query,
+                                            "$options": "i",
+                                        }
+                                    },
+                                ],
+                            },
+                        }
+                    },
+                )
+                if "items" in list:
+                    return {
+                        "results": cvtJson(list["items"]),
+                        "total": len(list["items"]),
+                    }
+                else:
+                    return {"results": [], "total": 0}
+
+            else:
+                list = self.__db["lists"].find_one({"id": jwtUser["id"]})
+                total = self.__db["lists"].aggregate(
+                    [
+                        {"$match": {"id": str(jwtUser["id"])}},
+                        {
+                            "$project": {
+                                "total": {"$size": "$items"},
+                                #   "result": "$items"
+                            }
+                        },
+                    ]
+                )
+                return {
+                    "results": cvtJson(list["items"]),
+                    "total": cvtJson(total)[0]["total"],
+                }
+        except jwt.ExpiredSignatureError as e:
+            return {"is_token_expired": True, "result": "Token is expired"}
+        except jwt.exceptions.DecodeError as e:
+            return {"is_invalid_token": True, "result": "Token is invalid"}
+        except:
+            return {"success": False, "result": "Failed to search list"}
+
+    def getitem_list(self, idmovie):
+        try:
+            user_token = request.headers["Authorization"].replace("Bearer ", "")
+
+            jwtUser = jwt.decode(
+                user_token,
+                str(os.getenv("JWT_TOKEN_SECRET")),
+                algorithms=["HS256"],
+            )
             item_lists = self.__db["lists"].find_one(
-                {"id": idlist}, {"items": {"$elemMatch": {"id": int(idmovie)}}}
+                {"id": jwtUser["id"]}, {"items": {"$elemMatch": {"id": int(idmovie)}}}
             )
             if "items" in item_lists:
                 return {"success": True, "result": cvtJson(item_lists["items"][0])}
             else:
-                return {"success": False, "result": "Fail to get item in list"}
+                return {"success": False, "result": "Failed to get item in list"}
 
+        except jwt.ExpiredSignatureError as e:
+            return {"is_token_expired": True, "result": "Token is expired"}
+        except jwt.exceptions.DecodeError as e:
+            return {"is_invalid_token": True, "result": "Token is invalid"}
         except:
-            return {"success": False, "result": "Fail to get item in list"}
+            return {"success": False, "result": "Failed to get item in list"}
 
-    def additem_list(self, idlist):
+    def additem_list(self):
         try:
+            user_token = request.headers["Authorization"].replace("Bearer ", "")
+
+            jwtUser = jwt.decode(
+                user_token,
+                str(os.getenv("JWT_TOKEN_SECRET")),
+                algorithms=["HS256"],
+            )
+
             media_type = request.form["media_type"]
             media_id = request.form["media_id"]
 
@@ -113,7 +172,8 @@ class List(Database):
 
                 if movie != None:
                     item_lists = self.__db["lists"].find_one(
-                        {"id": idlist}, {"items": {"$elemMatch": {"id": int(media_id)}}}
+                        {"id": jwtUser["id"]},
+                        {"items": {"$elemMatch": {"id": int(media_id)}}},
                     )
                     if "items" in item_lists:
                         return {
@@ -123,7 +183,7 @@ class List(Database):
                         }
                     else:
                         self.__db["lists"].find_one_and_update(
-                            {"id": idlist},
+                            {"id": jwtUser["id"]},
                             {
                                 # "$addToSet": {
                                 "$push": {
@@ -181,7 +241,8 @@ class List(Database):
                 )
                 if tv != None:
                     item_lists = self.__db["lists"].find_one(
-                        {"id": idlist}, {"items": {"$elemMatch": {"id": int(media_id)}}}
+                        {"id": jwtUser["id"]},
+                        {"items": {"$elemMatch": {"id": int(media_id)}}},
                     )
                     if "items" in item_lists:
                         return {
@@ -191,7 +252,7 @@ class List(Database):
                         }
                     else:
                         self.__db["lists"].find_one_and_update(
-                            {"id": idlist},
+                            {"id": jwtUser["id"]},
                             {
                                 # "$addToSet": {
                                 "$push": {
@@ -235,42 +296,71 @@ class List(Database):
                         "success": False,
                         "results": "Failed to add item to list",
                     }
+        except jwt.ExpiredSignatureError as e:
+            return {"is_token_expired": True, "result": "Token is expired"}
+        except jwt.exceptions.DecodeError as e:
+            return {"is_invalid_token": True, "result": "Token is invalid"}
         except:
             return {
                 "success": False,
                 "results": "Failed to add item to list",
             }
 
-    def remove_item_list(self, idlist):
+    def remove_item_list(self):
         try:
+            user_token = request.headers["Authorization"].replace("Bearer ", "")
+
+            jwtUser = jwt.decode(
+                user_token,
+                str(os.getenv("JWT_TOKEN_SECRET")),
+                algorithms=["HS256"],
+            )
+
             media_id = request.form["media_id"]
 
             self.__db["lists"].find_one_and_update(
-                {"id": idlist},
+                {"id": jwtUser["id"]},
                 {"$pull": {"items": {"id": int(media_id)}}},
                 {"new": True},
                 upsert=True,
                 return_document=ReturnDocument.AFTER,
             )
 
-            list = cvtJson(self.__db["lists"].find_one({"id": idlist}))
+            list = cvtJson(self.__db["lists"].find_one({"id": jwtUser["id"]}))
 
             return {"success": True, "results": list["items"]}
+        except jwt.ExpiredSignatureError as e:
+            return {"is_token_expired": True, "result": "Token is expired"}
+        except jwt.exceptions.DecodeError as e:
+            return {"is_invalid_token": True, "result": "Token is invalid"}
         except:
             return {"success": False, "result": "Failed to remove item from list"}
 
-    def removeall_item_list(self, idlist):
+    def removeall_item_list(self):
         try:
+            user_token = request.headers["Authorization"].replace("Bearer ", "")
+
+            jwtUser = jwt.decode(
+                user_token,
+                str(os.getenv("JWT_TOKEN_SECRET")),
+                algorithms=["HS256"],
+            )
+
             self.__db["lists"].find_one_and_update(
-                {"id": idlist},
+                {"id": jwtUser["id"]},
                 {"$set": {"items": []}},
                 {"new": True},
                 upsert=True,
                 return_document=ReturnDocument.AFTER,
             )
 
-            list = cvtJson(self.__db["lists"].find_one({"id": idlist}))
+            list = cvtJson(self.__db["lists"].find_one({"id": jwtUser["id"]}))
 
             return {"success": True, "results": list["items"]}
+
+        except jwt.ExpiredSignatureError as e:
+            return {"is_token_expired": True, "result": "Token is expired"}
+        except jwt.exceptions.DecodeError as e:
+            return {"is_invalid_token": True, "result": "Token is invalid"}
         except:
             return {"success": False, "result": "Failed to remove all item from list"}
