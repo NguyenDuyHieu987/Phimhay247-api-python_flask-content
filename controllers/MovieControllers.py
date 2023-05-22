@@ -38,7 +38,7 @@ class Movie(Database):
                 if movie != None:
                     return cvtJson(movie)
                 else:
-                    return {"not_found": True, "result1": "Can not find the movie"}
+                    return {"not_found": True, "result": "Can not find the movie"}
             else:
                 user_token = request.headers["Authorization"].replace("Bearer ", "")
 
@@ -78,8 +78,8 @@ class Movie(Database):
             return {"is_token_expired": True, "result": "Token is expired"}
         except jwt.exceptions.DecodeError as e:
             return {"is_invalid_token": True, "result": "Token is invalid"}
-        except:
-            return {"not_found": True, "result": "Can not find the movie"}
+        except PyMongoError as e:
+            return {"not_found": True, "result": e._message}
 
     def add_movie(self):
         try:
