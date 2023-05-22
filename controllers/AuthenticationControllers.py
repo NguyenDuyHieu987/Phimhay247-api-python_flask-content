@@ -53,8 +53,8 @@ class Authentication:
         self.__db = database.ConnectMongoDB()
 
     def login(self):
-        formUser = request.form
         try:
+            formUser = request.form
             account = self.__db["accounts"].find_one(
                 {"$and": [{"email": formUser["email"]}, {"auth_type": "email"}]}
             )
@@ -117,16 +117,16 @@ class Authentication:
             return {"isLogin": False, "result": "Log in failed"}
 
     def loginfacebook(self):
-        accessToken = request.headers["Authorization"].replace("Bearer ", "")
-
-        faceBookUser = requests.get(
-            f"https://graph.facebook.com/v15.0/me?access_token={accessToken}&fields=id,name,email,picture"
-        )
-        formUser = faceBookUser.json()
-
-        account = self.__db["accounts"].find_one({"id": formUser["id"]})
-
         try:
+            accessToken = request.headers["Authorization"].replace("Bearer ", "")
+
+            faceBookUser = requests.get(
+                f"https://graph.facebook.com/v15.0/me?access_token={accessToken}&fields=id,name,email,picture"
+            )
+            formUser = faceBookUser.json()
+
+            account = self.__db["accounts"].find_one({"id": formUser["id"]})
+
             if account == None:
                 list = self.__db["lists"].find_one(
                     {
@@ -271,18 +271,18 @@ class Authentication:
             return {"isLogin": False, "result": "Log in Facebook failed"}
 
     def logingoogle(self):
-        accessToken = request.headers["Authorization"]
-
-        Headers = {"Authorization": accessToken}
-        faceBookUser = requests.get(
-            f"https://www.googleapis.com/oauth2/v3/userinfo", headers=Headers
-        )
-
-        formUser = faceBookUser.json()
-
-        account = self.__db["accounts"].find_one({"id": formUser["sub"]})
-
         try:
+            accessToken = request.headers["Authorization"]
+
+            Headers = {"Authorization": accessToken}
+            faceBookUser = requests.get(
+                f"https://www.googleapis.com/oauth2/v3/userinfo", headers=Headers
+            )
+
+            formUser = faceBookUser.json()
+
+            account = self.__db["accounts"].find_one({"id": formUser["sub"]})
+
             if account == None:
                 list = self.__db["lists"].find_one(
                     {
@@ -427,10 +427,10 @@ class Authentication:
             return {"isLogin": False, "result": "Log in Facebook failed"}
 
     def getuser_by_token(self):
-        # formUser = request.form
-        user_token = request.headers["Authorization"].replace("Bearer ", "")
-
         try:
+            # formUser = request.form
+            user_token = request.headers["Authorization"].replace("Bearer ", "")
+
             jwtUser = jwt.decode(
                 user_token,
                 str(os.getenv("JWT_TOKEN_SECRET")),
@@ -439,7 +439,7 @@ class Authentication:
 
             if jwtUser["auth_type"] == "facebook":
                 facebook_account = self.__db["accounts"].find_one(
-                    {"id": jwtUser["id"]},
+                    {"$and": [{"id": jwtUser["id"]}, {"auth_type": "facebook"}]}
                 )
                 if facebook_account == None:
                     return {"isNotExist": True, "result": "Account does not exists"}
@@ -467,7 +467,7 @@ class Authentication:
                     return response
             elif jwtUser["auth_type"] == "google":
                 google_account = self.__db["accounts"].find_one(
-                    {"id": jwtUser["id"]},
+                    {"$and": [{"id": jwtUser["id"]}, {"auth_type": "google"}]}
                 )
                 if google_account == None:
                     return {"isNotExist": True, "result": "Account does not exists"}
@@ -642,10 +642,10 @@ class Authentication:
     #         return {"isSignUp": False, "result": "Sign Up Failed"}
 
     def signup(self):
-        formUser = request.form
-        user_token = request.headers["Authorization"].replace("Bearer ", "")
-
         try:
+            formUser = request.form
+            user_token = request.headers["Authorization"].replace("Bearer ", "")
+
             jwtUser = jwt.decode(
                 user_token,
                 str(formUser["otp"]),
@@ -730,9 +730,9 @@ class Authentication:
             return {"isSignUp": False, "result": "Sign Up Failed"}
 
     def verify_email(self):
-        formUser = request.form
-
         try:
+            formUser = request.form
+
             emailValidate = requests.get(
                 f"https://emailvalidation.abstractapi.com/v1/?api_key=e23c5b9c07dc432796eea058c9d99e82&email={formUser['email']}"
             )

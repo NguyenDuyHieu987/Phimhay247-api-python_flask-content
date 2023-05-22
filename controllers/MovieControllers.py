@@ -4,6 +4,8 @@ from utils.JsonResponse import ConvertJsonResponse as cvtJson
 from utils.ErrorMessage import errorMessage
 from flask import *
 from pymongo import ReturnDocument
+import os
+import jwt
 
 # import uuid
 from configs.database import Database
@@ -29,13 +31,55 @@ class Movie(Database):
                     exceptValue.pop("videos")
 
             movie = self.__db["movies"].find_one({"id": int(id)}, exceptValue)
-            if movie != None:
-                return cvtJson(movie)
-            else:
-                return {"not_found": True}
 
+            headers = request.headers
+
+            if "Authorization" not in headers:
+                if movie != None:
+                    return cvtJson(movie)
+                else:
+                    return {"not_found": True, "result": "Can not find the movie"}
+            else:
+                user_token = request.headers["Authorization"].replace("Bearer ", "")
+
+                jwtUser = jwt.decode(
+                    user_token,
+                    str(os.getenv("JWT_TOKEN_SECRET")),
+                    algorithms=["HS256"],
+                )
+                item_lists = self.__db["lists"].find_one(
+                    {"id": jwtUser["id"]}, {"items": {"$elemMatch": {"id": int(id)}}}
+                )
+
+                if "items" in item_lists:
+                    movie = movie | {"in_list": True}
+                else:
+                    movie = movie | {"in_list": False}
+
+                item_watchlists = self.__db["watchlists"].find_one(
+                    {"id": jwtUser["id"]}, {"items": {"$elemMatch": {"id": int(id)}}}
+                )
+
+                if "items" in item_watchlists:
+                    movie = movie | {
+                        "in_history": True,
+                        "history_progress": {
+                            "duration": item_watchlists["items"][0]["duration"],
+                            "percent": item_watchlists["items"][0]["percent"],
+                            "seconds": item_watchlists["items"][0]["seconds"],
+                        },
+                    }
+                else:
+                    movie = movie | {"in_history": False}
+
+                return cvtJson(movie)
+
+        except jwt.ExpiredSignatureError as e:
+            return {"is_token_expired": True, "result": "Token is expired"}
+        except jwt.exceptions.DecodeError as e:
+            return {"is_invalid_token": True, "result": "Token is invalid"}
         except:
-            return {}
+            return {"not_found": True, "result": "Can not find the movie"}
 
     def add_movie(self):
         try:

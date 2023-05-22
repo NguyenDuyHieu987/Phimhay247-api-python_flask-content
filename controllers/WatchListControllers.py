@@ -46,6 +46,19 @@ class WatchList(Database):
                 "total": len(watchlist["items"]),
             }
 
+    def getitem_watchlist(self, idwatchlist, idmovie):
+        try:
+            item_watchlists = self.__db["watchlists"].find_one(
+                {"id": idwatchlist}, {"items": {"$elemMatch": {"id": int(idmovie)}}}
+            )
+            if "items" in item_watchlists:
+                return {"success": True, "result": cvtJson(item_watchlists["items"][0])}
+            else:
+                return {"success": False, "result": "Fail to get item in watchlist"}
+
+        except:
+            return {"success": False, "result": "Fail to get item in watchlist"}
+
     def search_watchlist(self, idwatchlist):
         # skip = request.args.get("skip", default=0, type=int)
         query = request.args.get("query", default="", type=str)
@@ -87,19 +100,6 @@ class WatchList(Database):
                 "results": cvtJson(watchlist["items"]),
                 "total": cvtJson(total)[0]["total"],
             }
-
-    def getitem_watchlist(self, idwatchlist, idmovie):
-        try:
-            item_watchlists = self.__db["watchlists"].find_one(
-                {"id": idwatchlist}, {"items": {"$elemMatch": {"id": int(idmovie)}}}
-            )
-            if "items" in item_watchlists:
-                return {"success": True, "result": cvtJson(item_watchlists["items"][0])}
-            else:
-                return {"success": False, "result": "Fail to get item in watchlist"}
-
-        except:
-            return {"success": False, "result": "Fail to get item in watchlist"}
 
     def additem_watchlist(self, idwatchlist):
         try:
