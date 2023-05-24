@@ -90,6 +90,7 @@ class List(Database):
                         }
                     },
                 )
+
                 if "items" in list:
                     return {
                         "results": cvtJson(list["items"]),
