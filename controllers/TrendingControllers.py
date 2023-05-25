@@ -19,6 +19,7 @@ class Trend(Database):
                 trending = cvtJson(
                     self.__db["trendings"].find({}).skip(page * 20).limit(20)
                 )
+
                 return {
                     "page": page + 1,
                     "results": trending,
