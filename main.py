@@ -44,6 +44,7 @@ cache.init_app(app)
 
 
 # route app
+
 from routes import route
 
 route(app, cache)
