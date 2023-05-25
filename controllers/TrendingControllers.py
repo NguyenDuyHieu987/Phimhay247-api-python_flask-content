@@ -19,7 +19,7 @@ class Trend(Database):
                     self.__db["trendings"].find({}).skip(page * 20).limit(20)
                 )
                 return {
-                    "page": page,
+                    "page": page + 1,
                     "results": trending,
                     "total": self.__db["trendings"].count_documents({}),
                     "page_size": 20,
