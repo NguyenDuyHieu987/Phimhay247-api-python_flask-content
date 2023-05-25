@@ -1,6 +1,8 @@
 from flask import *
 from flask_cors import CORS
 from flask_caching import Cache
+import os
+
 
 # from flask_restful import Api
 
@@ -21,12 +23,12 @@ app = Flask(__name__)
 
 cache = Cache(
     app,
-    # config={"CACHE_TYPE": "RedisCache", "CACHE_REDIS_URL": "redis://localhost:6379"},
-    config={
-        "CACHE_TYPE": "redis",
-        "CACHE_REDIS_HOST": "redis-13158.c295.ap-southeast-1-1.ec2.cloud.redislabs.com",
-        "CACHE_REDIS_PORT": 13158,
-    },
+    config={"CACHE_TYPE": "RedisCache", "CACHE_REDIS_URL": os.getenv("REDIS_URL")},
+    # config={
+    #     "CACHE_TYPE": "redis",
+    #     "CACHE_REDIS_HOST": os.getenv("REDIS_HOST"),
+    #     "CACHE_REDIS_PORT": os.getenv("REDIS_PORT"),
+    # },
 )
 
 cache.init_app(app)
