@@ -15,6 +15,7 @@ class Trend(Database):
         try:
             if type == "all":
                 page = request.args.get("page", default=1, type=int) - 1
+
                 trending = cvtJson(
                     self.__db["trendings"].find({}).skip(page * 20).limit(20)
                 )

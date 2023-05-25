@@ -13,7 +13,7 @@ class MovieSlug(Database):
     def movie_slug(self, slug):
         try:
             if slug == "phimle":
-                page = (request.args.get("page", default=1, type=int)) - 1
+                page = request.args.get("page", default=1, type=int) - 1
 
                 phimle = cvtJson(
                     self.__db["movies"]
