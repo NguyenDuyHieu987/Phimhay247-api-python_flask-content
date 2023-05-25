@@ -16,7 +16,6 @@ load_dotenv()
 
 sys.path.insert(0, "/Python/Phimhay247-api-python_flask-content")
 sys.path.insert(0, "/mnt/d/Python/Phimhay247-api-python_flask-content")
-# print(sys.path)
 
 app = Flask(__name__)
 # CORS(app)
