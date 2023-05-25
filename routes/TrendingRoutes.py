@@ -9,6 +9,6 @@ def trending_routes(app, cache):
 
     @app.route("/trending/<type>", methods=["GET"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    @cache.cached()
+    @cache.cached(query_string=True)
     def trending_route(type):
         return trend.trending(type)

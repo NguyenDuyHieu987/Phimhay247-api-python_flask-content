@@ -9,6 +9,6 @@ def discover_routes(app, cache):
 
     @app.route("/discover/<type>", methods=["GET"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    @cache.cached()
+    @cache.cached(query_string=True)
     def discover_route(type):
         return discover.discover(type)

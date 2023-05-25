@@ -9,6 +9,6 @@ def movie_slug_routes(app, cache):
 
     @app.route("/movie/<slug>", methods=["GET"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    @cache.cached()
+    @cache.cached(query_string=True)
     def movie_slug_route(slug):
         return movieslug.movie_slug(slug)

@@ -9,6 +9,6 @@ def search_routes(app, cache):
 
     @app.route("/search/<type>", methods=["GET"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    @cache.cached()
+    @cache.cached(query_string=True)
     def search_route(type):
         return search.search(type)
