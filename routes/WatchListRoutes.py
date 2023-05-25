@@ -10,7 +10,7 @@ def watchlist_routes(app, cache):
 
     @app.route("/history/gethistory", methods=["GET"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    @cache.cached()
+    @cache.cached(query_string=True)
     def getwatchlist_route():
         return watchlist.getwatchlist()
 
@@ -18,7 +18,7 @@ def watchlist_routes(app, cache):
 
     @app.route("/history/searchhistory", methods=["GET"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    @cache.cached()
+    @cache.cached(query_string=True)
     def search_watchlist_route():
         return watchlist.search_watchlist()
 

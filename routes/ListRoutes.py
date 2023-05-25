@@ -10,7 +10,7 @@ def list_routes(app, cache):
 
     @app.route("/list/getlist", methods=["GET"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    @cache.cached()
+    @cache.cached(query_string=True)
     def getlist_route():
         return list.getlist()
 
@@ -18,7 +18,7 @@ def list_routes(app, cache):
 
     @app.route("/list/searchlist", methods=["GET"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    @cache.cached()
+    @cache.cached(query_string=True)
     def search_list_route():
         return list.search_list()
 
