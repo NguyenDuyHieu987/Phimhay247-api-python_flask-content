@@ -7,8 +7,8 @@ from controllers.TrendingControllers import Trend
 def trending_routes(app, cache):
     trend = Trend()
 
-    @cache.cached(timeout=3600)
     @app.route("/trending/<type>", methods=["GET"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
+    @cache.cached(timeout=3600)
     def trending_route(type):
         return trend.trending(type)
