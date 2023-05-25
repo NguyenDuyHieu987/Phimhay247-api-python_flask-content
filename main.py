@@ -3,7 +3,6 @@ from flask_cors import CORS
 from flask_caching import Cache
 import os
 
-
 # from flask_restful import Api
 
 # from waitress import serve
@@ -13,12 +12,16 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-
 sys.path.insert(0, "/Python/Phimhay247-api-python_flask-content")
 sys.path.insert(0, "/mnt/d/Python/Phimhay247-api-python_flask-content")
 
 app = Flask(__name__)
-# CORS(app)
+CORS(
+    app,
+    resources={
+        r"/*": {"origins": ["https://phimhay247.tech"], "supports_credentials": True}
+    },
+)
 
 cache = Cache(
     app,
