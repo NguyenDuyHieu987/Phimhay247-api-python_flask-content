@@ -21,10 +21,10 @@ app = Flask(__name__)
 
 cache = Cache(
     app,
-    # config={"CACHE_TYPE": "RedisCache", "CACHE_REDIS_URL": "redis://localhost:6379/0"},
+    # config={"CACHE_TYPE": "RedisCache", "CACHE_REDIS_URL": "redis://localhost:6379"},
     config={
         "CACHE_TYPE": "RedisCache",
-        "CACHE_REDIS_HOST": "0.0.0.0",
+        "CACHE_REDIS_HOST": "redis://red-chnct9fdvk4n43b8l0gg",
         "CACHE_REDIS_PORT": 6379,
     },
 )
