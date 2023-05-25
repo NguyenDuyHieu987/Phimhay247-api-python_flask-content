@@ -8,24 +8,24 @@ def list_routes(app, cache):
     list = List()
     ## Get list
 
-    @cache.cached(timeout=3600)
     @app.route("/list/getlist", methods=["GET"])
+    @cache.cached(timeout=3600)
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def getlist_route():
         return list.getlist()
 
     ## Search list
 
-    @cache.cached(timeout=3600)
     @app.route("/list/searchlist", methods=["GET"])
+    @cache.cached(timeout=3600)
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def search_list_route():
         return list.search_list()
 
     ## Get item list
 
-    @cache.cached(timeout=3600)
     @app.route("/list/getitem/<idmovie>", methods=["GET"])
+    @cache.cached(timeout=3600)
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def getitem_list_route(idmovie):
         return list.getitem_list(idmovie)

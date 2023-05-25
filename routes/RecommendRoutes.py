@@ -7,8 +7,8 @@ from controllers.RecommendControllers import Recommend
 def recommend_routes(app, cache):
     recomment = Recommend()
 
-    @cache.cached(timeout=3600)
     @app.route("/recommend/getrecommend", methods=["GET"])
+    @cache.cached(timeout=3600)
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def recommend_route():
         return recomment.get_recommend()

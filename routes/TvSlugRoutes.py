@@ -7,8 +7,8 @@ from controllers.TvSlugControllers import TVSlug
 def tv_slug_routes(app, cache):
     tvslug = TVSlug()
 
-    @cache.cached(timeout=3600)
     @app.route("/tv/<slug>", methods=["GET"])
+    @cache.cached(timeout=3600)
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def tv_slug_route(slug):
         return tvslug.tv_slug(slug)

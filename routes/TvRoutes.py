@@ -8,8 +8,8 @@ def tv_routes(app, cache):
     tv = TV()
     ## Detail Tv
 
-    @cache.cached(timeout=3000)
     @app.route("/tv/detail/<id>", methods=["GET"])
+    @cache.cached(timeout=3000)
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def detail_tv_route(id):
         return tv.detail_tv(id)

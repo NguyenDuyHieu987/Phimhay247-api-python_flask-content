@@ -68,7 +68,7 @@ def route(app, cache):
     # Similar
     from routes.SimilarRoutes import similar_routes
 
-    similar_routes(app)
+    similar_routes(app, cache)
 
     # List
     from routes.ListRoutes import list_routes

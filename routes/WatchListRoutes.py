@@ -8,24 +8,24 @@ def watchlist_routes(app, cache):
     watchlist = WatchList()
     ## Get history
 
-    @cache.cached(timeout=3600)
     @app.route("/history/gethistory", methods=["GET"])
+    @cache.cached(timeout=3600)
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def getwatchlist_route():
         return watchlist.getwatchlist()
 
     ## Search history
 
-    @cache.cached(timeout=3600)
     @app.route("/history/searchhistory", methods=["GET"])
+    @cache.cached(timeout=3600)
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def search_watchlist_route():
         return watchlist.search_watchlist()
 
     ## Get item history
 
-    @cache.cached(timeout=3600)
     @app.route("/history/getitem/<idmovie>", methods=["GET"])
+    @cache.cached(timeout=3600)
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def getitem_watchlist_route(idmovie):
         return watchlist.getitem_watchlist(idmovie)
