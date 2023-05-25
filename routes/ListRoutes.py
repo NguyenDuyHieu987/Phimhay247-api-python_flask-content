@@ -9,24 +9,24 @@ def list_routes(app, cache):
     ## Get list
 
     @app.route("/list/getlist", methods=["GET"])
-    @cache.cached()
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
+    @cache.cached()
     def getlist_route():
         return list.getlist()
 
     ## Search list
 
     @app.route("/list/searchlist", methods=["GET"])
-    @cache.cached()
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
+    @cache.cached()
     def search_list_route():
         return list.search_list()
 
     ## Get item list
 
     @app.route("/list/getitem/<idmovie>", methods=["GET"])
-    @cache.cached()
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
+    @cache.cached()
     def getitem_list_route(idmovie):
         return list.getitem_list(idmovie)
 

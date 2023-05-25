@@ -19,7 +19,7 @@ app = Flask(__name__)
 # CORS(
 #     app,
 #     resources={
-#         r"/*": {"origins": ["https://phimhay247.tech"], "supports_credentials": True}
+#         r"/*": {"origins": ["http://localhost:3000"], "supports_credentials": True}
 #     },
 # )
 

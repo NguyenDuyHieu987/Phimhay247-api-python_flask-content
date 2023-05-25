@@ -734,7 +734,7 @@ class Authentication:
             formUser = request.form
 
             emailValidate = requests.get(
-                f"https://emailvalidation.abstractapi.com/v1/?api_key=e23c5b9c07dc432796eea058c9d99e82&email={formUser['email']}"
+                f"https://emailvalidation.abstractapi.com/v1/?api_key={os.getenv('ABSTRACT_API_KEY')}&email={formUser['email']}"
             )
             emailValidateResponse = emailValidate.json()
 
@@ -744,6 +744,7 @@ class Authentication:
                 )
                 if account == None:
                     OTP = generateOTP(length=6)
+
                     encoded = jwt.encode(
                         {
                             "id": formUser["id"],
@@ -760,12 +761,15 @@ class Authentication:
                         str(OTP),
                         algorithm="HS256",
                     )
+
                     response = make_response(
                         {"isVerify": True, "result": "Send otp email successfully"}
                     )
+
                     response.headers.set(
                         "Access-Control-Expose-Headers", "Authorization"
                     )
+
                     response.headers.set("Authorization", encoded)
                     email_response = Email_Verification(to=formUser["email"], otp=OTP)
 

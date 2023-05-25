@@ -9,24 +9,24 @@ def watchlist_routes(app, cache):
     ## Get history
 
     @app.route("/history/gethistory", methods=["GET"])
-    @cache.cached()
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
+    @cache.cached()
     def getwatchlist_route():
         return watchlist.getwatchlist()
 
     ## Search history
 
     @app.route("/history/searchhistory", methods=["GET"])
-    @cache.cached()
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
+    @cache.cached()
     def search_watchlist_route():
         return watchlist.search_watchlist()
 
     ## Get item history
 
     @app.route("/history/getitem/<idmovie>", methods=["GET"])
-    @cache.cached()
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
+    @cache.cached()
     def getitem_watchlist_route(idmovie):
         return watchlist.getitem_watchlist(idmovie)
 

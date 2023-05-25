@@ -8,7 +8,7 @@ def tv_slug_routes(app, cache):
     tvslug = TVSlug()
 
     @app.route("/tv/<slug>", methods=["GET"])
-    @cache.cached()
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
+    @cache.cached()
     def tv_slug_route(slug):
         return tvslug.tv_slug(slug)

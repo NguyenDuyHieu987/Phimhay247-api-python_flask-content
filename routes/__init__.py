@@ -43,22 +43,22 @@ def route(app, cache):
     # Get sortby
     from routes.SortByRoutes import sortbys_routes
 
-    sortbys_routes(app)
+    sortbys_routes(app, cache)
 
     # Get genres
     from routes.GenresRoutes import genres_routes
 
-    genres_routes(app)
+    genres_routes(app, cache)
 
     # Get years
     from routes.YearsRoutes import years_routes
 
-    years_routes(app)
+    years_routes(app, cache)
 
     # Get countries
     from routes.CountriesRoutes import countries_routes
 
-    countries_routes(app)
+    countries_routes(app, cache)
 
     # Discover
     from routes.DiscoverRoutes import discover_routes
