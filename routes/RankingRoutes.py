@@ -8,7 +8,7 @@ def ranking_routes(app, cache):
     rank = Rank()
 
     @app.route("/ranking/<slug>", methods=["GET"])
-    @cache.cached(timeout=3600)
+    @cache.cached()
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def ranking_route(slug):
         return rank.ranking(slug)

@@ -8,7 +8,7 @@ def search_routes(app, cache):
     search = Search()
 
     @app.route("/search/<type>", methods=["GET"])
-    @cache.cached(timeout=3600)
+    @cache.cached()
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def search_route(type):
         return search.search(type)

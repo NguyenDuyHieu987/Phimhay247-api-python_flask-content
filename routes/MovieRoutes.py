@@ -9,7 +9,7 @@ def movie_routes(app, cache):
     ## Detail movie
 
     @app.route("/movie/detail/<id>", methods=["GET"])
-    @cache.cached(timeout=3600)
+    @cache.cached()
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def detail_movie_route(id):
         return movie.detail_movie(id)
