@@ -275,11 +275,11 @@ class Authentication:
             accessToken = request.headers["Authorization"]
 
             Headers = {"Authorization": accessToken}
-            faceBookUser = requests.get(
+            googleUser = requests.get(
                 f"https://www.googleapis.com/oauth2/v3/userinfo", headers=Headers
             )
 
-            formUser = faceBookUser.json()
+            formUser = googleUser.json()
 
             account = self.__db["accounts"].find_one({"id": formUser["sub"]})
 
