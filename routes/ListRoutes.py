@@ -10,7 +10,6 @@ def list_routes(app, cache):
 
     @app.route("/list/getlist", methods=["GET"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    @cache.cached(query_string=True)
     def getlist_route():
         return list.getlist()
 
@@ -18,7 +17,6 @@ def list_routes(app, cache):
 
     @app.route("/list/searchlist", methods=["GET"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    @cache.cached(query_string=True)
     def search_list_route():
         return list.search_list()
 
@@ -26,7 +24,6 @@ def list_routes(app, cache):
 
     @app.route("/list/getitem/<idmovie>", methods=["GET"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    @cache.cached()
     def getitem_list_route(idmovie):
         return list.getitem_list(idmovie)
 
