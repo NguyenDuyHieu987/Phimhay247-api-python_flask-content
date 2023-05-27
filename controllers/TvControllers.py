@@ -119,7 +119,7 @@ class TV(Database):
         try:
             formMovie = request.form
 
-            tv = self.__db["hieus"].find_one_and_update(
+            tv = self.__db["phimbos"].find_one_and_update(
                 {"id": int(id)},
                 {
                     "$set": {

@@ -127,7 +127,7 @@ class Movie(Database):
         try:
             formMovie = request.form
 
-            movie = self.__db["tans"].find_one_and_update(
+            movie = self.__db["phimles"].find_one_and_update(
                 {"id": int(id)},
                 {
                     "$set": {
