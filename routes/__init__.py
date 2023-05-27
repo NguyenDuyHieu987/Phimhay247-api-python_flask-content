@@ -1,4 +1,11 @@
+from flask import *
+
+
 def route(app, cache):
+    from routes.ErrorHandler import error_handler
+
+    error_handler(app)
+
     # Movie slug
     from routes.MovieSlugRoutes import movie_slug_routes
 

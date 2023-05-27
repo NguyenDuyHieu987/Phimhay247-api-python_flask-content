@@ -1,7 +1,8 @@
 import pymongo
 from pymongo.errors import PyMongoError
 from utils.JsonResponse import ConvertJsonResponse as cvtJson
-from utils.ErrorMessage import errorMessage
+from utils.ErrorMessage import BadRequestMessage, InternalServerErrorMessage
+from utils.exceptions import NotInTypeError
 from flask import *
 import random
 from configs.database import Database
@@ -109,6 +110,10 @@ class Search(Database):
                     "page_size": 20,
                 }
             else:
-                return errorMessage(400)
-        except:
-            return {"results": []}
+                raise NotInTypeError("search", type)
+        except PyMongoError as e:
+            InternalServerErrorMessage(e._message)
+        except NotInTypeError as e:
+            BadRequestMessage(e.message)
+        except Exception as e:
+            InternalServerErrorMessage(e)

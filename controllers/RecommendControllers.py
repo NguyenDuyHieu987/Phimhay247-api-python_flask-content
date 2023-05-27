@@ -1,9 +1,6 @@
 import pymongo
 from collections import ChainMap
-from bson import json_util, ObjectId
 from utils.JsonResponse import ConvertJsonResponse as cvtJson
-import json
-from collections import defaultdict
 import pyfpgrowth
 from flask import *
 from configs.database import Database

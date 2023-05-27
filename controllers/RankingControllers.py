@@ -1,7 +1,8 @@
 import pymongo
 from pymongo.errors import PyMongoError
 from utils.JsonResponse import ConvertJsonResponse as cvtJson
-from utils.ErrorMessage import errorMessage
+from utils.ErrorMessage import BadRequestMessage, InternalServerErrorMessage
+from utils.exceptions import NotInTypeError
 from flask import *
 from configs.database import Database
 
@@ -62,11 +63,10 @@ class Rank(Database):
                     "total_pages": popular["total_pages"],
                 }
             else:
-                return errorMessage(400)
-        except:
-            return {
-                "results": [],
-                "total_pages": 0,
-            }
-        # finally:
-        #     return errorMessage(400)
+                raise NotInTypeError("ranking", type)
+        except PyMongoError as e:
+            InternalServerErrorMessage(e._message)
+        except NotInTypeError as e:
+            BadRequestMessage(e.message)
+        except Exception as e:
+            InternalServerErrorMessage(e)

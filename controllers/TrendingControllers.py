@@ -1,10 +1,10 @@
-import pymongo
 from pymongo.errors import PyMongoError
 from utils.JsonResponse import ConvertJsonResponse as cvtJson
-from utils.ErrorMessage import errorMessage
+from utils.ErrorMessage import BadRequestMessage, InternalServerErrorMessage
+from utils.exceptions import NotInTypeError
 from flask import *
-from pymongo import ReturnDocument
 from configs.database import Database
+from werkzeug.exceptions import HTTPException
 
 
 class Trend(Database):
@@ -16,17 +16,21 @@ class Trend(Database):
             if type == "all":
                 page = request.args.get("page", default=1, type=int) - 1
 
-                trending = cvtJson(
-                    self.__db["trendings"].find({}).skip(page * 20).limit(20)
-                )
+                trending = self.__db["trendings"].find({}).skip(page * 20).limit(20)
 
-                return {
-                    "page": page + 1,
-                    "results": trending,
-                    "total": self.__db["trendings"].count_documents({}),
-                    "page_size": 20,
-                }
+                return make_response(
+                    {
+                        "page": page + 1,
+                        "results": cvtJson(trending),
+                        "total": self.__db["trendings"].count_documents({}),
+                        "page_size": 20,
+                    }
+                )
             else:
-                return errorMessage(400)
-        except:
-            return {"results": [], "total_pages": 0}
+                raise NotInTypeError("trending", type)
+        except PyMongoError as e:
+            InternalServerErrorMessage(e._message)
+        except NotInTypeError as e:
+            BadRequestMessage(e.message)
+        except Exception as e:
+            InternalServerErrorMessage(e)

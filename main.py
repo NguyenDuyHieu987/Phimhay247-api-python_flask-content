@@ -47,6 +47,7 @@ cache.init_app(app)
 
 from routes import route
 
+
 route(app, cache)
 
 if __name__ == "__main__":

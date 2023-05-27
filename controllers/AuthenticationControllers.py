@@ -1,7 +1,7 @@
 import pymongo
 from pymongo.errors import PyMongoError
 from utils.JsonResponse import ConvertJsonResponse as cvtJson
-from utils.ErrorMessage import errorMessage
+from utils.ErrorMessage import BadRequestMessage
 from flask import *
 from pymongo import ReturnDocument
 import jwt
