@@ -1,7 +1,7 @@
 import pymongo
 from pymongo.errors import PyMongoError
 from utils.JsonResponse import ConvertJsonResponse as cvtJson
-from utils.ErrorMessage import BadRequestMessage
+from utils.ErrorMessage import BadRequestMessage, InternalServerErrorMessage
 from flask import *
 from pymongo import ReturnDocument
 from datetime import datetime
@@ -56,8 +56,10 @@ class List(Database):
             return {"is_token_expired": True, "result": "Token is expired"}
         except jwt.exceptions.DecodeError as e:
             return {"is_invalid_token": True, "result": "Token is invalid"}
-        except:
-            return {"success": False, "result": "Failed to get list"}
+        except PyMongoError as e:
+            InternalServerErrorMessage(e._message)
+        except Exception as e:
+            InternalServerErrorMessage(e)
 
     def search_list(self):
         try:
@@ -120,8 +122,10 @@ class List(Database):
             return {"is_token_expired": True, "result": "Token is expired"}
         except jwt.exceptions.DecodeError as e:
             return {"is_invalid_token": True, "result": "Token is invalid"}
-        except:
-            return {"success": False, "result": "Failed to search list"}
+        except PyMongoError as e:
+            InternalServerErrorMessage(e._message)
+        except Exception as e:
+            InternalServerErrorMessage(e)
 
     def getitem_list(self, idmovie):
         try:
@@ -144,8 +148,10 @@ class List(Database):
             return {"is_token_expired": True, "result": "Token is expired"}
         except jwt.exceptions.DecodeError as e:
             return {"is_invalid_token": True, "result": "Token is invalid"}
-        except:
-            return {"success": False, "result": "Failed to get item in list"}
+        except PyMongoError as e:
+            InternalServerErrorMessage(e._message)
+        except Exception as e:
+            InternalServerErrorMessage(e)
 
     def additem_list(self):
         try:
@@ -301,11 +307,10 @@ class List(Database):
             return {"is_token_expired": True, "result": "Token is expired"}
         except jwt.exceptions.DecodeError as e:
             return {"is_invalid_token": True, "result": "Token is invalid"}
-        except:
-            return {
-                "success": False,
-                "results": "Failed to add item to list",
-            }
+        except PyMongoError as e:
+            InternalServerErrorMessage(e._message)
+        except Exception as e:
+            InternalServerErrorMessage(e)
 
     def remove_item_list(self):
         try:
@@ -334,8 +339,10 @@ class List(Database):
             return {"is_token_expired": True, "result": "Token is expired"}
         except jwt.exceptions.DecodeError as e:
             return {"is_invalid_token": True, "result": "Token is invalid"}
-        except:
-            return {"success": False, "result": "Failed to remove item from list"}
+        except PyMongoError as e:
+            InternalServerErrorMessage(e._message)
+        except Exception as e:
+            InternalServerErrorMessage(e)
 
     def removeall_item_list(self):
         try:
@@ -363,5 +370,7 @@ class List(Database):
             return {"is_token_expired": True, "result": "Token is expired"}
         except jwt.exceptions.DecodeError as e:
             return {"is_invalid_token": True, "result": "Token is invalid"}
-        except:
-            return {"success": False, "result": "Failed to remove all item from list"}
+        except PyMongoError as e:
+            InternalServerErrorMessage(e._message)
+        except Exception as e:
+            InternalServerErrorMessage(e)

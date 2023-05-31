@@ -178,8 +178,7 @@ class Recommend(Database):
             return {"is_token_expired": True, "result": "Token is expired"}
         except jwt.exceptions.DecodeError as e:
             return {"is_invalid_token": True, "result": "Token is invalid"}
-        except:
-            return {
-                "success": False,
-                "message": "Something went wrong",
-            }
+        except PyMongoError as e:
+            InternalServerErrorMessage(e._message)
+        except Exception as e:
+            InternalServerErrorMessage(e)

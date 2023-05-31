@@ -1,7 +1,7 @@
 import pymongo
 from pymongo.errors import PyMongoError
 from utils.JsonResponse import ConvertJsonResponse as cvtJson
-from utils.ErrorMessage import BadRequestMessage
+from utils.ErrorMessage import BadRequestMessage, InternalServerErrorMessage
 from flask import *
 from pymongo import ReturnDocument
 import os
@@ -78,8 +78,10 @@ class Movie(Database):
             return {"is_token_expired": True, "result": "Token is expired"}
         except jwt.exceptions.DecodeError as e:
             return {"is_invalid_token": True, "result": "Token is invalid"}
-        except:
-            return {"not_found": True, "result": "Can not find the movie"}
+        except PyMongoError as e:
+            InternalServerErrorMessage(e._message)
+        except Exception as e:
+            InternalServerErrorMessage(e)
 
     def add_movie(self):
         try:
@@ -120,8 +122,10 @@ class Movie(Database):
                     "result": "Movie is already exist",
                 }
 
-        except:
-            return {"success": False, "result": "Add movie failed"}
+        except PyMongoError as e:
+            InternalServerErrorMessage(e._message)
+        except Exception as e:
+            InternalServerErrorMessage(e)
 
     def edit_movie(self, id):
         try:
@@ -152,8 +156,10 @@ class Movie(Database):
                 "result": cvtJson(movie),
                 "message": "Edit movie successfully",
             }
-        except:
-            return {"success": False, "message": "Edit movie failed"}
+        except PyMongoError as e:
+            InternalServerErrorMessage(e._message)
+        except Exception as e:
+            InternalServerErrorMessage(e)
 
     def update_view_movie(self, id):
         try:
@@ -173,5 +179,7 @@ class Movie(Database):
                 "success": True,
                 "result": "Update views of movie successfully",
             }
-        except:
-            return {"success": False, "result": "Update views of movie failed"}
+        except PyMongoError as e:
+            InternalServerErrorMessage(e._message)
+        except Exception as e:
+            InternalServerErrorMessage(e)

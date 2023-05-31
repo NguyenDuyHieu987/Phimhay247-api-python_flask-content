@@ -1,7 +1,7 @@
 import pymongo
 from pymongo.errors import PyMongoError
 from utils.JsonResponse import ConvertJsonResponse as cvtJson
-from utils.ErrorMessage import BadRequestMessage
+from utils.ErrorMessage import BadRequestMessage, InternalServerErrorMessage
 from flask import *
 from pymongo import ReturnDocument
 from configs.database import Database
@@ -60,4 +60,6 @@ class Rate(Database):
                     "vote_count": new_tv["vote_count"],
                 }
         except PyMongoError as e:
-            return {"success": False, "message": e._message}
+            InternalServerErrorMessage(e._message)
+        except Exception as e:
+            InternalServerErrorMessage(e)

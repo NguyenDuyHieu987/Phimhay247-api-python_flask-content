@@ -1,7 +1,7 @@
 import pymongo
 from pymongo.errors import PyMongoError
 from utils.JsonResponse import ConvertJsonResponse as cvtJson
-from utils.ErrorMessage import BadRequestMessage
+from utils.ErrorMessage import BadRequestMessage, InternalServerErrorMessage
 from flask import *
 from pymongo import ReturnDocument
 import jwt
@@ -113,8 +113,10 @@ class Authentication:
                     return {"isWrongPassword": True, "result": "Wrong Password"}
             else:
                 return {"isNotExist": True, "result": "Account does not exists"}
-        except:
-            return {"isLogin": False, "result": "Log in failed"}
+        except PyMongoError as e:
+            InternalServerErrorMessage(e._message)
+        except Exception as e:
+            InternalServerErrorMessage(e)
 
     def loginfacebook(self):
         try:
@@ -267,8 +269,10 @@ class Authentication:
 
                 return response
 
-        except:
-            return {"isLogin": False, "result": "Log in Facebook failed"}
+        except PyMongoError as e:
+            InternalServerErrorMessage(e._message)
+        except Exception as e:
+            InternalServerErrorMessage(e)
 
     def logingoogle(self):
         try:
@@ -423,8 +427,10 @@ class Authentication:
 
                 return response
 
-        except:
-            return {"isLogin": False, "result": "Log in Facebook failed"}
+        except PyMongoError as e:
+            InternalServerErrorMessage(e._message)
+        except Exception as e:
+            InternalServerErrorMessage(e)
 
     def getuser_by_token(self):
         try:
@@ -546,8 +552,10 @@ class Authentication:
                 else:
                     return {"isNotExist": True, "result": "Account does not exists"}
 
-        except:
-            return {"isLogin": False, "result": "Log in failed"}
+        except PyMongoError as e:
+            InternalServerErrorMessage(e._message)
+        except Exception as e:
+            InternalServerErrorMessage(e)
 
     # def signup():
     #     formUser = request.form
@@ -726,8 +734,10 @@ class Authentication:
 
         except jwt.exceptions.DecodeError as e:
             return {"isInvalidOTP": True, "result": "OTP is invalid"}
-        except:
-            return {"isSignUp": False, "result": "Sign Up Failed"}
+        except PyMongoError as e:
+            InternalServerErrorMessage(e._message)
+        except Exception as e:
+            InternalServerErrorMessage(e)
 
     def verify_email(self):
         try:
@@ -782,5 +792,7 @@ class Authentication:
                     return {"isEmailExist": True, "result": "Email is already exists"}
             else:
                 return {"isInValidEmail": True, "result": "Email is Invalid"}
-        except:
-            return {"isVerify": False, "result": "Send otp email failed"}
+        except PyMongoError as e:
+            InternalServerErrorMessage(e._message)
+        except Exception as e:
+            InternalServerErrorMessage(e)
