@@ -36,14 +36,14 @@ def list_routes(app, cache):
 
     ## Remove item from list
 
-    @app.route("/list/remove_item", methods=["POST"])
+    @app.route("/list/remove_item", methods=["DELETE"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def remove_item_list_route():
         return list.remove_item_list()
 
     ## Remove all item from list
 
-    @app.route("/list/removeall_item", methods=["POST"])
+    @app.route("/list/removeall_item", methods=["DELETE"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def removeall_item_list_route():
         return list.removeall_item_list()

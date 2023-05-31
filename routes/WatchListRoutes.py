@@ -36,14 +36,14 @@ def watchlist_routes(app, cache):
 
     ## Remove item from history
 
-    @app.route("/history/remove_item", methods=["POST"])
+    @app.route("/history/remove_item", methods=["DELETE"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def remove_item_watchlist_route():
         return watchlist.remove_item_watchlist()
 
     ## Remove all item from history
 
-    @app.route("/history/removeall_item", methods=["POST"])
+    @app.route("/history/removeall_item", methods=["DELETE"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def removeall_item_watchlist_route():
         return watchlist.removeall_item_watchlist()
