@@ -11,6 +11,9 @@ API_MORMAL_ORIGINS_CONFIG = [
     # www
     "https://www.phimhay247.site",
     "https://www.phimhay247.tech",
+    
+    #test
+    "https://famous-entremet-57ab43.netlify.app",
 ]
 
 
