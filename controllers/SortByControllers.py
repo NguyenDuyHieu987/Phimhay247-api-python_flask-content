@@ -14,7 +14,7 @@ class Sortby(Database):
         try:
             if type == "all":
                 all_sortbys = cvtJson(self.__db["sortbys"].find())
-                return all_sortbys
+                return {"result": all_sortbys}
             else:
                 raise NotInTypeError("country", type)
         except PyMongoError as e:
