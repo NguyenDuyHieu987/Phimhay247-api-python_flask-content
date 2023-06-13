@@ -434,7 +434,6 @@ class Authentication:
 
     def getuser_by_token(self):
         try:
-            # formUser = request.form
             user_token = request.headers["Authorization"].replace("Bearer ", "")
 
             jwtUser = jwt.decode(
@@ -551,7 +550,10 @@ class Authentication:
                         return {"isWrongPassword": True, "result": "Wrong Password"}
                 else:
                     return {"isNotExist": True, "result": "Account does not exists"}
-
+        except jwt.ExpiredSignatureError as e:
+            return {"isOTPExpired": True, "result": "OTP is expired"}
+        except jwt.exceptions.DecodeError as e:
+            return {"isInvalidOTP": True, "result": "OTP is invalid"}
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except Exception as e:
@@ -731,7 +733,6 @@ class Authentication:
                 return {"isAccountExist": True, "result": "Account is already exists"}
         except jwt.ExpiredSignatureError as e:
             return {"isOTPExpired": True, "result": "OTP is expired"}
-
         except jwt.exceptions.DecodeError as e:
             return {"isInvalidOTP": True, "result": "OTP is invalid"}
         except PyMongoError as e:

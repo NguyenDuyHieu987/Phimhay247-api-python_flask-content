@@ -29,7 +29,7 @@ def authentication_routes(app):
 
     ## Get user by token
 
-    @app.route("/auth/getusertoken", methods=["POST"])
+    @app.route("/auth/getusertoken", methods=["GET"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def getuser_by_token_route():
         return authentication.getuser_by_token()
