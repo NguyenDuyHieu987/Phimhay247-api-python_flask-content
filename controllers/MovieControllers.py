@@ -20,17 +20,26 @@ class Movie(Database):
             append_to_response = request.args.get(
                 "append_to_response", default="", type=str
             )
-            exceptValue = {"images": 0, "credits": 0, "videos": 0}
+            # exceptValue = {"images": 0, "credits": 0, "videos": 0}
+            extraValue = {}
 
             if append_to_response != "":
                 if "images" in append_to_response.split(","):
-                    exceptValue.pop("images")
+                    # exceptValue.pop("images")
+                    images = self.__db["images"].find_one({"id": str(id)})
+                    extraValue["images"] = images["items"]
                 if "credits" in append_to_response.split(","):
-                    exceptValue.pop("credits")
+                    # exceptValue.pop("credits")
+                    credits = self.__db["credits"].find_one({"id": str(id)})
+                    extraValue["credits"] = credits["items"]
                 if "videos" in append_to_response.split(","):
-                    exceptValue.pop("videos")
+                    # exceptValue.pop("videos")
+                    videos = self.__db["videos"].find_one({"id": str(id)})
+                    extraValue["videos"] = videos["items"]
 
-            movie = self.__db["movies"].find_one({"id": str(id)}, exceptValue)
+            # movie = self.__db["movies"].find_one({"id": str(id)}, exceptValue)
+
+            movie = self.__db["movies"].find_one({"id": str(id)}) | extraValue
 
             headers = request.headers
 

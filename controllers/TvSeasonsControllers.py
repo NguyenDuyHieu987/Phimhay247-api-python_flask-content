@@ -14,7 +14,7 @@ class TVSeason(Database):
         try:
             tv = cvtJson(
                 self.__db["tvs"].find_one(
-                    {"id": int(id)},
+                    {"id": str(id)},
                     {
                         "seasons": {
                             "$elemMatch": {"season_number": int(season_number)},
@@ -26,7 +26,7 @@ class TVSeason(Database):
 
             season = cvtJson(
                 self.__db["seasons"].find_one(
-                    {"id": int(id_season), "season_number": int(season_number)}
+                    {"id": str(id_season), "season_number": int(season_number)}
                 )
             )
             return season

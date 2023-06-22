@@ -77,6 +77,21 @@ def route(app, cache):
 
     similar_routes(app, cache)
 
+    # Credits
+    from routes.CreditsRoutes import credits_routes
+
+    credits_routes(app, cache)
+
+    # Images
+    from routes.ImagesRoutes import images_routes
+
+    images_routes(app, cache)
+
+    # Videos
+    from routes.VideosRoutes import videos_routes
+
+    videos_routes(app, cache)
+
     # List
     from routes.ListRoutes import list_routes
 

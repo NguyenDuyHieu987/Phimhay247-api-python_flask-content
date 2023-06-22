@@ -15,7 +15,7 @@ class Similar(Database):
     def get_similar(self, type, movieid):
         try:
             if type == "movie":
-                movie_similar = self.__db["movies"].find_one({"id": int(movieid)})
+                movie_similar = self.__db["movies"].find_one({"id": str(movieid)})
                 genres = movie_similar["genres"]
                 country = movie_similar["original_language"]
 
@@ -26,7 +26,7 @@ class Similar(Database):
                     .find(
                         {
                             "id": {
-                                "$nin": [int(movieid)],
+                                "$nin": [str(movieid)],
                             },
                             "$or": [
                                 {"original_language": {"$regex": country}},
@@ -52,7 +52,7 @@ class Similar(Database):
                     "results": movie,
                 }
             elif type == "tv":
-                tv_similar = self.__db["tvs"].find_one({"id": int(movieid)})
+                tv_similar = self.__db["tvs"].find_one({"id": str(movieid)})
                 genres = tv_similar["genres"]
                 country = tv_similar["original_language"]
 
@@ -63,7 +63,7 @@ class Similar(Database):
                     .find(
                         {
                             "id": {
-                                "$nin": [int(movieid)],
+                                "$nin": [str(movieid)],
                             },
                             "$or": [
                                 {"original_language": {"$regex": country}},

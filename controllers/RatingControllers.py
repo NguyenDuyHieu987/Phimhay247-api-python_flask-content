@@ -15,13 +15,13 @@ class Rate(Database):
         try:
             rateValue = float(request.form["value"])
             if type == "movie":
-                movie_dumps = self.__db["movies"].find_one({"id": int(id)})
+                movie_dumps = self.__db["movies"].find_one({"id": str(id)})
                 new_vote_average = (
                     movie_dumps["vote_count"] * movie_dumps["vote_average"] + rateValue
                 ) / (movie_dumps["vote_count"] + 1)
 
                 new_movie = self.__db["movies"].find_one_and_update(
-                    {"id": int(id)},
+                    {"id": str(id)},
                     {
                         "$set": {
                             "vote_average": new_vote_average,
@@ -38,13 +38,13 @@ class Rate(Database):
                 }
 
             elif type == "tv":
-                tv_dumps = self.__db["tvs"].find_one({"id": int(id)})
+                tv_dumps = self.__db["tvs"].find_one({"id": str(id)})
                 new_vote_average = (
                     tv_dumps["vote_count"] * tv_dumps["vote_average"] + rateValue
                 ) / (tv_dumps["vote_count"] + 1)
 
                 new_tv = self.__db["tvs"].find_one_and_update(
-                    {"id": int(id)},
+                    {"id": str(id)},
                     {
                         "$set": {
                             "vote_average": new_vote_average,
