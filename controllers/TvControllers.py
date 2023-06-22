@@ -28,7 +28,7 @@ class TV(Database):
                 if "videos" in append_to_response.split(","):
                     exceptValue.pop("videos")
 
-            tv = self.__db["tvs"].find_one({"id": int(id)}, exceptValue)
+            tv = self.__db["tvs"].find_one({"id": str(id)}, exceptValue)
 
             headers = request.headers
 
@@ -46,7 +46,7 @@ class TV(Database):
                     algorithms=["HS256"],
                 )
                 item_lists = self.__db["lists"].find_one(
-                    {"id": jwtUser["id"]}, {"items": {"$elemMatch": {"id": int(id)}}}
+                    {"id": jwtUser["id"]}, {"items": {"$elemMatch": {"id": str(id)}}}
                 )
 
                 if "items" in item_lists:
@@ -55,7 +55,7 @@ class TV(Database):
                     tv = tv | {"in_list": False}
 
                 item_watchlists = self.__db["watchlists"].find_one(
-                    {"id": jwtUser["id"]}, {"items": {"$elemMatch": {"id": int(id)}}}
+                    {"id": jwtUser["id"]}, {"items": {"$elemMatch": {"id": str(id)}}}
                 )
 
                 if "items" in item_watchlists:
@@ -124,7 +124,7 @@ class TV(Database):
             formMovie = request.form
 
             tv = self.__db["phimbos"].find_one_and_update(
-                {"id": int(id)},
+                {"id": str(id)},
                 {
                     "$set": {
                         "name": formMovie["name"],
@@ -154,11 +154,11 @@ class TV(Database):
 
     def update_view_tv(self, id):
         try:
-            tv_dumps = self.__db["tvs"].find_one({"id": int(id)})
+            tv_dumps = self.__db["tvs"].find_one({"id": str(id)})
             new_views = int(tv_dumps["views"]) + 1
 
             self.__db["tvs"].update_one(
-                {"id": int(id)},
+                {"id": str(id)},
                 {
                     "$set": {
                         "views": new_views,

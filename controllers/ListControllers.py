@@ -137,7 +137,7 @@ class List(Database):
                 algorithms=["HS256"],
             )
             item_lists = self.__db["lists"].find_one(
-                {"id": jwtUser["id"]}, {"items": {"$elemMatch": {"id": int(idmovie)}}}
+                {"id": jwtUser["id"]}, {"items": {"$elemMatch": {"id": str(idmovie)}}}
             )
             if "items" in item_lists:
                 return {"success": True, "result": cvtJson(item_lists["items"][0])}
@@ -168,7 +168,7 @@ class List(Database):
 
             if media_type == "movie":
                 movie = self.__db["movies"].find_one(
-                    {"id": int(media_id)},
+                    {"id": str(media_id)},
                     {
                         "images": 0,
                         "credits": 0,
@@ -180,7 +180,7 @@ class List(Database):
                 if movie != None:
                     item_lists = self.__db["lists"].find_one(
                         {"id": jwtUser["id"]},
-                        {"items": {"$elemMatch": {"id": int(media_id)}}},
+                        {"items": {"$elemMatch": {"id": str(media_id)}}},
                     )
                     if "items" in item_lists:
                         return {
@@ -197,7 +197,7 @@ class List(Database):
                                     "items": {
                                         "$each": [
                                             {
-                                                "id": int(media_id),
+                                                "id": str(media_id),
                                                 "name": movie["name"],
                                                 "original_name": movie["original_name"],
                                                 "original_language": movie[
@@ -237,7 +237,7 @@ class List(Database):
 
             elif media_type == "tv":
                 tv = self.__db["tvs"].find_one(
-                    {"id": int(media_id)},
+                    {"id": str(media_id)},
                     {
                         "images": 0,
                         "credits": 0,
@@ -249,7 +249,7 @@ class List(Database):
                 if tv != None:
                     item_lists = self.__db["lists"].find_one(
                         {"id": jwtUser["id"]},
-                        {"items": {"$elemMatch": {"id": int(media_id)}}},
+                        {"items": {"$elemMatch": {"id": str(media_id)}}},
                     )
                     if "items" in item_lists:
                         return {
@@ -266,7 +266,7 @@ class List(Database):
                                     "items": {
                                         "$each": [
                                             {
-                                                "id": int(media_id),
+                                                "id": str(media_id),
                                                 "name": tv["name"],
                                                 "original_name": tv["original_name"],
                                                 "original_language": tv[
@@ -326,7 +326,7 @@ class List(Database):
 
             self.__db["lists"].find_one_and_update(
                 {"id": jwtUser["id"]},
-                {"$pull": {"items": {"id": int(media_id)}}},
+                {"$pull": {"items": {"id": str(media_id)}}},
                 {"new": True},
                 upsert=True,
                 return_document=ReturnDocument.AFTER,

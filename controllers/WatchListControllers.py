@@ -77,7 +77,7 @@ class WatchList(Database):
                 algorithms=["HS256"],
             )
             item_watchlists = self.__db["watchlists"].find_one(
-                {"id": jwtUser["id"]}, {"items": {"$elemMatch": {"id": int(idmovie)}}}
+                {"id": jwtUser["id"]}, {"items": {"$elemMatch": {"id": str(idmovie)}}}
             )
             if "items" in item_watchlists:
                 return {"success": True, "result": cvtJson(item_watchlists["items"][0])}
@@ -173,7 +173,7 @@ class WatchList(Database):
 
             if media_type == "movie":
                 movie = self.__db["movies"].find_one(
-                    {"id": int(media_id)},
+                    {"id": str(media_id)},
                     {
                         "images": 0,
                         "credits": 0,
@@ -185,7 +185,7 @@ class WatchList(Database):
                 if movie != None:
                     item_watchlists = self.__db["watchlists"].find_one(
                         {"id": jwtUser["id"]},
-                        {"items": {"$elemMatch": {"id": int(media_id)}}},
+                        {"items": {"$elemMatch": {"id": str(media_id)}}},
                     )
 
                     if "items" not in item_watchlists:
@@ -197,7 +197,7 @@ class WatchList(Database):
                                     "items": {
                                         "$each": [
                                             {
-                                                "id": int(media_id),
+                                                "id": str(media_id),
                                                 "name": movie["name"],
                                                 "original_name": movie["original_name"],
                                                 "original_language": movie[
@@ -234,7 +234,7 @@ class WatchList(Database):
                         }
                     else:
                         # self.__db["watchlists"].update_one(
-                        #     {"items": {"$elemMatch": {"id": int(media_id)}}},
+                        #     {"items": {"$elemMatch": {"id": str(media_id)}}},
                         #     {
                         #         "$set": {
                         #             "items.$[element].percent": float(percent),
@@ -243,7 +243,7 @@ class WatchList(Database):
                         #     },
                         #     upsert=False,
                         #     array_filters=[
-                        #         {"element.id": int(media_id)},
+                        #         {"element.id": str(media_id)},
                         #     ],
                         # )
 
@@ -257,7 +257,7 @@ class WatchList(Database):
                         ):
                             self.__db["watchlists"].find_one_and_update(
                                 {"id": jwtUser["id"]},
-                                {"$pull": {"items": {"id": int(media_id)}}},
+                                {"$pull": {"items": {"id": str(media_id)}}},
                                 {"new": True},
                                 upsert=True,
                                 return_document=ReturnDocument.AFTER,
@@ -270,7 +270,7 @@ class WatchList(Database):
                                         "items": {
                                             "$each": [
                                                 {
-                                                    "id": int(media_id),
+                                                    "id": str(media_id),
                                                     "name": movie["name"],
                                                     "original_name": movie[
                                                         "original_name"
@@ -308,7 +308,7 @@ class WatchList(Database):
                         else:
                             self.__db["watchlists"].find_one_and_update(
                                 {"id": jwtUser["id"]},
-                                {"$pull": {"items": {"id": int(media_id)}}},
+                                {"$pull": {"items": {"id": str(media_id)}}},
                                 {"new": True},
                                 upsert=True,
                                 return_document=ReturnDocument.AFTER,
@@ -321,7 +321,7 @@ class WatchList(Database):
                                         "items": {
                                             "$each": [
                                                 {
-                                                    "id": int(media_id),
+                                                    "id": str(media_id),
                                                     "name": movie["name"],
                                                     "original_name": movie[
                                                         "original_name"
@@ -369,7 +369,7 @@ class WatchList(Database):
 
             elif media_type == "tv":
                 tv = self.__db["tvs"].find_one(
-                    {"id": int(media_id)},
+                    {"id": str(media_id)},
                     {
                         "images": 0,
                         "credits": 0,
@@ -382,7 +382,7 @@ class WatchList(Database):
                 if tv != None:
                     item_watchlists = self.__db["watchlists"].find_one(
                         {"id": jwtUser["id"]},
-                        {"items": {"$elemMatch": {"id": int(media_id)}}},
+                        {"items": {"$elemMatch": {"id": str(media_id)}}},
                     )
 
                     if "items" not in item_watchlists:
@@ -394,7 +394,7 @@ class WatchList(Database):
                                     "items": {
                                         "$each": [
                                             {
-                                                "id": int(media_id),
+                                                "id": str(media_id),
                                                 "name": tv["name"],
                                                 "original_name": tv["original_name"],
                                                 "original_language": tv[
@@ -431,7 +431,7 @@ class WatchList(Database):
                         }
                     else:
                         # self.__db["watchlists"].update_one(
-                        #     {"items": {"$elemMatch": {"id": int(media_id)}}},
+                        #     {"items": {"$elemMatch": {"id": str(media_id)}}},
                         #     {
                         #         "$set": {
                         #             "items.$[element].percent": float(percent),
@@ -440,7 +440,7 @@ class WatchList(Database):
                         #     },
                         #     upsert=False,
                         #     array_filters=[
-                        #         {"element.id": int(media_id)},
+                        #         {"element.id": str(media_id)},
                         #     ],
                         # )
 
@@ -454,7 +454,7 @@ class WatchList(Database):
                         ):
                             self.__db["watchlists"].find_one_and_update(
                                 {"id": jwtUser["id"]},
-                                {"$pull": {"items": {"id": int(media_id)}}},
+                                {"$pull": {"items": {"id": str(media_id)}}},
                                 {"new": True},
                                 upsert=True,
                                 return_document=ReturnDocument.AFTER,
@@ -468,7 +468,7 @@ class WatchList(Database):
                                         "items": {
                                             "$each": [
                                                 {
-                                                    "id": int(media_id),
+                                                    "id": str(media_id),
                                                     "name": tv["name"],
                                                     "original_name": tv[
                                                         "original_name"
@@ -506,7 +506,7 @@ class WatchList(Database):
                         else:
                             self.__db["watchlists"].find_one_and_update(
                                 {"id": jwtUser["id"]},
-                                {"$pull": {"items": {"id": int(media_id)}}},
+                                {"$pull": {"items": {"id": str(media_id)}}},
                                 {"new": True},
                                 upsert=True,
                                 return_document=ReturnDocument.AFTER,
@@ -519,7 +519,7 @@ class WatchList(Database):
                                         "items": {
                                             "$each": [
                                                 {
-                                                    "id": int(media_id),
+                                                    "id": str(media_id),
                                                     "name": tv["name"],
                                                     "original_name": tv[
                                                         "original_name"
@@ -587,7 +587,7 @@ class WatchList(Database):
 
             self.__db["watchlists"].find_one_and_update(
                 {"id": jwtUser["id"]},
-                {"$pull": {"items": {"id": int(media_id)}}},
+                {"$pull": {"items": {"id": str(media_id)}}},
                 {"new": True},
                 upsert=True,
                 return_document=ReturnDocument.AFTER,
