@@ -56,7 +56,7 @@ class Authentication:
         try:
             formUser = request.form
             account = self.__db["accounts"].find_one(
-                {"$and": [{"email": formUser["email"]}, {"auth_type": "email"}]}
+                {"email": formUser["email"], "auth_type": "email"}
             )
             if account != None:
                 if account["password"] == formUser["password"]:
@@ -444,7 +444,7 @@ class Authentication:
 
             if jwtUser["auth_type"] == "facebook":
                 facebook_account = self.__db["accounts"].find_one(
-                    {"$and": [{"id": jwtUser["id"]}, {"auth_type": "facebook"}]}
+                    {"id": jwtUser["id"], "auth_type": "facebook"}
                 )
                 if facebook_account == None:
                     return {"isNotExist": True, "result": "Account does not exists"}
@@ -472,7 +472,7 @@ class Authentication:
                     return response
             elif jwtUser["auth_type"] == "google":
                 google_account = self.__db["accounts"].find_one(
-                    {"$and": [{"id": jwtUser["id"]}, {"auth_type": "google"}]}
+                    {"id": jwtUser["id"], "auth_type": "google"}
                 )
                 if google_account == None:
                     return {"isNotExist": True, "result": "Account does not exists"}
@@ -500,7 +500,7 @@ class Authentication:
                     return response
             elif jwtUser["auth_type"] == "email":
                 account = self.__db["accounts"].find_one(
-                    {"$and": [{"email": jwtUser["email"]}, {"auth_type": "email"}]}
+                    {"email": jwtUser["email"], "auth_type": "email"}
                 )
 
                 if account != None:
@@ -662,7 +662,7 @@ class Authentication:
                 algorithms=["HS256"],
             )
             account = self.__db["accounts"].find_one(
-                {"$and": [{"id": jwtUser["id"]}, {"auth_type": "email"}]}
+                {"id": jwtUser["id"], "auth_type": "email"}
             )
             if account == None:
                 list = self.__db["lists"].find_one(
@@ -751,7 +751,7 @@ class Authentication:
 
             if emailValidateResponse["is_smtp_valid"]["value"] == True:
                 account = self.__db["accounts"].find_one(
-                    {"$and": [{"email": formUser["email"]}, {"auth_type": "email"}]}
+                    {"email": formUser["email"], "auth_type": "email"}
                 )
                 if account == None:
                     OTP = generateOTP(length=6)

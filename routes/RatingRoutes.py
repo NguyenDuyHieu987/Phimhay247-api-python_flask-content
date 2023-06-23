@@ -10,4 +10,4 @@ def rating_routes(app):
     @app.route("/rating/<type>/<id>", methods=["POST"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def rating_route(type, id):
-        return rate.rating_movie_tv(type, id)
+        return rate.rating(type, id)

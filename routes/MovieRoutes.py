@@ -33,4 +33,4 @@ def movie_routes(app, cache):
     @app.route("/movie/updateview/<id>", methods=["POST"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def update_view_movie_route(id):
-        return movie.update_view_movie(id)
+        return movie.update_view(id)

@@ -13,7 +13,7 @@ class TVSlug(Database):
 
     def tv_slug(self, slug):
         try:
-            if slug == "phimbo":
+            if slug == "all":
                 page = (request.args.get("page", default=1, type=int)) - 1
                 phimbo = cvtJson(
                     self.__db["tvs"]

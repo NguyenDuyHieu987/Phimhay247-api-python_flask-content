@@ -37,6 +37,16 @@ def route(app, cache):
 
     rating_routes(app)
 
+    # Update view
+    from routes.UpdateViewRoutes import update_view_routes
+
+    update_view_routes(app)
+
+    # Comment
+    from routes.CommentRoutes import comment_routes
+
+    comment_routes(app)
+
     # Trending
     from routes.TrendingRoutes import trending_routes
 

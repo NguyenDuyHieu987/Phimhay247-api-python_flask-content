@@ -161,7 +161,7 @@ class TV(Database):
         except Exception as e:
             InternalServerErrorMessage(e)
 
-    def update_view_tv(self, id):
+    def update_view(self, id):
         try:
             tv_dumps = self.__db["tvs"].find_one({"id": str(id)})
             new_views = int(tv_dumps["views"]) + 1

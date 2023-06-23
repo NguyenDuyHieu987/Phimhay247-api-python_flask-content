@@ -11,7 +11,7 @@ class Rate(Database):
     def __init__(self):
         self.__db = self.ConnectMongoDB()
 
-    def rating_movie_tv(self, type, id):
+    def rating(self, type, id):
         try:
             rateValue = float(request.form["value"])
             if type == "movie":

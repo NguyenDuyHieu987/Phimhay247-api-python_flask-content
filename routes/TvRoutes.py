@@ -33,4 +33,4 @@ def tv_routes(app, cache):
     @app.route("/tv/updateview/<id>", methods=["POST"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def update_view_tv_route(id):
-        return tv.update_view_tv(id)
+        return tv.update_view(id)

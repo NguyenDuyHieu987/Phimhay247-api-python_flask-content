@@ -170,7 +170,7 @@ class Movie(Database):
         except Exception as e:
             InternalServerErrorMessage(e)
 
-    def update_view_movie(self, id):
+    def update_view(self, id):
         try:
             movie_dumps = self.__db["movies"].find_one({"id": str(id)})
             new_views = int(movie_dumps["views"]) + 1
