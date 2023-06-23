@@ -99,9 +99,10 @@ class Comment(Database):
                             },
                         )
 
+                idComment = str(uuid.uuid4())
                 self.__db["comments"].insert_one(
                     {
-                        "id": str(uuid.uuid4()),
+                        "id": idComment,
                         "content": commentForm["content"],
                         "user_id": jwtUser["id"],
                         "username": jwtUser["username"],
@@ -122,7 +123,7 @@ class Comment(Database):
                 return {
                     "success": True,
                     "result": {
-                        "id": str(uuid.uuid4()),
+                        "id": idComment,
                         "content": commentForm["content"],
                         "user_id": jwtUser["id"],
                         "username": jwtUser["username"],
@@ -138,6 +139,71 @@ class Comment(Database):
                         "created_at": str(datetime.now()),
                         "updated_at": str(datetime.now()),
                     },
+                }
+            else:
+                raise DefaultError("Movie is not exists")
+
+        except jwt.ExpiredSignatureError as e:
+            return {"is_token_expired": True, "result": "Token is expired"}
+        except jwt.exceptions.DecodeError as e:
+            return {"is_invalid_token": True, "result": "Token is invalid"}
+        except PyMongoError as e:
+            InternalServerErrorMessage(e._message)
+        except DefaultError as e:
+            BadRequestMessage(e.message)
+        except Exception as e:
+            InternalServerErrorMessage(e)
+
+    def delete_comment(self, type, id):
+        try:
+            user_token = request.headers["Authorization"].replace("Bearer ", "")
+
+            jwtUser = jwt.decode(
+                user_token,
+                str(os.getenv("JWT_TOKEN_SECRET")),
+                algorithms=["HS256"],
+            )
+
+            isExistMovies = False
+
+            if type == "movie":
+                isExistMovies = self.__db["movies"].find_one({"id": str(id)}) != None
+            elif type == "tv":
+                isExistMovies = self.__db["tvs"].find_one({"id": str(id)}) != None
+
+            if isExistMovies == True:
+                commentForm = request.form
+
+                if "parent_id" in commentForm:
+                    if commentForm["parent_id"] != None:
+                        # pass
+                        self.__db["comments"].update_one(
+                            {
+                                "id": commentForm["parent_id"],
+                                "movie_id": str(id),
+                                "type": "parent",
+                            },
+                            {
+                                "$inc": {"childrens": -1},
+                            },
+                        )
+
+                self.__db["comments"].delete_one(
+                    {
+                        "id": commentForm["id"],
+                        "user_id": jwtUser["id"],
+                        "movie_id": str(id),
+                        "parent_id": commentForm["parent_id"]
+                        if "parent_id" in commentForm
+                        else None,
+                        "type": commentForm["type"]
+                        if "type" in commentForm
+                        else "parent",
+                    }
+                )
+
+                return {
+                    "success": True,
                 }
             else:
                 raise DefaultError("Movie is not exists")
