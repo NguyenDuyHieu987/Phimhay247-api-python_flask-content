@@ -45,7 +45,7 @@ class Similar(Database):
                         },
                     )
                     .skip(0)
-                    .limit(20)
+                    .limit(10)
                     .sort([("views", pymongo.DESCENDING)])
                 )
                 return {
@@ -82,7 +82,7 @@ class Similar(Database):
                         },
                     )
                     .skip(0)
-                    .limit(20)
+                    .limit(10)
                     .sort([("views", pymongo.DESCENDING)])
                 )
                 return {

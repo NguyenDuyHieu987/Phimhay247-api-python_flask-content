@@ -15,13 +15,14 @@ class Comment(Database):
     def __init__(self):
         self.__db = self.ConnectMongoDB()
 
-    def get_commemt_by_movieid(self, movieId):
+    def get_commemt_by_movieid(self, movieType, movieId):
         try:
             comments = (
                 self.__db["comments"]
                 .find(
                     {
                         "movie_id": str(movieId),
+                        "movie_type": str(movieType),
                         "type": "parent",
                     }
                 )
@@ -38,7 +39,7 @@ class Comment(Database):
         except Exception as e:
             InternalServerErrorMessage(e)
 
-    def get_commemt_by_movieid_parentid(self, movieId, parentId):
+    def get_commemt_by_movieid_parentid(self, movieType, movieId, parentId):
         try:
             comments = (
                 self.__db["comments"]
@@ -46,6 +47,7 @@ class Comment(Database):
                     {
                         "movie_id": str(movieId),
                         "parent_id": str(parentId),
+                        "movie_type": str(movieType),
                         "type": "children",
                     }
                 )
@@ -62,7 +64,7 @@ class Comment(Database):
         except Exception as e:
             InternalServerErrorMessage(e)
 
-    def post_comment(self, type, id):
+    def post_comment(self, movieType, id):
         try:
             user_token = request.headers["Authorization"].replace("Bearer ", "")
 
@@ -74,9 +76,9 @@ class Comment(Database):
 
             isExistMovies = False
 
-            if type == "movie":
+            if movieType == "movie":
                 isExistMovies = self.__db["movies"].find_one({"id": str(id)}) != None
-            elif type == "tv":
+            elif movieType == "tv":
                 isExistMovies = self.__db["tvs"].find_one({"id": str(id)}) != None
 
             if isExistMovies == True:
@@ -89,7 +91,7 @@ class Comment(Database):
 
                 if "parent_id" in commentForm:
                     if commentForm["parent_id"] != None:
-                        resultUpdate1 = self.__db["comments"].insert_one(
+                        resultInsert1 = self.__db["comments"].insert_one(
                             {
                                 "id": idComment,
                                 "content": commentForm["content"],
@@ -97,6 +99,7 @@ class Comment(Database):
                                 "username": jwtUser["username"],
                                 "user_avatar": jwtUser["avatar"],
                                 "movie_id": str(id),
+                                "movie_type": str(movieType),
                                 "parent_id": commentForm["parent_id"],
                                 "type": "children",
                                 "childrens": 0,
@@ -105,11 +108,12 @@ class Comment(Database):
                             }
                         )
 
-                        if resultUpdate1.acknowledged == True:
+                        if resultInsert1.acknowledged == True:
                             self.__db["comments"].update_one(
                                 {
                                     "id": commentForm["parent_id"],
                                     "movie_id": str(id),
+                                    "movie_type": str(movieType),
                                     "type": "parent",
                                 },
                                 {
@@ -128,6 +132,7 @@ class Comment(Database):
                             "username": jwtUser["username"],
                             "user_avatar": jwtUser["avatar"],
                             "movie_id": str(id),
+                            "movie_type": str(movieType),
                             "parent_id": commentForm["parent_id"]
                             if "parent_id" in commentForm
                             else None,
@@ -149,6 +154,7 @@ class Comment(Database):
                         "username": jwtUser["username"],
                         "user_avatar": jwtUser["avatar"],
                         "movie_id": str(id),
+                        "movie_type": str(movieType),
                         "parent_id": commentForm["parent_id"]
                         if "parent_id" in commentForm
                         else None,
@@ -174,7 +180,7 @@ class Comment(Database):
         except Exception as e:
             InternalServerErrorMessage(e)
 
-    def delete_comment(self, type, id):
+    def delete_comment(self, movieType, id):
         try:
             user_token = request.headers["Authorization"].replace("Bearer ", "")
 
@@ -186,9 +192,9 @@ class Comment(Database):
 
             isExistMovies = False
 
-            if type == "movie":
+            if movieType == "movie":
                 isExistMovies = self.__db["movies"].find_one({"id": str(id)}) != None
-            elif type == "tv":
+            elif movieType == "tv":
                 isExistMovies = self.__db["tvs"].find_one({"id": str(id)}) != None
 
             if isExistMovies == True:
@@ -200,6 +206,7 @@ class Comment(Database):
                             "id": commentForm["id"],
                             "user_id": jwtUser["id"],
                             "movie_id": str(id),
+                            "movie_type": str(movieType),
                             "parent_id": None,
                             "type": "parent",
                         }
@@ -208,6 +215,7 @@ class Comment(Database):
                     self.__db["comments"].delete_many(
                         {
                             "movie_id": str(id),
+                            "movie_type": str(movieType),
                             "parent_id": commentForm["id"],
                             "type": "children",
                         }
@@ -218,6 +226,7 @@ class Comment(Database):
                             "id": commentForm["id"],
                             "user_id": jwtUser["id"],
                             "movie_id": str(id),
+                            "movie_type": str(movieType),
                             "parent_id": commentForm["parent_id"]
                             if "parent_id" in commentForm
                             else None,
@@ -232,6 +241,7 @@ class Comment(Database):
                             {
                                 "id": commentForm["parent_id"],
                                 "movie_id": str(id),
+                                "movie_type": str(movieType),
                                 "type": "parent",
                             },
                             {

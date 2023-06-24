@@ -15,8 +15,11 @@ class Trend(Database):
         try:
             if type == "all":
                 page = request.args.get("page", default=1, type=int) - 1
+                limit = request.args.get("limit", default=20, type=int)
 
-                trending = self.__db["trendings"].find({}).skip(page * 20).limit(20)
+                trending = (
+                    self.__db["trendings"].find({}).skip(page * limit).limit(limit)
+                )
 
                 return make_response(
                     {
