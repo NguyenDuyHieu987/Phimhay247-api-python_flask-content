@@ -85,40 +85,60 @@ class Comment(Database):
                 if len(commentForm["content"]) == 0:
                     raise DefaultError("Content comment is not allowed empty")
 
+                idComment = str(uuid.uuid4())
+
                 if "parent_id" in commentForm:
                     if commentForm["parent_id"] != None:
-                        # pass
-                        self.__db["comments"].update_one(
+                        resultUpdate1 = self.__db["comments"].insert_one(
                             {
-                                "id": commentForm["parent_id"],
+                                "id": idComment,
+                                "content": commentForm["content"],
+                                "user_id": jwtUser["id"],
+                                "username": jwtUser["username"],
+                                "user_avatar": jwtUser["avatar"],
                                 "movie_id": str(id),
-                                "type": "parent",
-                            },
-                            {
-                                "$inc": {"childrens": 1},
-                            },
+                                "parent_id": commentForm["parent_id"],
+                                "type": "children",
+                                "childrens": 0,
+                                "created_at": str(datetime.now()),
+                                "updated_at": str(datetime.now()),
+                            }
                         )
 
-                idComment = str(uuid.uuid4())
-                self.__db["comments"].insert_one(
-                    {
-                        "id": idComment,
-                        "content": commentForm["content"],
-                        "user_id": jwtUser["id"],
-                        "username": jwtUser["username"],
-                        "user_avatar": jwtUser["avatar"],
-                        "movie_id": str(id),
-                        "parent_id": commentForm["parent_id"]
-                        if "parent_id" in commentForm
-                        else None,
-                        "type": commentForm["type"]
-                        if "type" in commentForm
-                        else "parent",
-                        "childrens": 0,
-                        "created_at": str(datetime.now()),
-                        "updated_at": str(datetime.now()),
-                    }
-                )
+                        if resultUpdate1.acknowledged == True:
+                            self.__db["comments"].update_one(
+                                {
+                                    "id": commentForm["parent_id"],
+                                    "movie_id": str(id),
+                                    "type": "parent",
+                                },
+                                {
+                                    "$inc": {"childrens": 1},
+                                },
+                            )
+                        else:
+                            raise DefaultError("Post comment failed")
+
+                else:
+                    self.__db["comments"].insert_one(
+                        {
+                            "id": idComment,
+                            "content": commentForm["content"],
+                            "user_id": jwtUser["id"],
+                            "username": jwtUser["username"],
+                            "user_avatar": jwtUser["avatar"],
+                            "movie_id": str(id),
+                            "parent_id": commentForm["parent_id"]
+                            if "parent_id" in commentForm
+                            else None,
+                            "type": commentForm["type"]
+                            if "type" in commentForm
+                            else "parent",
+                            "childrens": 0,
+                            "created_at": str(datetime.now()),
+                            "updated_at": str(datetime.now()),
+                        }
+                    )
 
                 return {
                     "success": True,
@@ -174,20 +194,6 @@ class Comment(Database):
             if isExistMovies == True:
                 commentForm = request.form
 
-                if "parent_id" in commentForm:
-                    if commentForm["parent_id"] != None:
-                        # pass
-                        self.__db["comments"].update_one(
-                            {
-                                "id": commentForm["parent_id"],
-                                "movie_id": str(id),
-                                "type": "parent",
-                            },
-                            {
-                                "$inc": {"childrens": -1},
-                            },
-                        )
-
                 if commentForm["type"] == "parent":
                     self.__db["comments"].delete_one(
                         {
@@ -207,7 +213,7 @@ class Comment(Database):
                         }
                     )
                 else:
-                    self.__db["comments"].delete_one(
+                    resultDel1 = self.__db["comments"].delete_one(
                         {
                             "id": commentForm["id"],
                             "user_id": jwtUser["id"],
@@ -221,6 +227,19 @@ class Comment(Database):
                         }
                     )
 
+                    if resultDel1.deleted_count > 0:
+                        self.__db["comments"].update_one(
+                            {
+                                "id": commentForm["parent_id"],
+                                "movie_id": str(id),
+                                "type": "parent",
+                            },
+                            {
+                                "$inc": {"childrens": -1},
+                            },
+                        )
+                    else:
+                        raise DefaultError("Delete comment failed")
                 return {
                     "success": True,
                 }
