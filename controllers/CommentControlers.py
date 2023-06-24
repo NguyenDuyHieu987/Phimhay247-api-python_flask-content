@@ -144,9 +144,9 @@ class Comment(Database):
                 raise DefaultError("Movie is not exists")
 
         except jwt.ExpiredSignatureError as e:
-            return {"is_token_expired": True, "result": "Token is expired"}
+            InternalServerErrorMessage("Token is expired")
         except jwt.exceptions.DecodeError as e:
-            return {"is_invalid_token": True, "result": "Token is invalid"}
+            InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except DefaultError as e:
@@ -188,19 +188,38 @@ class Comment(Database):
                             },
                         )
 
-                self.__db["comments"].delete_one(
-                    {
-                        "id": commentForm["id"],
-                        "user_id": jwtUser["id"],
-                        "movie_id": str(id),
-                        "parent_id": commentForm["parent_id"]
-                        if "parent_id" in commentForm
-                        else None,
-                        "type": commentForm["type"]
-                        if "type" in commentForm
-                        else "parent",
-                    }
-                )
+                if commentForm["type"] == "parent":
+                    self.__db["comments"].delete_one(
+                        {
+                            "id": commentForm["id"],
+                            "user_id": jwtUser["id"],
+                            "movie_id": str(id),
+                            "parent_id": None,
+                            "type": "parent",
+                        }
+                    )
+
+                    self.__db["comments"].delete_many(
+                        {
+                            "movie_id": str(id),
+                            "parent_id": commentForm["id"],
+                            "type": "children",
+                        }
+                    )
+                else:
+                    self.__db["comments"].delete_one(
+                        {
+                            "id": commentForm["id"],
+                            "user_id": jwtUser["id"],
+                            "movie_id": str(id),
+                            "parent_id": commentForm["parent_id"]
+                            if "parent_id" in commentForm
+                            else None,
+                            "type": commentForm["type"]
+                            if "type" in commentForm
+                            else "parent",
+                        }
+                    )
 
                 return {
                     "success": True,
@@ -209,9 +228,9 @@ class Comment(Database):
                 raise DefaultError("Movie is not exists")
 
         except jwt.ExpiredSignatureError as e:
-            return {"is_token_expired": True, "result": "Token is expired"}
+            InternalServerErrorMessage("Token is expired")
         except jwt.exceptions.DecodeError as e:
-            return {"is_invalid_token": True, "result": "Token is invalid"}
+            InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except DefaultError as e:

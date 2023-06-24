@@ -53,9 +53,9 @@ class List(Database):
                 return {"result": cvtJson(list["items"]), "total": len(list["items"])}
 
         except jwt.ExpiredSignatureError as e:
-            return {"is_token_expired": True, "result": "Token is expired"}
+            InternalServerErrorMessage("Token is expired")
         except jwt.exceptions.DecodeError as e:
-            return {"is_invalid_token": True, "result": "Token is invalid"}
+            InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except Exception as e:
@@ -118,10 +118,11 @@ class List(Database):
                     "results": cvtJson(list["items"]),
                     "total": cvtJson(total)[0]["total"],
                 }
+
         except jwt.ExpiredSignatureError as e:
-            return {"is_token_expired": True, "result": "Token is expired"}
+            InternalServerErrorMessage("Token is expired")
         except jwt.exceptions.DecodeError as e:
-            return {"is_invalid_token": True, "result": "Token is invalid"}
+            InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except Exception as e:
@@ -145,9 +146,9 @@ class List(Database):
                 return {"success": False, "result": "Failed to get item in list"}
 
         except jwt.ExpiredSignatureError as e:
-            return {"is_token_expired": True, "result": "Token is expired"}
+            InternalServerErrorMessage("Token is expired")
         except jwt.exceptions.DecodeError as e:
-            return {"is_invalid_token": True, "result": "Token is invalid"}
+            InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except Exception as e:
@@ -303,10 +304,11 @@ class List(Database):
                         "success": False,
                         "results": "Failed to add item to list",
                     }
+
         except jwt.ExpiredSignatureError as e:
-            return {"is_token_expired": True, "result": "Token is expired"}
+            InternalServerErrorMessage("Token is expired")
         except jwt.exceptions.DecodeError as e:
-            return {"is_invalid_token": True, "result": "Token is invalid"}
+            InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except Exception as e:
@@ -335,10 +337,11 @@ class List(Database):
             list = cvtJson(self.__db["lists"].find_one({"id": jwtUser["id"]}))
 
             return {"success": True, "results": list["items"]}
+
         except jwt.ExpiredSignatureError as e:
-            return {"is_token_expired": True, "result": "Token is expired"}
+            InternalServerErrorMessage("Token is expired")
         except jwt.exceptions.DecodeError as e:
-            return {"is_invalid_token": True, "result": "Token is invalid"}
+            InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except Exception as e:
@@ -367,9 +370,9 @@ class List(Database):
             return {"success": True, "results": list["items"]}
 
         except jwt.ExpiredSignatureError as e:
-            return {"is_token_expired": True, "result": "Token is expired"}
+            InternalServerErrorMessage("Token is expired")
         except jwt.exceptions.DecodeError as e:
-            return {"is_invalid_token": True, "result": "Token is invalid"}
+            InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except Exception as e:

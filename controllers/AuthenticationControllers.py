@@ -551,9 +551,9 @@ class Authentication:
                 else:
                     return {"isNotExist": True, "result": "Account does not exists"}
         except jwt.ExpiredSignatureError as e:
-            return {"isOTPExpired": True, "result": "OTP is expired"}
+            return {"is_token_expired": True, "result": "Token is expired"}
         except jwt.exceptions.DecodeError as e:
-            return {"isInvalidOTP": True, "result": "OTP is invalid"}
+            return {"is_invalid_token": True, "result": "Token is invalid"}
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except Exception as e:

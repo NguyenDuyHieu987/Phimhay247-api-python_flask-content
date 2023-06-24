@@ -59,9 +59,9 @@ class WatchList(Database):
                     "total": len(watchlist["items"]),
                 }
         except jwt.ExpiredSignatureError as e:
-            return {"is_token_expired": True, "result": "Token is expired"}
+            InternalServerErrorMessage("Token is expired")
         except jwt.exceptions.DecodeError as e:
-            return {"is_invalid_token": True, "result": "Token is invalid"}
+            InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except Exception as e:
@@ -85,9 +85,9 @@ class WatchList(Database):
                 return {"success": False, "result": "Fail to get item in watchlist"}
 
         except jwt.ExpiredSignatureError as e:
-            return {"is_token_expired": True, "result": "Token is expired"}
+            InternalServerErrorMessage("Token is expired")
         except jwt.exceptions.DecodeError as e:
-            return {"is_invalid_token": True, "result": "Token is invalid"}
+            InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except Exception as e:
@@ -148,9 +148,9 @@ class WatchList(Database):
                     "total": cvtJson(total)[0]["total"],
                 }
         except jwt.ExpiredSignatureError as e:
-            return {"is_token_expired": True, "result": "Token is expired"}
+            InternalServerErrorMessage("Token is expired")
         except jwt.exceptions.DecodeError as e:
-            return {"is_invalid_token": True, "result": "Token is invalid"}
+            InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except Exception as e:
@@ -566,9 +566,9 @@ class WatchList(Database):
                     }
 
         except jwt.ExpiredSignatureError as e:
-            return {"is_token_expired": True, "result": "Token is expired"}
+            InternalServerErrorMessage("Token is expired")
         except jwt.exceptions.DecodeError as e:
-            return {"is_invalid_token": True, "result": "Token is invalid"}
+            InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except Exception as e:
@@ -598,9 +598,9 @@ class WatchList(Database):
             return {"success": True, "results": list["items"]}
 
         except jwt.ExpiredSignatureError as e:
-            return {"is_token_expired": True, "result": "Token is expired"}
+            InternalServerErrorMessage("Token is expired")
         except jwt.exceptions.DecodeError as e:
-            return {"is_invalid_token": True, "result": "Token is invalid"}
+            InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except Exception as e:
@@ -628,9 +628,9 @@ class WatchList(Database):
             return {"success": True, "results": list["items"]}
 
         except jwt.ExpiredSignatureError as e:
-            return {"is_token_expired": True, "result": "Token is expired"}
+            InternalServerErrorMessage("Token is expired")
         except jwt.exceptions.DecodeError as e:
-            return {"is_invalid_token": True, "result": "Token is invalid"}
+            InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except Exception as e:

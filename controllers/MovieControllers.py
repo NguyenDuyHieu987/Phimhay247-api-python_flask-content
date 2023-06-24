@@ -84,9 +84,9 @@ class Movie(Database):
                 return cvtJson(movie)
 
         except jwt.ExpiredSignatureError as e:
-            return {"is_token_expired": True, "result": "Token is expired"}
+            InternalServerErrorMessage("Token is expired")
         except jwt.exceptions.DecodeError as e:
-            return {"is_invalid_token": True, "result": "Token is invalid"}
+            InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except Exception as e:
