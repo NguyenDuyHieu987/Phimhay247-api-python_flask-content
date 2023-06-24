@@ -27,10 +27,12 @@ class WatchList(Database):
                 algorithms=["HS256"],
             )
 
-            skip = request.args.get("skip", default=0, type=int)
+            skip = request.args.get("skip", default=1, type=int) - 1
+            limit = request.args.get("limit", default=20, type=int)
+
             if skip == 0:
                 watchlist = self.__db["watchlists"].find_one(
-                    {"id": jwtUser["id"]}, {"items": {"$slice": [skip * 20, 20]}}
+                    {"id": jwtUser["id"]}, {"items": {"$slice": [skip * limit, limit]}}
                 )
                 total = self.__db["watchlists"].aggregate(
                     [
@@ -52,7 +54,7 @@ class WatchList(Database):
 
             elif skip > 0:
                 watchlist = self.__db["watchlists"].find_one(
-                    {"id": jwtUser["id"]}, {"items": {"$slice": [skip * 20, 20]}}
+                    {"id": jwtUser["id"]}, {"items": {"$slice": [skip * limit, limit]}}
                 )
                 return {
                     "result": cvtJson(watchlist["items"]),

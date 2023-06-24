@@ -17,6 +17,9 @@ class Comment(Database):
 
     def get_commemt_by_movieid(self, movieType, movieId):
         try:
+            skip = request.args.get("skip", default=1, type=int) - 1
+            limit = request.args.get("limit", default=20, type=int)
+
             comments = (
                 self.__db["comments"]
                 .find(
@@ -29,8 +32,8 @@ class Comment(Database):
                 .sort(
                     [("created_at", pymongo.DESCENDING)],
                 )
-                .skip(0)
-                .limit(20)
+                .skip(skip * limit)
+                .limit(limit)
             )
 
             return {"results": cvtJson(comments)}
@@ -41,6 +44,9 @@ class Comment(Database):
 
     def get_commemt_by_movieid_parentid(self, movieType, movieId, parentId):
         try:
+            skip = request.args.get("skip", default=1, type=int) - 1
+            limit = request.args.get("limit", default=10, type=int)
+
             comments = (
                 self.__db["comments"]
                 .find(
@@ -54,8 +60,8 @@ class Comment(Database):
                 .sort(
                     [("created_at", pymongo.ASCENDING)],
                 )
-                .skip(0)
-                .limit(20)
+                .skip(skip * limit)
+                .limit(limit)
             )
 
             return {"results": cvtJson(comments)}

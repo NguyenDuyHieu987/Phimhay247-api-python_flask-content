@@ -24,10 +24,12 @@ class List(Database):
                 algorithms=["HS256"],
             )
 
-            skip = request.args.get("skip", default=0, type=int)
+            skip = request.args.get("skip", default=1, type=int) - 1
+            limit = request.args.get("limit", default=20, type=int)
+
             if skip == 0:
                 list = self.__db["lists"].find_one(
-                    {"id": jwtUser["id"]}, {"items": {"$slice": [skip * 20, 20]}}
+                    {"id": jwtUser["id"]}, {"items": {"$slice": [skip * limit, limit]}}
                 )
 
                 total = self.__db["lists"].aggregate(
@@ -47,7 +49,7 @@ class List(Database):
 
             elif skip > 0:
                 list = self.__db["lists"].find_one(
-                    {"id": jwtUser["id"]}, {"items": {"$slice": [skip * 20, 20]}}
+                    {"id": jwtUser["id"]}, {"items": {"$slice": [skip * limit, limit]}}
                 )
 
                 return {"result": cvtJson(list["items"]), "total": len(list["items"])}
