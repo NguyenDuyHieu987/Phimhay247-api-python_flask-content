@@ -25,6 +25,7 @@ class Recommend(Database):
             )
 
             skip = request.args.get("skip", default=1, type=int) - 1
+            limit = request.args.get("limit", default=6, type=int)
 
             if jwtUser["id"] != None:
                 list = self.__db["lists"].find_one(
@@ -124,8 +125,8 @@ class Recommend(Database):
                                 "production_companies": 0,
                             },
                         )
-                        .skip(skip * 6)
-                        .limit(6)
+                        .skip(skip * limit)
+                        .limit(limit)
                         .sort([("views", pymongo.DESCENDING)])
                     )
 
@@ -157,8 +158,8 @@ class Recommend(Database):
                                 "production_companies": 0,
                             },
                         )
-                        .skip(skip * 6)
-                        .limit(6)
+                        .skip(skip * limit)
+                        .limit(limit)
                         .sort([("views", pymongo.DESCENDING)])
                     )
                     result = movie + tv
