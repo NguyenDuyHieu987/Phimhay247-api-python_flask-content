@@ -130,7 +130,7 @@ class Comment(Database):
                             raise DefaultError("Post comment failed")
 
                 else:
-                    self.__db["comments"].insert_one(
+                    resultInsert2 = self.__db["comments"].insert_one(
                         {
                             "id": idComment,
                             "content": commentForm["content"],
@@ -150,6 +150,8 @@ class Comment(Database):
                             "updated_at": str(datetime.now()),
                         }
                     )
+                    if resultInsert2.acknowledged == False:
+                        raise DefaultError("Post comment failed")
 
                 return {
                     "success": True,

@@ -79,6 +79,24 @@ class TV(Database):
                 else:
                     tv = tv | {"in_history": False}
 
+                rates = self.__db["rates"].find_one(
+                    {
+                        "user_id": jwtUser["id"],
+                        "movie_id": str(id),
+                        "movie_type": "tv",
+                    }
+                )
+
+                if rates != None:
+                    tv = tv | {
+                        "is_rated": True,
+                        "rated_value": rates["rate_value"],
+                    }
+                else:
+                    tv = tv | {
+                        "is_rated": False,
+                    }
+
                 return cvtJson(tv)
 
         except jwt.ExpiredSignatureError as e:
