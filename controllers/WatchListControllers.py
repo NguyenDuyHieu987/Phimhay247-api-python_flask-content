@@ -262,8 +262,8 @@ class WatchList(Database):
                                 {"$pull": {"items": {"id": str(media_id)}}},
                                 {"new": True},
                                 upsert=True,
-                                return_document=ReturnDocument.AFTER,
                             )
+
                             self.__db["watchlists"].find_one_and_update(
                                 {"id": jwtUser["id"]},
                                 {
@@ -313,8 +313,8 @@ class WatchList(Database):
                                 {"$pull": {"items": {"id": str(media_id)}}},
                                 {"new": True},
                                 upsert=True,
-                                return_document=ReturnDocument.AFTER,
                             )
+
                             self.__db["watchlists"].find_one_and_update(
                                 {"id": jwtUser["id"]},
                                 {
@@ -459,7 +459,6 @@ class WatchList(Database):
                                 {"$pull": {"items": {"id": str(media_id)}}},
                                 {"new": True},
                                 upsert=True,
-                                return_document=ReturnDocument.AFTER,
                             )
 
                             self.__db["watchlists"].find_one_and_update(
@@ -511,8 +510,8 @@ class WatchList(Database):
                                 {"$pull": {"items": {"id": str(media_id)}}},
                                 {"new": True},
                                 upsert=True,
-                                return_document=ReturnDocument.AFTER,
                             )
+
                             self.__db["watchlists"].find_one_and_update(
                                 {"id": jwtUser["id"]},
                                 {
@@ -592,7 +591,6 @@ class WatchList(Database):
                 {"$pull": {"items": {"id": str(media_id)}}},
                 {"new": True},
                 upsert=True,
-                return_document=ReturnDocument.AFTER,
             )
 
             list = cvtJson(self.__db["watchlists"].find_one({"id": jwtUser["id"]}))

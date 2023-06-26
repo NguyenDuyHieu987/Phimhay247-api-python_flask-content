@@ -333,7 +333,6 @@ class List(Database):
                 {"$pull": {"items": {"id": str(media_id)}}},
                 {"new": True},
                 upsert=True,
-                return_document=ReturnDocument.AFTER,
             )
 
             list = cvtJson(self.__db["lists"].find_one({"id": jwtUser["id"]}))
