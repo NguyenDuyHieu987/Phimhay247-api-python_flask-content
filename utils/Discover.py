@@ -14,8 +14,7 @@ def discover_movie(db, release_date, genres, original_language, page, sort_by, l
                         genres,
                         original_language,
                     ]
-                },
-                {"images": 0, "credits": 0, "videos": 0, "production_companies": 0},
+                }
             )
             .skip(page * limit)
             .limit(limit)
@@ -32,8 +31,7 @@ def discover_movie(db, release_date, genres, original_language, page, sort_by, l
                         genres,
                         original_language,
                     ]
-                },
-                {"images": 0, "credits": 0, "videos": 0, "production_companies": 0},
+                }
             )
             .skip(page * limit)
             .limit(limit)
@@ -52,14 +50,7 @@ def discover_tv(db, first_air_date, genres, original_language, page, sort_by, li
                         genres,
                         original_language,
                     ]
-                },
-                {
-                    "images": 0,
-                    "credits": 0,
-                    "videos": 0,
-                    "production_companies": 0,
-                    "seasons": 0,
-                },
+                }
             )
             .skip(page * limit)
             .limit(limit)
@@ -76,14 +67,7 @@ def discover_tv(db, first_air_date, genres, original_language, page, sort_by, li
                         genres,
                         original_language,
                     ]
-                },
-                {
-                    "images": 0,
-                    "credits": 0,
-                    "videos": 0,
-                    "production_companies": 0,
-                    "seasons": 0,
-                },
+                }
             )
             .skip(page * limit)
             .limit(limit)

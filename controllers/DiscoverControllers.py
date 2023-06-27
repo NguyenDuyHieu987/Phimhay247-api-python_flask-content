@@ -18,9 +18,11 @@ class Discover(Database):
             page = request.args.get("page", default=1, type=int) - 1
 
             sort_by = request.args.get("sort_by", default="", type=str)
+
             primary_release_date_gte = request.args.get(
                 "primary_release_date_gte", default="", type=str
             )
+
             primary_release_date_lte = request.args.get(
                 "primary_release_date_lte", default="", type=str
             )
@@ -120,6 +122,7 @@ class Discover(Database):
                             10,
                         )
                         return {"results": movie + tv}
+
                     elif sort_by == "release_date_desc":
                         movie = discover_movie(
                             self.__db,

@@ -49,6 +49,7 @@ class Search(Database):
                     .sort([("views", pymongo.DESCENDING)])
                 )
                 result = movie + tv
+
                 # random.shuffle(result)
 
                 return {
