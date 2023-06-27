@@ -16,6 +16,7 @@ class Search(Database):
         try:
             query = request.args.get("query", default="", type=str)
             page = request.args.get("page", default=1, type=int) - 1
+
             if type == "multi":
                 movie = cvtJson(
                     self.__db["movies"]
@@ -48,6 +49,7 @@ class Search(Database):
                     .limit(10)
                     .sort([("views", pymongo.DESCENDING)])
                 )
+
                 result = movie + tv
 
                 # random.shuffle(result)

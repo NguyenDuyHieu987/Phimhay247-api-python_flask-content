@@ -112,6 +112,7 @@ class Discover(Database):
                             [("views", pymongo.DESCENDING)],
                             10,
                         )
+
                         tv = discover_tv(
                             self.__db,
                             first_air_date,
@@ -119,8 +120,9 @@ class Discover(Database):
                             original_language,
                             page,
                             [("views", pymongo.DESCENDING)],
-                            10,
+                            20 - len(movie),
                         )
+
                         return {"results": movie + tv}
 
                     elif sort_by == "release_date_desc":
@@ -133,6 +135,7 @@ class Discover(Database):
                             [("release_date", pymongo.DESCENDING)],
                             10,
                         )
+
                         tv = discover_tv(
                             self.__db,
                             first_air_date,
@@ -140,9 +143,11 @@ class Discover(Database):
                             original_language,
                             page,
                             [("first_air_date", pymongo.DESCENDING)],
-                            10,
+                            20 - len(movie),
                         )
+
                         return {"results": movie + tv}
+
                     elif sort_by == "revenue_desc":
                         movie = discover_movie(
                             self.__db,
@@ -153,6 +158,7 @@ class Discover(Database):
                             [("revenue", pymongo.DESCENDING)],
                             10,
                         )
+
                         tv = discover_tv(
                             self.__db,
                             first_air_date,
@@ -160,9 +166,11 @@ class Discover(Database):
                             original_language,
                             page,
                             [("revenue", pymongo.DESCENDING)],
-                            10,
+                            20 - len(movie),
                         )
+
                         return {"results": movie + tv}
+
                     elif sort_by == "vote_average_desc":
                         movie = discover_movie(
                             self.__db,
@@ -175,6 +183,7 @@ class Discover(Database):
                             ],
                             10,
                         )
+
                         tv = discover_tv(
                             self.__db,
                             first_air_date,
@@ -184,9 +193,11 @@ class Discover(Database):
                             [
                                 ("vote_average", pymongo.DESCENDING),
                             ],
-                            10,
+                            20 - len(movie),
                         )
+
                         return {"results": movie + tv}
+
                     elif sort_by == "vote_count_desc":
                         movie = discover_movie(
                             self.__db,
@@ -199,6 +210,7 @@ class Discover(Database):
                             ],
                             10,
                         )
+
                         tv = discover_tv(
                             self.__db,
                             first_air_date,
@@ -208,8 +220,9 @@ class Discover(Database):
                             [
                                 ("vote_count", pymongo.DESCENDING),
                             ],
-                            10,
+                            20 - len(movie),
                         )
+
                         return {"results": movie + tv}
                 else:
                     movie = discover_movie(
@@ -221,6 +234,7 @@ class Discover(Database):
                         None,
                         10,
                     )
+
                     tv = discover_tv(
                         self.__db,
                         first_air_date,
@@ -228,8 +242,9 @@ class Discover(Database):
                         original_language,
                         page,
                         None,
-                        10,
+                        20 - len(movie),
                     )
+
                     return {
                         "results": movie + tv,
                     }
