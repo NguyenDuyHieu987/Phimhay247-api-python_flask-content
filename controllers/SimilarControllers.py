@@ -21,6 +21,9 @@ class Similar(Database):
 
                 new_genres = [{"id": int(x["id"])} for x in genres]
 
+                page = request.args.get("page", default=1, type=int) - 1
+                limit = request.args.get("limit", default=10, type=int)
+
                 movie = cvtJson(
                     self.__db["movies"]
                     .find(
@@ -37,15 +40,9 @@ class Similar(Database):
                                 },
                             ],
                         },
-                        {
-                            "images": 0,
-                            "credits": 0,
-                            "videos": 0,
-                            "production_companies": 0,
-                        },
                     )
-                    .skip(0)
-                    .limit(10)
+                    .skip(page * limit)
+                    .limit(limit)
                     .sort([("views", pymongo.DESCENDING)])
                 )
                 return {
@@ -74,15 +71,9 @@ class Similar(Database):
                                 },
                             ],
                         },
-                        {
-                            "images": 0,
-                            "credits": 0,
-                            "videos": 0,
-                            "production_companies": 0,
-                        },
                     )
-                    .skip(0)
-                    .limit(10)
+                    .skip(page * limit)
+                    .limit(limit)
                     .sort([("views", pymongo.DESCENDING)])
                 )
                 return {

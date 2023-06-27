@@ -15,21 +15,7 @@ class TVSlug(Database):
         try:
             if slug == "all":
                 page = (request.args.get("page", default=1, type=int)) - 1
-                phimbo = cvtJson(
-                    self.__db["tvs"]
-                    .find(
-                        {},
-                        {
-                            "images": 0,
-                            "credits": 0,
-                            "videos": 0,
-                            "production_companies": 0,
-                            "seasons": 0,
-                        },
-                    )
-                    .skip(page * 20)
-                    .limit(20)
-                )
+                phimbo = cvtJson(self.__db["tvs"].find({}).skip(page * 20).limit(20))
 
                 return {
                     "page": page + 1,

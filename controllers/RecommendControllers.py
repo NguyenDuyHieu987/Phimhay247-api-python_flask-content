@@ -24,7 +24,7 @@ class Recommend(Database):
                 algorithms=["HS256"],
             )
 
-            skip = request.args.get("skip", default=1, type=int) - 1
+            page = request.args.get("page", default=1, type=int) - 1
             limit = request.args.get("limit", default=6, type=int)
 
             if jwtUser["id"] != None:
@@ -118,14 +118,8 @@ class Recommend(Database):
                                     },
                                 ]
                             },
-                            {
-                                "images": 0,
-                                "credits": 0,
-                                "videos": 0,
-                                "production_companies": 0,
-                            },
                         )
-                        .skip(skip * limit)
+                        .skip(page * limit)
                         .limit(limit)
                         .sort([("views", pymongo.DESCENDING)])
                     )
@@ -151,14 +145,8 @@ class Recommend(Database):
                                     },
                                 ]
                             },
-                            {
-                                "images": 0,
-                                "credits": 0,
-                                "videos": 0,
-                                "production_companies": 0,
-                            },
                         )
-                        .skip(skip * limit)
+                        .skip(page * limit)
                         .limit(limit)
                         .sort([("views", pymongo.DESCENDING)])
                     )
