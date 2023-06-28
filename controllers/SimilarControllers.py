@@ -14,15 +14,15 @@ class Similar(Database):
 
     def get_similar(self, type, movieid):
         try:
+            page = request.args.get("page", default=1, type=int) - 1
+            limit = request.args.get("limit", default=10, type=int)
+
             if type == "movie":
                 movie_similar = self.__db["movies"].find_one({"id": str(movieid)})
                 genres = movie_similar["genres"]
                 country = movie_similar["original_language"]
 
                 new_genres = [{"id": int(x["id"])} for x in genres]
-
-                page = request.args.get("page", default=1, type=int) - 1
-                limit = request.args.get("limit", default=10, type=int)
 
                 movie = cvtJson(
                     self.__db["movies"]
@@ -48,6 +48,7 @@ class Similar(Database):
                 return {
                     "results": movie,
                 }
+
             elif type == "tv":
                 tv_similar = self.__db["tvs"].find_one({"id": str(movieid)})
                 genres = tv_similar["genres"]
