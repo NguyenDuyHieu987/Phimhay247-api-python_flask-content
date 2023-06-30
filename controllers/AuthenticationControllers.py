@@ -148,11 +148,11 @@ class Authentication:
                 if list == None:
                     self.__db["lists"].insert_one(newList)
 
-                watchlist = self.__db["watchlists"].find_one(
-                    {
-                        "id": formUser["id"],
-                    },
-                )
+                    watchlist = self.__db["watchlists"].find_one(
+                        {
+                            "id": formUser["id"],
+                        },
+                    )
 
                 newWatchList = {
                     "created_by": formUser["name"],
@@ -222,14 +222,24 @@ class Authentication:
                 return response
 
             else:
+                account_modified = self.__db["accounts"].find_one_and_update(
+                    {"id": formUser["id"]},
+                    {
+                        "$set": {
+                            "avatar": formUser["picture"]["data"]["url"],
+                        }
+                    },
+                    return_document=ReturnDocument.AFTER,
+                )
+
                 encoded = jwt.encode(
                     {
-                        "id": account["id"],
-                        "username": account["username"],
-                        "full_name": account["full_name"],
-                        "avatar": account["avatar"],
-                        "email": account["email"],
-                        "auth_type": account["auth_type"],
+                        "id": account_modified["id"],
+                        "username": account_modified["username"],
+                        "full_name": account_modified["full_name"],
+                        "avatar": account_modified["avatar"],
+                        "email": account_modified["email"],
+                        "auth_type": account_modified["auth_type"],
                         "role": "normal",
                         "exp": datetime.now(tz=timezone.utc)
                         + timedelta(seconds=configs.TIME_OFFSET),
