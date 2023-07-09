@@ -14,15 +14,10 @@ class View(Database):
     def update_view(self, type, id):
         try:
             if type == "movie":
-                movie_dumps = self.__db["movies"].find_one({"id": str(id)})
-                new_views = int(movie_dumps["views"]) + 1
-
                 self.__db["movies"].update_one(
                     {"id": str(id)},
                     {
-                        "$set": {
-                            "views": new_views,
-                        },
+                        "$inc": {"views": 1},
                     },
                 )
 
@@ -31,15 +26,10 @@ class View(Database):
                     "result": "Update views of movie successfully",
                 }
             elif type == "tv":
-                tv_dumps = self.__db["tvs"].find_one({"id": str(id)})
-                new_views = int(tv_dumps["views"]) + 1
-
                 self.__db["tvs"].update_one(
                     {"id": str(id)},
                     {
-                        "$set": {
-                            "views": new_views,
-                        },
+                        "$inc": {"views": 1},
                     },
                 )
                 return {"success": True, "result": "Update views of tv successfully"}

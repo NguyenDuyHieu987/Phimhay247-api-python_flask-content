@@ -22,6 +22,11 @@ def comment_routes(app):
     def comment_route(movieType, id):
         return comment.post_comment(movieType, id)
 
+    @app.route("/comment/edit/<movieType>/<id>", methods=["PUT"])
+    @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
+    def edit_comment_route(movieType, id):
+        return comment.edit_comment(movieType, id)
+
     @app.route("/comment/delete/<movieType>/<id>", methods=["DELETE"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def delete_comment_route(movieType, id):
