@@ -4,7 +4,6 @@ from utils.ErrorMessage import BadRequestMessage, InternalServerErrorMessage
 from utils.exceptions import NotInTypeError
 from flask import *
 from configs.database import Database
-from werkzeug.exceptions import HTTPException
 
 
 class Trending(Database):
