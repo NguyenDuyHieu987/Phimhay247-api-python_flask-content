@@ -7,11 +7,11 @@ from configs.database import Database
 from werkzeug.exceptions import HTTPException
 
 
-class Trend(Database):
+class Trending(Database):
     def __init__(self):
         self.__db = self.ConnectMongoDB()
 
-    def trending(self, type):
+    def get_trending(self, type):
         try:
             if type == "all":
                 page = request.args.get("page", default=1, type=int) - 1
