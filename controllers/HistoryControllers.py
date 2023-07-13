@@ -44,7 +44,7 @@ class History(Database):
                     )
                 )
 
-                total = self.__db["lists"].count_documents(
+                total = self.__db["histories"].count_documents(
                     {
                         "user_id": jwtUser["id"],
                     },
@@ -71,7 +71,7 @@ class History(Database):
                     )
                 )
 
-                total = self.__db["lists"].count_documents(
+                total = self.__db["histories"].count_documents(
                     {
                         "user_id": jwtUser["id"],
                         "media_type": type,
@@ -99,7 +99,7 @@ class History(Database):
                     )
                 )
 
-                total = self.__db["lists"].count_documents(
+                total = self.__db["histories"].count_documents(
                     {
                         "user_id": jwtUser["id"],
                         "media_type": type,
