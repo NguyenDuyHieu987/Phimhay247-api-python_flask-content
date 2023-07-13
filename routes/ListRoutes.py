@@ -8,24 +8,24 @@ def list_routes(app, cache):
     list = List()
     ## Get list
 
-    @app.route("/list/getlist", methods=["GET"])
+    @app.route("/list/getlist/<type>", methods=["GET"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    def getlist_route():
-        return list.getlist()
+    def getlist_route(type):
+        return list.getlist(type)
 
     ## Search list
 
-    @app.route("/list/searchlist", methods=["GET"])
+    @app.route("/list/searchlist/<type>", methods=["GET"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    def search_list_route():
-        return list.search_list()
+    def search_list_route(type):
+        return list.search_list(type)
 
     ## Get item list
 
-    @app.route("/list/getitem/<idmovie>", methods=["GET"])
+    @app.route("/list/getitem/<type>/<movieId>", methods=["GET"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    def getitem_list_route(idmovie):
-        return list.getitem_list(idmovie)
+    def getitem_list_route(type, movieId):
+        return list.getitem_list(type, movieId)
 
     ## Add item to list
 

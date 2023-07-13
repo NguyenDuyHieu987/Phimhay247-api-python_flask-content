@@ -107,12 +107,12 @@ def route(app, cache):
 
     list_routes(app, cache)
 
-    # WatchList (View History)
+    # History
 
     ## Get history
-    from routes.WatchListRoutes import watchlist_routes
+    from routes.HistoryRoutes import history_routes
 
-    watchlist_routes(app, cache)
+    history_routes(app, cache)
 
     # Recommend (Suggest)
 

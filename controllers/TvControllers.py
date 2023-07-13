@@ -54,26 +54,35 @@ class TV(Database):
                     str(os.getenv("JWT_TOKEN_SECRET")),
                     algorithms=["HS256"],
                 )
-                item_lists = self.__db["lists"].find_one(
-                    {"id": jwtUser["id"]}, {"items": {"$elemMatch": {"id": str(id)}}}
+
+                item_list = self.__db["lists"].find_one(
+                    {
+                        "user_id": jwtUser["id"],
+                        "movie_id": id,
+                        "media_type": "tv",
+                    },
                 )
 
-                if "items" in item_lists:
+                if item_list != None:
                     tv = tv | {"in_list": True}
                 else:
                     tv = tv | {"in_list": False}
 
-                item_watchlists = self.__db["watchlists"].find_one(
-                    {"id": jwtUser["id"]}, {"items": {"$elemMatch": {"id": str(id)}}}
+                item_history = self.__db["histories"].find_one(
+                    {
+                        "user_id": jwtUser["id"],
+                        "movie_id": id,
+                        "media_type": "tv",
+                    },
                 )
 
-                if "items" in item_watchlists:
+                if item_history != None:
                     tv = tv | {
                         "in_history": True,
                         "history_progress": {
-                            "duration": item_watchlists["items"][0]["duration"],
-                            "percent": item_watchlists["items"][0]["percent"],
-                            "seconds": item_watchlists["items"][0]["seconds"],
+                            "duration": item_history["duration"],
+                            "percent": item_history["percent"],
+                            "seconds": item_history["seconds"],
                         },
                     }
                 else:

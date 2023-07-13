@@ -2,19 +2,21 @@ import pymongo
 from pymongo.errors import PyMongoError
 from utils.JsonResponse import ConvertJsonResponse as cvtJson
 from utils.ErrorMessage import BadRequestMessage, InternalServerErrorMessage
+from utils.exceptions import DefaultError
 from flask import *
 from pymongo import ReturnDocument
 from datetime import datetime
 from configs.database import Database
 import os
 import jwt
+import uuid
 
 
 class List(Database):
     def __init__(self):
         self.__db = self.ConnectMongoDB()
 
-    def getlist(self):
+    def getlist(self, type):
         try:
             user_token = request.headers["Authorization"].replace("Bearer ", "")
 
@@ -27,98 +29,66 @@ class List(Database):
             skip = request.args.get("skip", default=1, type=int) - 1
             limit = request.args.get("limit", default=20, type=int)
 
-            if skip == 0:
-                list = self.__db["lists"].find_one(
-                    {"id": jwtUser["id"]}, {"items": {"$slice": [skip * limit, limit]}}
-                )
-
-                total = self.__db["lists"].aggregate(
-                    [
-                        {"$match": {"id": str(jwtUser["id"])}},
+            if type == "all":
+                list = (
+                    self.__db["lists"]
+                    .find(
                         {
-                            "$project": {
-                                "total": {"$size": "$items"},
-                                #   "result": "$items"
-                            }
+                            "user_id": jwtUser["id"],
                         },
-                    ]
-                )
-                # total = self.__db["lists"].find_one({"id": jwtUser["id"]})
-
-                return {"result": cvtJson(list), "total": cvtJson(total)[0]["total"]}
-
-            elif skip > 0:
-                list = self.__db["lists"].find_one(
-                    {"id": jwtUser["id"]}, {"items": {"$slice": [skip * limit, limit]}}
+                    )
+                    .skip(skip * limit)
+                    .limit(limit)
+                    .sort(
+                        [("created_at", pymongo.DESCENDING)],
+                    )
                 )
 
-                return {"result": cvtJson(list["items"]), "total": len(list["items"])}
-
-        except jwt.ExpiredSignatureError as e:
-            InternalServerErrorMessage("Token is expired")
-        except jwt.exceptions.DecodeError as e:
-            InternalServerErrorMessage("Token is invalid")
-        except PyMongoError as e:
-            InternalServerErrorMessage(e._message)
-        except Exception as e:
-            InternalServerErrorMessage(e)
-
-    def search_list(self):
-        try:
-            user_token = request.headers["Authorization"].replace("Bearer ", "")
-
-            jwtUser = jwt.decode(
-                user_token,
-                str(os.getenv("JWT_TOKEN_SECRET")),
-                algorithms=["HS256"],
-            )
-            # skip = request.args.get("skip", default=0, type=int)
-            query = request.args.get("query", default="", type=str)
-
-            if len(query) != 0:
-                list = self.__db["lists"].find_one(
-                    {"id": jwtUser["id"]},
-                    {
-                        "items": {
-                            "$elemMatch": {
-                                "$or": [
-                                    {"name": {"$regex": query, "$options": "i"}},
-                                    {
-                                        "original_name": {
-                                            "$regex": query,
-                                            "$options": "i",
-                                        }
-                                    },
-                                ],
-                            },
-                        }
-                    },
-                )
-
-                if "items" in list:
-                    return {
-                        "results": cvtJson(list["items"]),
-                        "total": len(list["items"]),
-                    }
-                else:
-                    return {"results": [], "total": 0}
-
-            else:
-                list = self.__db["lists"].find_one({"id": jwtUser["id"]})
-                total = self.__db["lists"].aggregate(
-                    [
-                        {"$match": {"id": str(jwtUser["id"])}},
-                        {
-                            "$project": {
-                                "total": {"$size": "$items"},
-                                #   "result": "$items"
-                            }
-                        },
-                    ]
-                )
                 return {
-                    "results": cvtJson(list["items"]),
-                    "total": cvtJson(total)[0]["total"],
+                    "results": cvtJson(list) if list != None else [],
+                    "total": 10,
+                }
+
+            elif type == "movie":
+                list = (
+                    self.__db["lists"]
+                    .find(
+                        {
+                            "user_id": jwtUser["id"],
+                            "media_type": type,
+                        },
+                    )
+                    .skip(skip * limit)
+                    .limit(limit)
+                    .sort(
+                        [("created_at", pymongo.DESCENDING)],
+                    )
+                )
+
+                return {
+                    "results": cvtJson(list) if list != None else [],
+                    "total": 10,
+                }
+
+            elif type == "tv":
+                list = (
+                    self.__db["lists"]
+                    .find(
+                        {
+                            "user_id": jwtUser["id"],
+                            "media_type": type,
+                        },
+                    )
+                    .skip(skip * limit)
+                    .limit(limit)
+                    .sort(
+                        [("created_at", pymongo.DESCENDING)],
+                    )
+                )
+
+                return {
+                    "results": cvtJson(list) if list != None else [],
+                    "total": 10,
                 }
 
         except jwt.ExpiredSignatureError as e:
@@ -130,7 +100,7 @@ class List(Database):
         except Exception as e:
             InternalServerErrorMessage(e)
 
-    def getitem_list(self, idmovie):
+    def search_list(self, type):
         try:
             user_token = request.headers["Authorization"].replace("Bearer ", "")
 
@@ -139,11 +109,106 @@ class List(Database):
                 str(os.getenv("JWT_TOKEN_SECRET")),
                 algorithms=["HS256"],
             )
-            item_lists = self.__db["lists"].find_one(
-                {"id": jwtUser["id"]}, {"items": {"$elemMatch": {"id": str(idmovie)}}}
+
+            # skip = request.args.get("skip", default=0, type=int)
+            query = request.args.get("query", default="", type=str)
+
+            if type == "all":
+                list = (
+                    self.__db["lists"]
+                    .find(
+                        {
+                            "$and": [
+                                {
+                                    "user_id": jwtUser["id"],
+                                },
+                                {
+                                    "$or": [
+                                        {"name": {"$regex": query, "$options": "i"}},
+                                        {
+                                            "original_name": {
+                                                "$regex": query,
+                                                "$options": "i",
+                                            }
+                                        },
+                                    ],
+                                },
+                            ]
+                        }
+                    )
+                    .sort(
+                        [("created_at", pymongo.DESCENDING)],
+                    )
+                )
+
+                return {
+                    "results": cvtJson(list) if list != None else [],
+                    "total": len(list) if list != None else 0,
+                }
+
+            elif type == "movie":
+                list = self.__db["lists"].find(
+                    {
+                        "user_id": jwtUser["id"],
+                        "media_type": type,
+                        "$or": [
+                            {"name": {"$regex": query, "$options": "i"}},
+                            {"original_name": {"$regex": query, "$options": "i"}},
+                        ],
+                    },
+                )
+
+                return {
+                    "results": cvtJson(list) if list != None else [],
+                    "total": len(list) if list != None else 0,
+                }
+
+            elif type == "tv":
+                list = self.__db["lists"].find(
+                    {
+                        "user_id": jwtUser["id"],
+                        "media_type": type,
+                        "$or": [
+                            {"name": {"$regex": query, "$options": "i"}},
+                            {"original_name": {"$regex": query, "$options": "i"}},
+                        ],
+                    },
+                )
+
+                return {
+                    "results": cvtJson(list) if list != None else [],
+                    "total": len(list) if list != None else 0,
+                }
+
+        except jwt.ExpiredSignatureError as e:
+            InternalServerErrorMessage("Token is expired")
+        except jwt.exceptions.DecodeError as e:
+            InternalServerErrorMessage("Token is invalid")
+        except PyMongoError as e:
+            InternalServerErrorMessage(e._message)
+        except Exception as e:
+            InternalServerErrorMessage(e)
+
+    def getitem_list(self, type, movieId):
+        try:
+            user_token = request.headers["Authorization"].replace("Bearer ", "")
+
+            jwtUser = jwt.decode(
+                user_token,
+                str(os.getenv("JWT_TOKEN_SECRET")),
+                algorithms=["HS256"],
             )
-            if "items" in item_lists:
-                return {"success": True, "result": cvtJson(item_lists["items"][0])}
+
+            item_list = self.__db["lists"].find_one(
+                {
+                    "user_id": jwtUser["id"],
+                    "movie_id": movieId,
+                    "media_type": type,
+                },
+            )
+
+            if item_list != None:
+                return {"success": True, "result": cvtJson(item_list)}
             else:
                 return {"success": False, "result": "Failed to get item in list"}
 
@@ -166,151 +231,106 @@ class List(Database):
                 algorithms=["HS256"],
             )
 
+            movie_id = request.form["movie_id"]
             media_type = request.form["media_type"]
-            media_id = request.form["media_id"]
+            idItemList = str(uuid.uuid4())
 
             if media_type == "movie":
                 movie = self.__db["movies"].find_one(
-                    {"id": str(media_id)},
-                    {
-                        "images": 0,
-                        "credits": 0,
-                        "videos": 0,
-                        "production_companies": 0,
-                    },
+                    {"id": movie_id},
                 )
 
                 if movie != None:
                     item_lists = self.__db["lists"].find_one(
-                        {"id": jwtUser["id"]},
-                        {"items": {"$elemMatch": {"id": str(media_id)}}},
+                        {
+                            "user_id": jwtUser["id"],
+                            "movie_id": movie_id,
+                            "media_type": media_type,
+                        },
                     )
-                    if "items" in item_lists:
-                        return {
-                            "success": False,
-                            "exist": True,
-                            "result": "Movie already exist in list",
-                        }
+
+                    if item_lists != None:
+                        raise DefaultError("Movie already exist in list")
                     else:
-                        self.__db["lists"].find_one_and_update(
-                            {"id": jwtUser["id"]},
+                        self.__db["lists"].insert_one(
                             {
-                                # "$addToSet": {
-                                "$push": {
-                                    "items": {
-                                        "$each": [
-                                            {
-                                                "id": str(media_id),
-                                                "name": movie["name"],
-                                                "original_name": movie["original_name"],
-                                                "original_language": movie[
-                                                    "original_language"
-                                                ],
-                                                "media_type": media_type,
-                                                "genres": movie["genres"],
-                                                "backdrop_path": movie["backdrop_path"],
-                                                "poster_path": movie["poster_path"],
-                                                "dominant_backdrop_color": movie[
-                                                    "dominant_backdrop_color"
-                                                ],
-                                                "dominant_poster_color": movie[
-                                                    "dominant_poster_color"
-                                                ],
-                                                "created_at": str(datetime.now()),
-                                                "updated_at": str(datetime.now()),
-                                            }
-                                        ],
-                                        "$position": 0,
-                                    }
-                                }
-                            },
-                            {"new": True},
-                            upsert=True,
-                            return_document=ReturnDocument.AFTER,
+                                "id": str(idItemList),
+                                "user_id": jwtUser["id"],
+                                "movie_id": movie_id,
+                                "name": movie["name"],
+                                "original_name": movie["original_name"],
+                                "original_language": movie["original_language"],
+                                "media_type": media_type,
+                                "genres": movie["genres"],
+                                "backdrop_path": movie["backdrop_path"],
+                                "poster_path": movie["poster_path"],
+                                "dominant_backdrop_color": movie[
+                                    "dominant_backdrop_color"
+                                ],
+                                "dominant_poster_color": movie["dominant_poster_color"],
+                                "created_at": str(datetime.now()),
+                                "updated_at": str(datetime.now()),
+                            }
                         )
+
                         return {
                             "success": True,
                             "results": "Add item to list suucessfully",
                         }
                 else:
-                    return {
-                        "success": False,
-                        "results": "Failed to add item to list",
-                    }
+                    raise DefaultError("Movie is not exists")
 
             elif media_type == "tv":
                 tv = self.__db["tvs"].find_one(
-                    {"id": str(media_id)},
-                    {
-                        "images": 0,
-                        "credits": 0,
-                        "videos": 0,
-                        "production_companies": 0,
-                        "seasons": 0,
-                    },
+                    {"id": movie_id},
                 )
+
                 if tv != None:
                     item_lists = self.__db["lists"].find_one(
-                        {"id": jwtUser["id"]},
-                        {"items": {"$elemMatch": {"id": str(media_id)}}},
+                        {
+                            "user_id": jwtUser["id"],
+                            "movie_id": movie_id,
+                            "media_type": media_type,
+                        },
                     )
-                    if "items" in item_lists:
-                        return {
-                            "success": False,
-                            "exist": True,
-                            "result": "Tv already exist in list",
-                        }
+
+                    if item_lists != None:
+                        raise DefaultError("Movie already exist in list")
                     else:
-                        self.__db["lists"].find_one_and_update(
-                            {"id": jwtUser["id"]},
+                        self.__db["lists"].insert_one(
                             {
-                                # "$addToSet": {
-                                "$push": {
-                                    "items": {
-                                        "$each": [
-                                            {
-                                                "id": str(media_id),
-                                                "name": tv["name"],
-                                                "original_name": tv["original_name"],
-                                                "original_language": tv[
-                                                    "original_language"
-                                                ],
-                                                "media_type": media_type,
-                                                "genres": tv["genres"],
-                                                "backdrop_path": tv["backdrop_path"],
-                                                "poster_path": tv["poster_path"],
-                                                "dominant_backdrop_color": tv[
-                                                    "dominant_backdrop_color"
-                                                ],
-                                                "dominant_poster_color": tv[
-                                                    "dominant_poster_color"
-                                                ],
-                                                "created_at": str(datetime.now()),
-                                                "updated_at": str(datetime.now()),
-                                            }
-                                        ],
-                                        "$position": 0,
-                                    }
-                                }
-                            },
-                            {"new": True},
-                            upsert=True,
-                            return_document=ReturnDocument.AFTER,
+                                "id": str(idItemList),
+                                "user_id": jwtUser["id"],
+                                "movie_id": movie_id,
+                                "name": tv["name"],
+                                "original_name": tv["original_name"],
+                                "original_language": tv["original_language"],
+                                "media_type": media_type,
+                                "genres": tv["genres"],
+                                "backdrop_path": tv["backdrop_path"],
+                                "poster_path": tv["poster_path"],
+                                "dominant_backdrop_color": tv[
+                                    "dominant_backdrop_color"
+                                ],
+                                "dominant_poster_color": tv["dominant_poster_color"],
+                                "created_at": str(datetime.now()),
+                                "updated_at": str(datetime.now()),
+                            }
                         )
+
                         return {
                             "success": True,
                             "results": "Add item to list suucessfully",
                         }
                 else:
-                    return {
-                        "success": False,
-                        "results": "Failed to add item to list",
-                    }
+                    raise DefaultError("Movie is not exists")
 
         except jwt.ExpiredSignatureError as e:
             InternalServerErrorMessage("Token is expired")
         except jwt.exceptions.DecodeError as e:
             InternalServerErrorMessage("Token is invalid")
+        except DefaultError as e:
+            BadRequestMessage(e.message)
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except Exception as e:
@@ -326,18 +346,21 @@ class List(Database):
                 algorithms=["HS256"],
             )
 
-            media_id = request.form["media_id"]
+            movie_id = request.form["movie_id"]
+            media_type = request.form["media_type"]
 
-            self.__db["lists"].find_one_and_update(
-                {"id": jwtUser["id"]},
-                {"$pull": {"items": {"id": str(media_id)}}},
-                {"new": True},
-                upsert=True,
+            resultDelete1 = self.__db["lists"].delete_one(
+                {
+                    "user_id": jwtUser["id"],
+                    "movie_id": movie_id,
+                    "media_type": media_type,
+                },
             )
 
-            list = cvtJson(self.__db["lists"].find_one({"id": jwtUser["id"]}))
-
-            return {"success": True, "results": list["items"]}
+            if resultDelete1.deleted_count == 1:
+                return {"success": True}
+            else:
+                raise DefaultError("Delete movie from list failed")
 
         except jwt.ExpiredSignatureError as e:
             InternalServerErrorMessage("Token is expired")
@@ -358,17 +381,15 @@ class List(Database):
                 algorithms=["HS256"],
             )
 
-            self.__db["lists"].find_one_and_update(
-                {"id": jwtUser["id"]},
-                {"$set": {"items": []}},
-                {"new": True},
-                upsert=True,
-                return_document=ReturnDocument.AFTER,
+            resultDelete = self.__db["lists"].delete_many(
+                {"user_id": jwtUser["id"]},
             )
 
-            list = cvtJson(self.__db["lists"].find_one({"id": jwtUser["id"]}))
-
-            return {"success": True, "results": list["items"]}
+            if resultDelete.deleted_count >= 1:
+                list = (
+                    self.__db["lists"].find({"user_id": jwtUser["id"]}).skip(0).limit(1)
+                )
+                return {"success": True, "results": cvtJson(list)}
 
         except jwt.ExpiredSignatureError as e:
             InternalServerErrorMessage("Token is expired")

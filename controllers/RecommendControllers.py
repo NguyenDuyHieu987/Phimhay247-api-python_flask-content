@@ -28,20 +28,27 @@ class Recommend(Database):
             limit = request.args.get("limit", default=6, type=int)
 
             if jwtUser["id"] != None:
-                list = self.__db["lists"].find_one(
-                    {"id": str(jwtUser["id"])}, {"items": {"$slice": [0, 20]}}
+                list = (
+                    self.__db["lists"]
+                    .find({"id": str(jwtUser["id"])})
+                    .skip(0)
+                    .limit(20)
                 )
-                watchlist = self.__db["watchlists"].find_one(
-                    {"id": str(jwtUser["id"])}, {"items": {"$slice": [0, 20]}}
+
+                history = (
+                    self.__db["histories"]
+                    .find({"id": str(jwtUser["id"])})
+                    .skip(0)
+                    .limit(20)
                 )
 
                 genres = []
                 countries = []
-                for x in list["items"]:
+                for x in list:
                     genres.append([x1["id"] for x1 in x["genres"]])
                     countries.append([x["original_language"]])
 
-                for x in watchlist["items"]:
+                for x in history:
                     genres.append([x1["id"] for x1 in x["genres"]])
                     countries.append([x["original_language"]])
 
