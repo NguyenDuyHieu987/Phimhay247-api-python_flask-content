@@ -17,7 +17,7 @@ class Search(Database):
             query = request.args.get("query", default="", type=str)
             page = request.args.get("page", default=1, type=int) - 1
 
-            if type == "multi":
+            if type == "all":
                 movie = cvtJson(
                     self.__db["movies"]
                     .find(
@@ -63,6 +63,7 @@ class Search(Database):
                     "total_tv": len(tv),
                     "page_size": 20,
                 }
+
             elif type == "tv":
                 query = request.args.get("query", default="", type=str)
 
