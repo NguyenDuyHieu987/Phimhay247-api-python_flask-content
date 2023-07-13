@@ -35,7 +35,7 @@ class List(Database):
                     .find(
                         {
                             "user_id": jwtUser["id"],
-                        },
+                        }
                     )
                     .skip(skip * limit)
                     .limit(limit)
@@ -44,9 +44,15 @@ class List(Database):
                     )
                 )
 
+                total = self.__db["lists"].count_documents(
+                    {
+                        "user_id": jwtUser["id"],
+                    }
+                )
+
                 return {
                     "results": cvtJson(list) if list != None else [],
-                    "total": 10,
+                    "total": total,
                 }
 
             elif type == "movie":
@@ -65,9 +71,16 @@ class List(Database):
                     )
                 )
 
+                total = self.__db["lists"].count_documents(
+                    {
+                        "user_id": jwtUser["id"],
+                        "media_type": type,
+                    },
+                )
+
                 return {
                     "results": cvtJson(list) if list != None else [],
-                    "total": 10,
+                    "total": total,
                 }
 
             elif type == "tv":
@@ -86,9 +99,16 @@ class List(Database):
                     )
                 )
 
+                total = self.__db["lists"].count_documents(
+                    {
+                        "user_id": jwtUser["id"],
+                        "media_type": type,
+                    },
+                )
+
                 return {
                     "results": cvtJson(list) if list != None else [],
-                    "total": 10,
+                    "total": total,
                 }
 
         except jwt.ExpiredSignatureError as e:

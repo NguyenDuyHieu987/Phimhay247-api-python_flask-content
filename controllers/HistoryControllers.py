@@ -44,9 +44,15 @@ class History(Database):
                     )
                 )
 
+                total = self.__db["lists"].count_documents(
+                    {
+                        "user_id": jwtUser["id"],
+                    },
+                )
+
                 return {
                     "results": cvtJson(history) if history != None else [],
-                    "total": 10,
+                    "total": total,
                 }
 
             elif type == "movie":
@@ -65,9 +71,16 @@ class History(Database):
                     )
                 )
 
+                total = self.__db["lists"].count_documents(
+                    {
+                        "user_id": jwtUser["id"],
+                        "media_type": type,
+                    },
+                )
+
                 return {
                     "results": cvtJson(history) if history != None else [],
-                    "total": 10,
+                    "total": total,
                 }
 
             elif type == "tv":
@@ -86,10 +99,18 @@ class History(Database):
                     )
                 )
 
+                total = self.__db["lists"].count_documents(
+                    {
+                        "user_id": jwtUser["id"],
+                        "media_type": type,
+                    },
+                )
+
                 return {
                     "results": cvtJson(history) if history != None else [],
-                    "total": 10,
+                    "total": total,
                 }
+
         except jwt.ExpiredSignatureError as e:
             InternalServerErrorMessage("Token is expired")
         except jwt.exceptions.DecodeError as e:
