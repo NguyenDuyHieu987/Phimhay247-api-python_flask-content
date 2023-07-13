@@ -27,149 +27,135 @@ class Recommend(Database):
             page = request.args.get("page", default=1, type=int) - 1
             limit = request.args.get("limit", default=6, type=int)
 
-            if jwtUser["id"] != None:
-                list = (
-                    self.__db["lists"]
-                    .find({"id": str(jwtUser["id"])})
-                    .skip(0)
-                    .limit(20)
+            list = self.__db["lists"].find({"user_id": jwtUser["id"]}).skip(0).limit(20)
+
+            history = (
+                self.__db["histories"]
+                .find({"user_id": jwtUser["id"]})
+                .skip(0)
+                .limit(20)
+            )
+
+            genres = []
+            countries = []
+
+            for x in list:
+                genres.append([x1["id"] for x1 in x["genres"]])
+                countries.append([x["original_language"]])
+
+            for x in history:
+                genres.append([x1["id"] for x1 in x["genres"]])
+                countries.append([x["original_language"]])
+
+            if len(genres) == 0 and len(countries) == 0:
+                return {"results": []}
+            else:
+                minSup_Genres = 5
+                minSup_Countries = 5
+                patterns_genres = pyfpgrowth.find_frequent_patterns(
+                    genres, minSup_Genres
                 )
 
-                history = (
-                    self.__db["histories"]
-                    .find({"id": str(jwtUser["id"])})
-                    .skip(0)
-                    .limit(20)
-                )
-
-                genres = []
-                countries = []
-                for x in list:
-                    genres.append([x1["id"] for x1 in x["genres"]])
-                    countries.append([x["original_language"]])
-
-                for x in history:
-                    genres.append([x1["id"] for x1 in x["genres"]])
-                    countries.append([x["original_language"]])
-
-                if len(genres) == 0 and len(countries) == 0:
-                    return {"results": []}
-                else:
-                    minSup_Genres = 5
-                    minSup_Countries = 5
+                while len(patterns_genres) == 0:
+                    minSup_Genres -= 1
                     patterns_genres = pyfpgrowth.find_frequent_patterns(
                         genres, minSup_Genres
                     )
 
-                    while len(patterns_genres) == 0:
-                        minSup_Genres -= 1
-                        patterns_genres = pyfpgrowth.find_frequent_patterns(
-                            genres, minSup_Genres
-                        )
+                patterns_genres_single = [
+                    (item[0], item1)
+                    for item, item1 in patterns_genres.items()
+                    if len(item) == 1
+                ]
 
-                    patterns_genres_single = [
-                        (item[0], item1)
-                        for item, item1 in patterns_genres.items()
-                        if len(item) == 1
-                    ]
+                patterns_countries = pyfpgrowth.find_frequent_patterns(
+                    countries, minSup_Countries
+                )
 
+                while len(patterns_countries) == 0:
+                    minSup_Countries -= 1
                     patterns_countries = pyfpgrowth.find_frequent_patterns(
                         countries, minSup_Countries
                     )
 
-                    while len(patterns_countries) == 0:
-                        minSup_Countries -= 1
-                        patterns_countries = pyfpgrowth.find_frequent_patterns(
-                            countries, minSup_Countries
-                        )
+                patterns_genres_desc = sorted(
+                    patterns_genres_single,
+                    key=lambda item: item[1],
+                    reverse=True,
+                )
 
-                    patterns_genres_desc = sorted(
-                        patterns_genres_single,
-                        key=lambda item: item[1],
-                        reverse=True,
-                    )
+                patterns_countries_desc = sorted(
+                    patterns_countries.items(),
+                    key=lambda item: item[1],
+                    reverse=True,
+                )
 
-                    patterns_countries_desc = sorted(
-                        patterns_countries.items(),
-                        key=lambda item: item[1],
-                        reverse=True,
-                    )
+                frequency_genres_dict = []
 
-                    frequency_genres_dict = []
+                for pattern in patterns_genres_desc:
+                    frequency_genres_dict.append(({"id": pattern[0]}))
 
-                    for pattern in patterns_genres_desc:
-                        frequency_genres_dict.append(({"id": pattern[0]}))
+                frequency_countries_list = [x for x in patterns_countries_desc[0][0]]
 
-                    frequency_countries_list = [
-                        x for x in patterns_countries_desc[0][0]
-                    ]
-
-                    movie = cvtJson(
-                        self.__db["movies"]
-                        .find(
-                            {
-                                "$and": [
-                                    {
-                                        "original_language": {
-                                            "$in": frequency_countries_list
+                movie = cvtJson(
+                    self.__db["movies"]
+                    .find(
+                        {
+                            "$and": [
+                                {
+                                    "original_language": {
+                                        "$in": frequency_countries_list
+                                    }
+                                },
+                                {
+                                    "genres": {
+                                        "$elemMatch": {
+                                            "$or": [ChainMap(*frequency_genres_dict)]
                                         }
-                                    },
-                                    {
-                                        "genres": {
-                                            "$elemMatch": {
-                                                "$or": [
-                                                    ChainMap(*frequency_genres_dict)
-                                                ]
-                                            }
-                                        }
-                                    },
-                                ]
-                            },
-                        )
-                        .skip(page * limit)
-                        .limit(limit)
-                        .sort([("views", pymongo.DESCENDING)])
+                                    }
+                                },
+                            ]
+                        },
                     )
+                    .skip(page * limit)
+                    .limit(limit)
+                    .sort([("views", pymongo.DESCENDING)])
+                )
 
-                    tv = cvtJson(
-                        self.__db["tvs"]
-                        .find(
-                            {
-                                "$and": [
-                                    {
-                                        "original_language": {
-                                            "$in": frequency_countries_list
+                tv = cvtJson(
+                    self.__db["tvs"]
+                    .find(
+                        {
+                            "$and": [
+                                {
+                                    "original_language": {
+                                        "$in": frequency_countries_list
+                                    }
+                                },
+                                {
+                                    "genres": {
+                                        "$elemMatch": {
+                                            "$or": [ChainMap(*frequency_genres_dict)]
                                         }
-                                    },
-                                    {
-                                        "genres": {
-                                            "$elemMatch": {
-                                                "$or": [
-                                                    ChainMap(*frequency_genres_dict)
-                                                ]
-                                            }
-                                        }
-                                    },
-                                ]
-                            },
-                        )
-                        .skip(page * limit)
-                        .limit(limit)
-                        .sort([("views", pymongo.DESCENDING)])
+                                    }
+                                },
+                            ]
+                        },
                     )
-                    result = movie + tv
-                    return {
-                        "results": result,
-                        "movie": movie,
-                        "tv": tv,
-                        # "total": ,
-                        # "totalMovie": ,
-                        # "totalTv": ,
-                    }
-            else:
+                    .skip(page * limit)
+                    .limit(limit)
+                    .sort([("views", pymongo.DESCENDING)])
+                )
+
+                result = movie + tv
+
                 return {
-                    "success": False,
-                    "message": "Cannot find the recommended movie of this user",
+                    "results": result,
+                    "movie": movie,
+                    "tv": tv,
+                    # "total": ,
+                    # "totalMovie": ,
+                    # "totalTv": ,
                 }
 
         except jwt.ExpiredSignatureError as e:
