@@ -118,22 +118,11 @@ class List(Database):
                     self.__db["lists"]
                     .find(
                         {
-                            "$and": [
-                                {
-                                    "user_id": jwtUser["id"],
-                                },
-                                {
-                                    "$or": [
-                                        {"name": {"$regex": query, "$options": "i"}},
-                                        {
-                                            "original_name": {
-                                                "$regex": query,
-                                                "$options": "i",
-                                            }
-                                        },
-                                    ],
-                                },
-                            ]
+                            "user_id": jwtUser["id"],
+                            "$or": [
+                                {"name": {"$regex": query, "$options": "i"}},
+                                {"original_name": {"$regex": query, "$options": "i"}},
+                            ],
                         }
                     )
                     .sort(
@@ -143,7 +132,7 @@ class List(Database):
 
                 return {
                     "results": cvtJson(list) if list != None else [],
-                    "total": len(list) if list != None else 0,
+                    "total": len(cvtJson(list)) if list != None else 0,
                 }
 
             elif type == "movie":
@@ -160,7 +149,7 @@ class List(Database):
 
                 return {
                     "results": cvtJson(list) if list != None else [],
-                    "total": len(list) if list != None else 0,
+                    "total": len(cvtJson(list)) if list != None else 0,
                 }
 
             elif type == "tv":
@@ -177,7 +166,7 @@ class List(Database):
 
                 return {
                     "results": cvtJson(list) if list != None else [],
-                    "total": len(list) if list != None else 0,
+                    "total": len(cvtJson(list)) if list != None else 0,
                 }
 
         except jwt.ExpiredSignatureError as e:
@@ -249,9 +238,7 @@ class List(Database):
                         },
                     )
 
-                    if item_lists != None:
-                        raise DefaultError("Movie already exist in list")
-                    else:
+                    if item_lists == None:
                         self.__db["lists"].insert_one(
                             {
                                 "id": str(idItemList),
@@ -277,6 +264,9 @@ class List(Database):
                             "success": True,
                             "results": "Add item to list suucessfully",
                         }
+                    else:
+                        raise DefaultError("Movie already exist in list")
+
                 else:
                     raise DefaultError("Movie is not exists")
 
@@ -358,7 +348,10 @@ class List(Database):
             )
 
             if resultDelete1.deleted_count == 1:
-                return {"success": True}
+                return {
+                    "success": True,
+                    "results": "Remove item from list suucessfully",
+                }
             else:
                 raise DefaultError("Delete movie from list failed")
 

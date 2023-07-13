@@ -15,10 +15,10 @@ def history_routes(app, cache):
 
     ## Search history
 
-    @app.route("/history/searchhistory", methods=["GET"])
+    @app.route("/history/searchhistory/<type>", methods=["GET"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    def search_history_route():
-        return history.search_history()
+    def search_history_route(type):
+        return history.search_history(type)
 
     ## Get item history
 
