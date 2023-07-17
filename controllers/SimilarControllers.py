@@ -15,7 +15,7 @@ class Similar(Database):
     def get_similar(self, type, movieid):
         try:
             page = request.args.get("page", default=1, type=int) - 1
-            limit = request.args.get("limit", default=10, type=int)
+            limit = request.args.get("limit", default=12, type=int)
 
             if type == "movie":
                 movie_similar = self.__db["movies"].find_one({"id": str(movieid)})

@@ -10,6 +10,8 @@ import os
 import jwt
 from datetime import datetime
 
+print(uuid.uuid4())
+
 
 class Comment(Database):
     def __init__(self):
