@@ -16,14 +16,14 @@ class Trending(Database):
                 page = request.args.get("page", default=1, type=int) - 1
                 limit = request.args.get("limit", default=20, type=int)
 
-                trending = (
+                trendings = (
                     self.__db["trendings"].find({}).skip(page * limit).limit(limit)
                 )
 
                 return make_response(
                     {
                         "page": page + 1,
-                        "results": cvtJson(trending),
+                        "results": cvtJson(trendings),
                         "total": self.__db["trendings"].count_documents({}),
                         "page_size": 20,
                     }
