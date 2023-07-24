@@ -130,3 +130,8 @@ def route(app, cache):
     from routes.AuthenticationRoutes import authentication_routes
 
     authentication_routes(app)
+
+    # Pricing
+    from routes.PlansRoutes import plans_routes
+
+    plans_routes(app, cache)

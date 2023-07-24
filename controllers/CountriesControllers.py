@@ -14,7 +14,7 @@ class Country(Database):
         try:
             if type == "all":
                 countries = cvtJson(self.__db["countries"].find())
-                return {"result": countries}
+                return {"results": countries}
             else:
                 raise NotInTypeError("country", type)
         except PyMongoError as e:

@@ -15,7 +15,7 @@ class Genre(Database):
         try:
             if type == "all":
                 genres = cvtJson(self.__db["genres"].find())
-                return {"result": genres}
+                return {"results": genres}
             else:
                 raise NotInTypeError("genre", type)
         except PyMongoError as e:
