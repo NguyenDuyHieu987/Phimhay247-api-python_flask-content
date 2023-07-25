@@ -13,7 +13,7 @@ class Plan(Database):
     def plans(self):
         try:
             plans = cvtJson(
-                self.__db["plans"].find().sort([("views", pymongo.ASCENDING)])
+                self.__db["plans"].find().sort([("order", pymongo.ASCENDING)])
             )
             return {"results": plans}
 
