@@ -12,7 +12,9 @@ class Plan(Database):
 
     def plans(self):
         try:
-            plans = cvtJson(self.__db["plans"].find())
+            plans = cvtJson(
+                self.__db["plans"].find().sort([("views", pymongo.ASCENDING)])
+            )
             return {"results": plans}
 
         except PyMongoError as e:
