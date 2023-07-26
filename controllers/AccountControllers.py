@@ -51,3 +51,82 @@ class Account(Database):
             InternalServerErrorMessage(e._message)
         except Exception as e:
             InternalServerErrorMessage(e)
+
+    def change_email(self):
+        try:
+            user_token = request.headers["Authorization"].replace("Bearer ", "")
+
+            jwtUser = jwt.decode(
+                user_token,
+                str(os.getenv("JWT_TOKEN_SECRET")),
+                algorithms=["HS256"],
+            )
+
+            formData = request.form
+
+            resultUpdate = self.__db["accounts"].update_one(
+                {
+                    "id": jwtUser["id"],
+                    "email": jwtUser["email"],
+                    "auth_type": "email",
+                },
+                {
+                    "$set": {
+                        "email": formData["new_email"],
+                    }
+                },
+            )
+
+            if resultUpdate.modified_count == 1:
+                return {"success": True}
+            else:
+                return {"success": False}
+
+        except jwt.ExpiredSignatureError as e:
+            InternalServerErrorMessage("Token is expired")
+        except jwt.exceptions.DecodeError as e:
+            InternalServerErrorMessage("Token is invalid")
+        except PyMongoError as e:
+            InternalServerErrorMessage(e._message)
+        except Exception as e:
+            InternalServerErrorMessage(e)
+
+    def change_fullname(self):
+        try:
+            user_token = request.headers["Authorization"].replace("Bearer ", "")
+
+            jwtUser = jwt.decode(
+                user_token,
+                str(os.getenv("JWT_TOKEN_SECRET")),
+                algorithms=["HS256"],
+            )
+
+            formData = request.form
+
+            resultUpdate = self.__db["accounts"].update_one(
+                {
+                    "id": jwtUser["id"],
+                    "email": jwtUser["email"],
+                    "auth_type": "email",
+                    "full_name": jwtUser["full_name"],
+                },
+                {
+                    "$set": {
+                        "full_name": formData["new_full_name"],
+                    }
+                },
+            )
+
+            if resultUpdate.modified_count == 1:
+                return {"success": True}
+            else:
+                return {"success": False}
+
+        except jwt.ExpiredSignatureError as e:
+            InternalServerErrorMessage("Token is expired")
+        except jwt.exceptions.DecodeError as e:
+            InternalServerErrorMessage("Token is invalid")
+        except PyMongoError as e:
+            InternalServerErrorMessage(e._message)
+        except Exception as e:
+            InternalServerErrorMessage(e)
