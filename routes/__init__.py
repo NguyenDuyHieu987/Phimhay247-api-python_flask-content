@@ -135,3 +135,8 @@ def route(app, cache):
     from routes.PlansRoutes import plans_routes
 
     plans_routes(app, cache)
+
+    # Account
+    from routes.AccountRoutes import account_routes
+
+    account_routes(app)
