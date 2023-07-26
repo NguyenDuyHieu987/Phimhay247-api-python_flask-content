@@ -15,7 +15,7 @@ class Year(Database):
         try:
             if type == "all":
                 years = cvtJson(self.__db["years"].find())
-                return {"result": years}
+                return {"results": years}
             else:
                 raise NotInTypeError("country", type)
         except PyMongoError as e:
