@@ -99,6 +99,7 @@ class Authentication:
                                 "email": get_account["email"],
                                 "auth_type": get_account["auth_type"],
                                 "role": get_account["role"],
+                                "created_at": get_account["created_at"],
                                 # "user_token": encoded,
                             },
                         }
@@ -176,6 +177,8 @@ class Authentication:
                         "email": formUser.get("email", ""),
                         "auth_type": "facebook",
                         "role": "normal",
+                        "created_at": str(datetime.now()),
+                        "updated_at": str(datetime.now()),
                     },
                 )
 
@@ -192,8 +195,9 @@ class Authentication:
                         "full_name": get_account["full_name"],
                         "avatar": get_account["avatar"],
                         "email": get_account["email"],
-                        "auth_type": account["auth_type"],
+                        "auth_type": get_account["auth_type"],
                         "role": "normal",
+                        "created_at": get_account["created_at"],
                         "exp": datetime.now(tz=timezone.utc)
                         + timedelta(seconds=configs.TIME_OFFSET),
                     },
@@ -210,8 +214,9 @@ class Authentication:
                             "full_name": get_account["full_name"],
                             "avatar": get_account["avatar"],
                             "email": get_account["email"],
-                            "auth_type": account["auth_type"],
+                            "auth_type": get_account["auth_type"],
                             "role": get_account["role"],
+                            "created_at": get_account["created_at"],
                             # "user_token": encoded,
                         },
                     }
@@ -241,6 +246,7 @@ class Authentication:
                         "email": account_modified["email"],
                         "auth_type": account_modified["auth_type"],
                         "role": "normal",
+                        "created_at": account_modified["created_at"],
                         "exp": datetime.now(tz=timezone.utc)
                         + timedelta(seconds=configs.TIME_OFFSET),
                     },
@@ -259,6 +265,7 @@ class Authentication:
                 #     # },
                 #     # return_document=ReturnDocument.AFTER,
                 # )
+
                 response = make_response(
                     {
                         "isLogin": True,
@@ -270,6 +277,7 @@ class Authentication:
                             "email": account["email"],
                             "auth_type": account["auth_type"],
                             "role": account["role"],
+                            "created_at": account["created_at"],
                             # "user_token": encoded,
                         },
                     }
@@ -344,6 +352,8 @@ class Authentication:
                         "email": formUser["email"],
                         "auth_type": "google",
                         "role": "normal",
+                        "created_at": str(datetime.now()),
+                        "updated_at": str(datetime.now()),
                     },
                 )
 
@@ -362,6 +372,7 @@ class Authentication:
                         "email": get_account["email"],
                         "auth_type": get_account["auth_type"],
                         "role": "normal",
+                        "created_at": get_account["created_at"],
                         "exp": datetime.now(tz=timezone.utc)
                         + timedelta(seconds=configs.TIME_OFFSET),
                     },
@@ -380,6 +391,7 @@ class Authentication:
                             "email": get_account["email"],
                             "auth_type": get_account["auth_type"],
                             "role": get_account["role"],
+                            "created_at": get_account["created_at"],
                             # "user_token": encoded,
                         },
                     }
@@ -399,6 +411,7 @@ class Authentication:
                         "email": account["email"],
                         "auth_type": account["auth_type"],
                         "role": "normal",
+                        "created_at": account["created_at"],
                         "exp": datetime.now(tz=timezone.utc)
                         + timedelta(seconds=configs.TIME_OFFSET),
                     },
@@ -428,6 +441,7 @@ class Authentication:
                             "email": account["email"],
                             "auth_type": account["auth_type"],
                             "role": account["role"],
+                            "created_at": account["created_at"],
                             # "user_token": encoded,
                         },
                     }
@@ -470,6 +484,7 @@ class Authentication:
                                 "email": facebook_account["email"],
                                 "auth_type": facebook_account["auth_type"],
                                 "role": facebook_account["role"],
+                                "created_at": facebook_account["created_at"],
                                 # "user_token": user_token,
                             },
                         }
@@ -498,6 +513,7 @@ class Authentication:
                                 "email": google_account["email"],
                                 "auth_type": google_account["auth_type"],
                                 "role": google_account["role"],
+                                "created_at": google_account["created_at"],
                                 # "user_token": user_token,
                             },
                         }
@@ -546,6 +562,7 @@ class Authentication:
                                     "email": get_account["email"],
                                     "auth_type": get_account["auth_type"],
                                     "role": get_account["role"],
+                                    "created_at": get_account["created_at"],
                                     # "user_token": user_token,
                                 },
                             }
@@ -731,6 +748,8 @@ class Authentication:
                         "email": jwtUser["email"],
                         "auth_type": jwtUser["auth_type"],
                         "role": jwtUser["role"],
+                        "created_at": str(datetime.now()),
+                        "updated_at": str(datetime.now()),
                     }
                 )
 
