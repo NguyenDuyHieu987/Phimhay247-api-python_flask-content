@@ -20,7 +20,7 @@ from configs.database import Database
 #             "email": 123,
 #             "password": 456,
 #             "exp": datetime.now(tz=timezone.utc)
-#             + timedelta(seconds=configs.TIME_OFFSET ),
+#             + timedelta(seconds=configs.JWT_EXP_OFFSET ),
 #         },
 #         str(os.getenv("JWT_TOKEN_SECRET")),
 #         algorithm="HS256",
@@ -36,7 +36,7 @@ from configs.database import Database
 #     print(decode)
 #     print(int(datetime.now(tz=timezone.utc).timestamp()))
 #     if int(decode["exp"]) - int(datetime.now(tz=timezone.utc).timestamp()) > (
-#         configs.TIME_OFFSET
+#         configs.JWT_EXP_OFFSET
 #     ):
 #         print("decode")
 
@@ -82,7 +82,7 @@ class Authentication:
                             "email": get_account["email"],
                             "auth_type": get_account["auth_type"],
                             "exp": datetime.now(tz=timezone.utc)
-                            + timedelta(seconds=configs.TIME_OFFSET),
+                            + timedelta(seconds=configs.JWT_EXP_OFFSET),
                         },
                         str(os.getenv("JWT_TOKEN_SECRET")),
                         algorithm="HS256",
@@ -199,7 +199,7 @@ class Authentication:
                         "role": "normal",
                         "created_at": get_account["created_at"],
                         "exp": datetime.now(tz=timezone.utc)
-                        + timedelta(seconds=configs.TIME_OFFSET),
+                        + timedelta(seconds=configs.JWT_EXP_OFFSET),
                     },
                     str(os.getenv("JWT_TOKEN_SECRET")),
                     algorithm="HS256",
@@ -248,7 +248,7 @@ class Authentication:
                         "role": "normal",
                         "created_at": account_modified["created_at"],
                         "exp": datetime.now(tz=timezone.utc)
-                        + timedelta(seconds=configs.TIME_OFFSET),
+                        + timedelta(seconds=configs.JWT_EXP_OFFSET),
                     },
                     str(os.getenv("JWT_TOKEN_SECRET")),
                     algorithm="HS256",
@@ -374,7 +374,7 @@ class Authentication:
                         "role": "normal",
                         "created_at": get_account["created_at"],
                         "exp": datetime.now(tz=timezone.utc)
-                        + timedelta(seconds=configs.TIME_OFFSET),
+                        + timedelta(seconds=configs.JWT_EXP_OFFSET),
                     },
                     str(os.getenv("JWT_TOKEN_SECRET")),
                     algorithm="HS256",
@@ -413,7 +413,7 @@ class Authentication:
                         "role": "normal",
                         "created_at": account["created_at"],
                         "exp": datetime.now(tz=timezone.utc)
-                        + timedelta(seconds=configs.TIME_OFFSET),
+                        + timedelta(seconds=configs.JWT_EXP_OFFSET),
                     },
                     str(os.getenv("JWT_TOKEN_SECRET")),
                     algorithm="HS256",
@@ -544,7 +544,7 @@ class Authentication:
                         #         "password": jwtUser["password"],
                         #         "exp": datetime.now(tz=timezone.utc)
                         #         + timedelta(
-                        #             seconds=configs.TIME_OFFSET
+                        #             seconds=configs.JWT_EXP_OFFSET
                         #         ),
                         #     },
                         #     str(os.getenv("JWT_TOKEN_SECRET")),
@@ -587,13 +587,12 @@ class Authentication:
             InternalServerErrorMessage(e)
 
     # def signup():
-    #     formUser = request.form
-
     #     try:
     #         emailValidate = requests.get(
     #             f"https://emailvalidation.abstractapi.com/v1/?api_key=e23c5b9c07dc432796eea058c9d99e82&email={formUser['email']}"
     #         )
     #         emailValidateResponse = emailValidate.json()
+    #         formUser = request.form
 
     #         if emailValidateResponse["is_smtp_valid"]["value"] == True:
     #             account = self.__db["accounts"].find_one(
@@ -688,9 +687,11 @@ class Authentication:
                 str(formUser["otp"]),
                 algorithms=["HS256"],
             )
+
             account = self.__db["accounts"].find_one(
                 {"id": jwtUser["id"], "auth_type": "email"}
             )
+
             if account == None:
                 list = self.__db["lists"].find_one(
                     {
@@ -773,16 +774,18 @@ class Authentication:
         try:
             formUser = request.form
 
-            emailValidate = requests.get(
-                f"https://emailvalidation.abstractapi.com/v1/?api_key={os.getenv('ABSTRACT_API_KEY')}&email={formUser['email']}"
+            account = self.__db["accounts"].find_one(
+                {"email": formUser["email"], "auth_type": "email"}
             )
-            emailValidateResponse = emailValidate.json()
 
-            if emailValidateResponse["is_smtp_valid"]["value"] == True:
-                account = self.__db["accounts"].find_one(
-                    {"email": formUser["email"], "auth_type": "email"}
+            if account == None:
+                emailValidate = requests.get(
+                    f"https://emailvalidation.abstractapi.com/v1/?api_key={os.getenv('ABSTRACT_API_KEY')}&email={formUser['email']}"
                 )
-                if account == None:
+
+                emailValidateResponse = emailValidate.json()
+
+                if emailValidateResponse["is_smtp_valid"]["value"] == True:
                     OTP = generateOTP(length=6)
 
                     encoded = jwt.encode(
@@ -796,14 +799,18 @@ class Authentication:
                             "email": formUser["email"],
                             "auth_type": "email",
                             "exp": datetime.now(tz=timezone.utc)
-                            + timedelta(seconds=60),
+                            + timedelta(seconds=configs.OTP_EXP_OFFSET),
                         },
                         str(OTP),
                         algorithm="HS256",
                     )
 
                     response = make_response(
-                        {"isVerify": True, "result": "Send otp email successfully"}
+                        {
+                            "isVerify": True,
+                            "exp_offset": configs.OTP_EXP_OFFSET,
+                            "result": "Send otp email successfully",
+                        }
                     )
 
                     response.headers.set(
@@ -811,17 +818,18 @@ class Authentication:
                     )
 
                     response.headers.set("Authorization", encoded)
-                    email_response = Email_Verification(to=formUser["email"], otp=OTP)
+                    # email_response = Email_Verification(to=formUser["email"], otp=OTP)
 
                     # print(email_response)
                     # if "message_id" in dict(email_response):
                     return response
                     # else:
                     #     return {"isSendEmail": False, "result": "Send otp email failed"}
+
                 else:
-                    return {"isEmailExist": True, "result": "Email is already exists"}
+                    return {"isInValidEmail": True, "result": "Email is Invalid"}
             else:
-                return {"isInValidEmail": True, "result": "Email is Invalid"}
+                return {"isEmailExist": True, "result": "Email is already exists"}
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except Exception as e:

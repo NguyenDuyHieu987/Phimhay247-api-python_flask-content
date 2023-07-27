@@ -1,6 +1,8 @@
 import os
 
-TIME_OFFSET = int(os.getenv("TIME_OFFSET")) * 60 * 60
+JWT_EXP_OFFSET = int(os.getenv("JWT_EXP_OFFSET")) * 60 * 60
+OTP_EXP_OFFSET = int(os.getenv("OTP_EXP_OFFSET")) * 60
+
 
 API_MORMAL_ORIGINS_CONFIG = [
     "http://localhost:8080",
