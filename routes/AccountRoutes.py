@@ -24,5 +24,5 @@ def account_routes(app):
 
     @app.route("/account/verify/email/<type>", methods=["POST"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    def verify_email_route(type):
+    def account_verify_email_route(type):
         return account.verify_email(type)

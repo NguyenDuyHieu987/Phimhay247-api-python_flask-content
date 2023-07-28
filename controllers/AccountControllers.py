@@ -42,14 +42,14 @@ class Account(Database):
             )
 
             if resultUpdate.modified_count == 1:
-                return {"success": True}
+                return {"success": True, "result": "Change password successfully"}
             else:
-                return {"success": False}
+                return {"success": False, "result": "Change password failed"}
 
         except jwt.ExpiredSignatureError as e:
-            InternalServerErrorMessage("Token is expired")
+            return {"isOTPExpired": True, "result": "OTP is expired"}
         except jwt.exceptions.DecodeError as e:
-            InternalServerErrorMessage("Token is invalid")
+            return {"isInvalidOTP": True, "result": "OTP is invalid"}
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except Exception as e:
@@ -160,11 +160,12 @@ class Account(Database):
 
                     encoded = jwt.encode(
                         {
-                            "id": formUser["id"],
-                            "email": formUser["email"],
+                            "id": jwtUser["id"],
+                            "email": jwtUser["email"],
                             "auth_type": "email",
                             "old_password": formUser["old_password"],
                             "new_password": formUser["new_password"],
+                            "description": "Change your password",
                             "exp": datetime.now(tz=timezone.utc)
                             + timedelta(seconds=configs.OTP_EXP_OFFSET),
                         },
@@ -174,7 +175,7 @@ class Account(Database):
 
                     response = make_response(
                         {
-                            "isVerify": True,
+                            "isSended": True,
                             "exp_offset": configs.OTP_EXP_OFFSET,
                             "result": "Send otp email successfully",
                         }
@@ -191,13 +192,48 @@ class Account(Database):
                     # if "message_id" in dict(email_response):
                     return response
                     # else:
-                    #     return {"isSendEmail": False, "result": "Send otp email failed"}
+                    #     return {"isSended": False, "result": "Send otp email failed"}
 
                 else:
                     return {
                         "isWrongPassword": True,
                         "result": "Wrong password",
                     }
+
+            elif type == "change-email":
+                OTP = generateOTP(length=6)
+
+                encoded = jwt.encode(
+                    {
+                        "id": jwtUser["id"],
+                        "email": jwtUser["email"],
+                        "auth_type": "email",
+                        "description": "Verify your Email",
+                        "exp": datetime.now(tz=timezone.utc)
+                        + timedelta(seconds=configs.OTP_EXP_OFFSET),
+                    },
+                    str(OTP),
+                    algorithm="HS256",
+                )
+
+                response = make_response(
+                    {
+                        "isSended": True,
+                        "exp_offset": configs.OTP_EXP_OFFSET,
+                        "result": "Send otp email successfully",
+                    }
+                )
+
+                response.headers.set("Access-Control-Expose-Headers", "Authorization")
+
+                response.headers.set("Authorization", encoded)
+                # email_response = Email_Verification(to=formUser["email"], otp=OTP)
+
+                # print(email_response)
+                # if "message_id" in dict(email_response):
+                return response
+                # else:
+                #     return {"isSended": False, "result": "Send otp email failed"}
 
         except jwt.ExpiredSignatureError as e:
             InternalServerErrorMessage("Token is expired")

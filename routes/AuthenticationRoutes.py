@@ -45,5 +45,5 @@ def authentication_routes(app):
 
     @app.route("/auth/verify/email", methods=["POST"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    def verify_email_route():
+    def auth_verify_email_route():
         return authentication.verify_email()

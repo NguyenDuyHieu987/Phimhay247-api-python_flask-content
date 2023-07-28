@@ -81,6 +81,7 @@ class Authentication:
                             "role": get_account["role"],
                             "email": get_account["email"],
                             "auth_type": get_account["auth_type"],
+                            "created_at": get_account["created_at"],
                             "exp": datetime.now(tz=timezone.utc)
                             + timedelta(seconds=configs.JWT_EXP_OFFSET),
                         },
@@ -100,7 +101,6 @@ class Authentication:
                                 "auth_type": get_account["auth_type"],
                                 "role": get_account["role"],
                                 "created_at": get_account["created_at"],
-                                # "user_token": encoded,
                             },
                         }
                     )
@@ -466,117 +466,141 @@ class Authentication:
                 algorithms=["HS256"],
             )
 
-            if jwtUser["auth_type"] == "facebook":
-                facebook_account = self.__db["accounts"].find_one(
-                    {"id": jwtUser["id"], "auth_type": "facebook"}
-                )
-                if facebook_account == None:
-                    return {"isNotExist": True, "result": "Account does not exists"}
-                else:
-                    response = make_response(
-                        {
-                            "isLogin": True,
-                            "result": {
-                                "id": facebook_account["id"],
-                                "username": facebook_account["username"],
-                                "full_name": facebook_account["full_name"],
-                                "avatar": facebook_account["avatar"],
-                                "email": facebook_account["email"],
-                                "auth_type": facebook_account["auth_type"],
-                                "role": facebook_account["role"],
-                                "created_at": facebook_account["created_at"],
-                                # "user_token": user_token,
-                            },
-                        }
-                    )
-                    response.headers.set(
-                        "Access-Control-Expose-Headers", "Authorization"
-                    )
-                    response.headers.set("Authorization", user_token)
+            # if jwtUser["auth_type"] == "facebook":
+            # facebook_account = self.__db["accounts"].find_one(
+            #     {"id": jwtUser["id"], "auth_type": "facebook"}
+            # )
 
-                    return response
-            elif jwtUser["auth_type"] == "google":
-                google_account = self.__db["accounts"].find_one(
-                    {"id": jwtUser["id"], "auth_type": "google"}
-                )
-                if google_account == None:
-                    return {"isNotExist": True, "result": "Account does not exists"}
-                else:
-                    response = make_response(
-                        {
-                            "isLogin": True,
-                            "result": {
-                                "id": google_account["id"],
-                                "username": google_account["username"],
-                                "full_name": google_account["full_name"],
-                                "avatar": google_account["avatar"],
-                                "email": google_account["email"],
-                                "auth_type": google_account["auth_type"],
-                                "role": google_account["role"],
-                                "created_at": google_account["created_at"],
-                                # "user_token": user_token,
-                            },
-                        }
-                    )
-                    response.headers.set(
-                        "Access-Control-Expose-Headers", "Authorization"
-                    )
-                    response.headers.set("Authorization", user_token)
+            # if facebook_account == None:
+            #     return {"isNotExist": True, "result": "Account does not exists"}
+            # else:
+            #     response = make_response(
+            #         {
+            #             "isLogin": True,
+            #             "result": {
+            #                 "id": facebook_account["id"],
+            #                 "username": facebook_account["username"],
+            #                 "full_name": facebook_account["full_name"],
+            #                 "avatar": facebook_account["avatar"],
+            #                 "email": facebook_account["email"],
+            #                 "auth_type": facebook_account["auth_type"],
+            #                 "role": facebook_account["role"],
+            #                 "created_at": facebook_account["created_at"],
+            #             },
+            #         }
+            #     )
+            #     response.headers.set(
+            #         "Access-Control-Expose-Headers", "Authorization"
+            #     )
+            #     response.headers.set("Authorization", user_token)
 
-                    return response
-            elif jwtUser["auth_type"] == "email":
-                account = self.__db["accounts"].find_one(
-                    {"email": jwtUser["email"], "auth_type": "email"}
-                )
+            #     return response
 
-                if account != None:
-                    if account["password"] == jwtUser["password"]:
-                        get_account = self.__db["accounts"].find_one(
-                            {
-                                "email": jwtUser["email"],
-                                "password": jwtUser["password"],
-                            },
-                        )
+            # elif jwtUser["auth_type"] == "google":
+            # google_account = self.__db["accounts"].find_one(
+            #     {"id": jwtUser["id"], "auth_type": "google"}
+            # )
 
-                        # encoded = jwt.encode(
-                        #     {
-                        #         "email": jwtUser["email"],
-                        #         "password": jwtUser["password"],
-                        #         "exp": datetime.now(tz=timezone.utc)
-                        #         + timedelta(
-                        #             seconds=configs.JWT_EXP_OFFSET
-                        #         ),
-                        #     },
-                        #     str(os.getenv("JWT_SIGNATURE_SECRET")),
-                        #     algorithm="HS256",
-                        # )
+            # if google_account == None:
+            #     return {"isNotExist": True, "result": "Account does not exists"}
+            # else:
+            #     response = make_response(
+            #         {
+            #             "isLogin": True,
+            #             "result": {
+            #                 "id": google_account["id"],
+            #                 "username": google_account["username"],
+            #                 "full_name": google_account["full_name"],
+            #                 "avatar": google_account["avatar"],
+            #                 "email": google_account["email"],
+            #                 "auth_type": google_account["auth_type"],
+            #                 "role": google_account["role"],
+            #                 "created_at": google_account["created_at"],
+            #             },
+            #         }
+            #     )
+            #     response.headers.set(
+            #         "Access-Control-Expose-Headers", "Authorization"
+            #     )
+            #     response.headers.set("Authorization", user_token)
 
-                        response = make_response(
-                            {
-                                "isLogin": True,
-                                "result": {
-                                    "id": get_account["id"],
-                                    "username": get_account["username"],
-                                    "full_name": get_account["full_name"],
-                                    "avatar": get_account["avatar"],
-                                    "email": get_account["email"],
-                                    "auth_type": get_account["auth_type"],
-                                    "role": get_account["role"],
-                                    "created_at": get_account["created_at"],
-                                    # "user_token": user_token,
-                                },
-                            }
-                        )
-                        response.headers.set(
-                            "Access-Control-Expose-Headers", "Authorization"
-                        )
-                        response.headers.set("Authorization", user_token)
+            #     return response
 
-                        return response
-                    else:
-                        return {"isWrongPassword": True, "result": "Wrong Password"}
-                else:
-                    return {"isNotExist": True, "result": "Account does not exists"}
+            # elif jwtUser["auth_type"] == "email":
+            # account = self.__db["accounts"].find_one(
+            #     {"email": jwtUser["email"], "auth_type": "email"}
+            # )
+
+            # if account != None:
+            #     if account["password"] == jwtUser["password"]:
+            #         get_account = self.__db["accounts"].find_one(
+            #             {
+            #                 "email": jwtUser["email"],
+            #                 "password": jwtUser["password"],
+            #             },
+            #         )
+
+            #         # encoded = jwt.encode(
+            #         #     {
+            #         #         "email": jwtUser["email"],
+            #         #         "password": jwtUser["password"],
+            #         #         "exp": datetime.now(tz=timezone.utc)
+            #         #         + timedelta(
+            #         #             seconds=configs.JWT_EXP_OFFSET
+            #         #         ),
+            #         #     },
+            #         #     str(os.getenv("JWT_SIGNATURE_SECRET")),
+            #         #     algorithm="HS256",
+            #         # )
+
+            #         response = make_response(
+            #             {
+            #                 "isLogin": True,
+            #                 "result": {
+            #                     "id": get_account["id"],
+            #                     "username": get_account["username"],
+            #                     "full_name": get_account["full_name"],
+            #                     "avatar": get_account["avatar"],
+            #                     "email": get_account["email"],
+            #                     "auth_type": get_account["auth_type"],
+            #                     "role": get_account["role"],
+            #                     "created_at": get_account["created_at"],
+            #                 },
+            #             }
+            #         )
+
+            #         response.headers.set(
+            #             "Access-Control-Expose-Headers", "Authorization"
+            #         )
+            #         response.headers.set("Authorization", user_token)
+
+            #         return response
+            #     else:
+            #         return {"isWrongPassword": True, "result": "Wrong Password"}
+            # else:
+            #     return {"isNotExist": True, "result": "Account does not exists"}
+
+            response = make_response(
+                {
+                    "isLogin": True,
+                    "result": {
+                        "id": jwtUser["id"],
+                        "username": jwtUser["username"],
+                        "full_name": jwtUser["full_name"],
+                        "avatar": jwtUser["avatar"],
+                        "email": jwtUser["email"],
+                        "auth_type": jwtUser["auth_type"],
+                        "role": jwtUser["role"],
+                        "created_at": jwtUser["created_at"],
+                    },
+                }
+            )
+
+            response.headers.set("Access-Control-Expose-Headers", "Authorization")
+            response.headers.set("Authorization", user_token)
+
+            return response
+
         except jwt.ExpiredSignatureError as e:
             return {"is_token_expired": True, "result": "Token is expired"}
         except jwt.exceptions.DecodeError as e:
@@ -755,7 +779,6 @@ class Authentication:
                 )
 
                 return {
-                    # "isSignUp": True, "result": jwtUser
                     "isSignUp": True,
                     "result": "Sign up account successfully",
                 }
@@ -798,6 +821,7 @@ class Authentication:
                             "role": "normal",
                             "email": formUser["email"],
                             "auth_type": "email",
+                            "description": "Register new account",
                             "exp": datetime.now(tz=timezone.utc)
                             + timedelta(seconds=configs.OTP_EXP_OFFSET),
                         },
@@ -807,7 +831,7 @@ class Authentication:
 
                     response = make_response(
                         {
-                            "isVerify": True,
+                            "isSended": True,
                             "exp_offset": configs.OTP_EXP_OFFSET,
                             "result": "Send otp email successfully",
                         }
@@ -818,13 +842,13 @@ class Authentication:
                     )
 
                     response.headers.set("Authorization", encoded)
-                    # email_response = Email_Verification(to=formUser["email"], otp=OTP)
+                    email_response = Email_Verification(to=formUser["email"], otp=OTP)
 
                     # print(email_response)
                     # if "message_id" in dict(email_response):
                     return response
                     # else:
-                    #     return {"isSendEmail": False, "result": "Send otp email failed"}
+                    #     return {"isSended": False, "result": "Send otp email failed"}
 
                 else:
                     return {"isInValidEmail": True, "result": "Email is Invalid"}
