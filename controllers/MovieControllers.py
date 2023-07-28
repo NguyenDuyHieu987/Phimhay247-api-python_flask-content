@@ -53,7 +53,7 @@ class Movie(Database):
 
                 jwtUser = jwt.decode(
                     user_token,
-                    str(os.getenv("JWT_TOKEN_SECRET")),
+                    str(os.getenv("JWT_SIGNATURE_SECRET")),
                     algorithms=["HS256"],
                 )
 

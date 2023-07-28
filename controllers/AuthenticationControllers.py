@@ -22,7 +22,7 @@ from configs.database import Database
 #             "exp": datetime.now(tz=timezone.utc)
 #             + timedelta(seconds=configs.JWT_EXP_OFFSET ),
 #         },
-#         str(os.getenv("JWT_TOKEN_SECRET")),
+#         str(os.getenv("JWT_SIGNATURE_SECRET")),
 #         algorithm="HS256",
 #     )
 
@@ -84,7 +84,7 @@ class Authentication:
                             "exp": datetime.now(tz=timezone.utc)
                             + timedelta(seconds=configs.JWT_EXP_OFFSET),
                         },
-                        str(os.getenv("JWT_TOKEN_SECRET")),
+                        str(os.getenv("JWT_SIGNATURE_SECRET")),
                         algorithm="HS256",
                     )
 
@@ -201,7 +201,7 @@ class Authentication:
                         "exp": datetime.now(tz=timezone.utc)
                         + timedelta(seconds=configs.JWT_EXP_OFFSET),
                     },
-                    str(os.getenv("JWT_TOKEN_SECRET")),
+                    str(os.getenv("JWT_SIGNATURE_SECRET")),
                     algorithm="HS256",
                 )
 
@@ -250,7 +250,7 @@ class Authentication:
                         "exp": datetime.now(tz=timezone.utc)
                         + timedelta(seconds=configs.JWT_EXP_OFFSET),
                     },
-                    str(os.getenv("JWT_TOKEN_SECRET")),
+                    str(os.getenv("JWT_SIGNATURE_SECRET")),
                     algorithm="HS256",
                 )
 
@@ -376,7 +376,7 @@ class Authentication:
                         "exp": datetime.now(tz=timezone.utc)
                         + timedelta(seconds=configs.JWT_EXP_OFFSET),
                     },
-                    str(os.getenv("JWT_TOKEN_SECRET")),
+                    str(os.getenv("JWT_SIGNATURE_SECRET")),
                     algorithm="HS256",
                 )
 
@@ -415,7 +415,7 @@ class Authentication:
                         "exp": datetime.now(tz=timezone.utc)
                         + timedelta(seconds=configs.JWT_EXP_OFFSET),
                     },
-                    str(os.getenv("JWT_TOKEN_SECRET")),
+                    str(os.getenv("JWT_SIGNATURE_SECRET")),
                     algorithm="HS256",
                 )
 
@@ -462,7 +462,7 @@ class Authentication:
 
             jwtUser = jwt.decode(
                 user_token,
-                str(os.getenv("JWT_TOKEN_SECRET")),
+                str(os.getenv("JWT_SIGNATURE_SECRET")),
                 algorithms=["HS256"],
             )
 
@@ -547,7 +547,7 @@ class Authentication:
                         #             seconds=configs.JWT_EXP_OFFSET
                         #         ),
                         #     },
-                        #     str(os.getenv("JWT_TOKEN_SECRET")),
+                        #     str(os.getenv("JWT_SIGNATURE_SECRET")),
                         #     algorithm="HS256",
                         # )
 

@@ -23,7 +23,7 @@ class WatchList(Database):
 
             jwtUser = jwt.decode(
                 user_token,
-                str(os.getenv("JWT_TOKEN_SECRET")),
+                str(os.getenv("JWT_SIGNATURE_SECRET")),
                 algorithms=["HS256"],
             )
 
@@ -75,7 +75,7 @@ class WatchList(Database):
 
             jwtUser = jwt.decode(
                 user_token,
-                str(os.getenv("JWT_TOKEN_SECRET")),
+                str(os.getenv("JWT_SIGNATURE_SECRET")),
                 algorithms=["HS256"],
             )
             item_watchlists = self.__db["watchlists"].find_one(
@@ -101,7 +101,7 @@ class WatchList(Database):
 
             jwtUser = jwt.decode(
                 user_token,
-                str(os.getenv("JWT_TOKEN_SECRET")),
+                str(os.getenv("JWT_SIGNATURE_SECRET")),
                 algorithms=["HS256"],
             )
             # skip = request.args.get("skip", default=0, type=int)
@@ -164,7 +164,7 @@ class WatchList(Database):
 
             jwtUser = jwt.decode(
                 user_token,
-                str(os.getenv("JWT_TOKEN_SECRET")),
+                str(os.getenv("JWT_SIGNATURE_SECRET")),
                 algorithms=["HS256"],
             )
             media_type = request.form["media_type"]
@@ -581,7 +581,7 @@ class WatchList(Database):
 
             jwtUser = jwt.decode(
                 user_token,
-                str(os.getenv("JWT_TOKEN_SECRET")),
+                str(os.getenv("JWT_SIGNATURE_SECRET")),
                 algorithms=["HS256"],
             )
             media_id = request.form["media_id"]
@@ -612,7 +612,7 @@ class WatchList(Database):
 
             jwtUser = jwt.decode(
                 user_token,
-                str(os.getenv("JWT_TOKEN_SECRET")),
+                str(os.getenv("JWT_SIGNATURE_SECRET")),
                 algorithms=["HS256"],
             )
             self.__db["watchlists"].find_one_and_update(

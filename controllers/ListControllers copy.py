@@ -20,7 +20,7 @@ class List(Database):
 
             jwtUser = jwt.decode(
                 user_token,
-                str(os.getenv("JWT_TOKEN_SECRET")),
+                str(os.getenv("JWT_SIGNATURE_SECRET")),
                 algorithms=["HS256"],
             )
 
@@ -170,7 +170,7 @@ class List(Database):
 
             jwtUser = jwt.decode(
                 user_token,
-                str(os.getenv("JWT_TOKEN_SECRET")),
+                str(os.getenv("JWT_SIGNATURE_SECRET")),
                 algorithms=["HS256"],
             )
             # skip = request.args.get("skip", default=0, type=int)
@@ -237,7 +237,7 @@ class List(Database):
 
             jwtUser = jwt.decode(
                 user_token,
-                str(os.getenv("JWT_TOKEN_SECRET")),
+                str(os.getenv("JWT_SIGNATURE_SECRET")),
                 algorithms=["HS256"],
             )
             item_lists = self.__db["lists"].find_one(
@@ -263,7 +263,7 @@ class List(Database):
 
             jwtUser = jwt.decode(
                 user_token,
-                str(os.getenv("JWT_TOKEN_SECRET")),
+                str(os.getenv("JWT_SIGNATURE_SECRET")),
                 algorithms=["HS256"],
             )
 
@@ -423,7 +423,7 @@ class List(Database):
 
             jwtUser = jwt.decode(
                 user_token,
-                str(os.getenv("JWT_TOKEN_SECRET")),
+                str(os.getenv("JWT_SIGNATURE_SECRET")),
                 algorithms=["HS256"],
             )
 
@@ -455,7 +455,7 @@ class List(Database):
 
             jwtUser = jwt.decode(
                 user_token,
-                str(os.getenv("JWT_TOKEN_SECRET")),
+                str(os.getenv("JWT_SIGNATURE_SECRET")),
                 algorithms=["HS256"],
             )
 

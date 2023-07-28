@@ -22,7 +22,7 @@ class History(Database):
 
             jwtUser = jwt.decode(
                 user_token,
-                str(os.getenv("JWT_TOKEN_SECRET")),
+                str(os.getenv("JWT_SIGNATURE_SECRET")),
                 algorithms=["HS256"],
             )
 
@@ -126,7 +126,7 @@ class History(Database):
 
             jwtUser = jwt.decode(
                 user_token,
-                str(os.getenv("JWT_TOKEN_SECRET")),
+                str(os.getenv("JWT_SIGNATURE_SECRET")),
                 algorithms=["HS256"],
             )
             # skip = request.args.get("skip", default=0, type=int)
@@ -203,7 +203,7 @@ class History(Database):
 
             jwtUser = jwt.decode(
                 user_token,
-                str(os.getenv("JWT_TOKEN_SECRET")),
+                str(os.getenv("JWT_SIGNATURE_SECRET")),
                 algorithms=["HS256"],
             )
 
@@ -235,7 +235,7 @@ class History(Database):
 
             jwtUser = jwt.decode(
                 user_token,
-                str(os.getenv("JWT_TOKEN_SECRET")),
+                str(os.getenv("JWT_SIGNATURE_SECRET")),
                 algorithms=["HS256"],
             )
 
@@ -447,7 +447,7 @@ class History(Database):
 
             jwtUser = jwt.decode(
                 user_token,
-                str(os.getenv("JWT_TOKEN_SECRET")),
+                str(os.getenv("JWT_SIGNATURE_SECRET")),
                 algorithms=["HS256"],
             )
 
@@ -485,7 +485,7 @@ class History(Database):
 
             jwtUser = jwt.decode(
                 user_token,
-                str(os.getenv("JWT_TOKEN_SECRET")),
+                str(os.getenv("JWT_SIGNATURE_SECRET")),
                 algorithms=["HS256"],
             )
 
