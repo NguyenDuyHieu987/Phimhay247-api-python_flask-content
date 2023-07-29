@@ -819,12 +819,12 @@ class Authentication:
                         )
 
                         response.headers.set("Authorization", encoded)
-                        # email_response = Email_Verification(
-                        #     to=formUser["email"],
-                        #     otp=OTP,
-                        #     title="Xác nhận ký tài khoản",
-                        #     noteExp=configs.OTP_EXP_OFFSET,
-                        # )
+                        email_response = Email_Verification(
+                            to=formUser["email"],
+                            otp=OTP,
+                            title="Xác nhận đăng ký tài khoản",
+                            noteExp=configs.OTP_EXP_OFFSET,
+                        )
 
                         # print(email_response)
                         # if "message_id" in dict(email_response):
