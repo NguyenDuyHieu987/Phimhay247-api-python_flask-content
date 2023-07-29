@@ -4,6 +4,7 @@ from utils.JsonResponse import ConvertJsonResponse as cvtJson
 from utils.ErrorMessage import BadRequestMessage, InternalServerErrorMessage
 from flask import *
 from configs.database import Database
+from utils.exceptions import NotInTypeError
 import jwt
 import os
 from utils.OTP_Generation import generateOTP
@@ -14,6 +15,153 @@ import configs
 class Account(Database):
     def __init__(self):
         self.__db = self.ConnectMongoDB()
+
+    def account_verify(self, type):
+        try:
+            formUser = request.form
+
+            user_token = request.headers["Authorization"].replace("Bearer ", "")
+
+            jwtUser = jwt.decode(
+                user_token,
+                str(os.getenv("JWT_SIGNATURE_SECRET")),
+                algorithms=["HS256"],
+            )
+
+            if type == "email":
+                OTP = generateOTP(length=6)
+
+                encoded = jwt.encode(
+                    {
+                        "id": jwtUser["id"],
+                        "email": jwtUser["email"],
+                        "auth_type": "email",
+                        "description": "Verify your Email",
+                        "exp": datetime.now(tz=timezone.utc)
+                        + timedelta(seconds=configs.OTP_EXP_OFFSET),
+                    },
+                    str(OTP),
+                    algorithm="HS256",
+                )
+
+                response = make_response(
+                    {
+                        "isSended": True,
+                        "exp_offset": configs.OTP_EXP_OFFSET,
+                        "result": "Send otp email successfully",
+                    }
+                )
+
+                response.headers.set("Access-Control-Expose-Headers", "Authorization")
+
+                response.headers.set("Authorization", encoded)
+                # email_response = Email_Verification(to=formUser["email"], otp=OTP)
+
+                # print(email_response)
+                # if "message_id" in dict(email_response):
+                return response
+                # else:
+                #     return {"isSended": False, "result": "Send otp email failed"}
+            elif type == "change-password":
+                account = self.__db["accounts"].find_one(
+                    {
+                        "email": jwtUser["email"],
+                        "auth_type": "email",
+                        "password": formUser["old_password"],
+                    }
+                )
+
+                if account != None:
+                    OTP = generateOTP(length=6)
+
+                    encoded = jwt.encode(
+                        {
+                            "id": jwtUser["id"],
+                            "email": jwtUser["email"],
+                            "auth_type": "email",
+                            "old_password": formUser["old_password"],
+                            "new_password": formUser["new_password"],
+                            "description": "Change your password",
+                            "exp": datetime.now(tz=timezone.utc)
+                            + timedelta(seconds=configs.OTP_EXP_OFFSET),
+                        },
+                        str(OTP),
+                        algorithm="HS256",
+                    )
+
+                    response = make_response(
+                        {
+                            "isSended": True,
+                            "exp_offset": configs.OTP_EXP_OFFSET,
+                            "result": "Send otp email successfully",
+                        }
+                    )
+
+                    response.headers.set(
+                        "Access-Control-Expose-Headers", "Authorization"
+                    )
+
+                    response.headers.set("Authorization", encoded)
+                    # email_response = Email_Verification(to=formUser["email"], otp=OTP)
+
+                    # print(email_response)
+                    # if "message_id" in dict(email_response):
+                    return response
+                    # else:
+                    #     return {"isSended": False, "result": "Send otp email failed"}
+
+                else:
+                    return {
+                        "isWrongPassword": True,
+                        "result": "Wrong password",
+                    }
+
+            elif type == "change-email":
+                OTP = generateOTP(length=6)
+
+                encoded = jwt.encode(
+                    {
+                        "id": jwtUser["id"],
+                        "email": jwtUser["email"],
+                        "auth_type": "email",
+                        "description": "Verify your Email",
+                        "exp": datetime.now(tz=timezone.utc)
+                        + timedelta(seconds=configs.OTP_EXP_OFFSET),
+                    },
+                    str(OTP),
+                    algorithm="HS256",
+                )
+
+                response = make_response(
+                    {
+                        "isSended": True,
+                        "exp_offset": configs.OTP_EXP_OFFSET,
+                        "result": "Send otp email successfully",
+                    }
+                )
+
+                response.headers.set("Access-Control-Expose-Headers", "Authorization")
+
+                response.headers.set("Authorization", encoded)
+                # email_response = Email_Verification(to=formUser["email"], otp=OTP)
+
+                # print(email_response)
+                # if "message_id" in dict(email_response):
+                return response
+                # else:
+                #     return {"isSended": False, "result": "Send otp email failed"}
+            else:
+                raise NotInTypeError("account service", type)
+        except jwt.ExpiredSignatureError as e:
+            InternalServerErrorMessage("Token is expired")
+        except jwt.exceptions.DecodeError as e:
+            InternalServerErrorMessage("Token is invalid")
+        except NotInTypeError as e:
+            BadRequestMessage(e.message)
+        except PyMongoError as e:
+            InternalServerErrorMessage(e._message)
+        except Exception as e:
+            InternalServerErrorMessage(e)
 
     def change_password(self):
         try:
@@ -124,116 +272,6 @@ class Account(Database):
                 return {"success": True}
             else:
                 return {"success": False}
-
-        except jwt.ExpiredSignatureError as e:
-            InternalServerErrorMessage("Token is expired")
-        except jwt.exceptions.DecodeError as e:
-            InternalServerErrorMessage("Token is invalid")
-        except PyMongoError as e:
-            InternalServerErrorMessage(e._message)
-        except Exception as e:
-            InternalServerErrorMessage(e)
-
-    def verify_email(self, type):
-        try:
-            formUser = request.form
-
-            user_token = request.headers["Authorization"].replace("Bearer ", "")
-
-            jwtUser = jwt.decode(
-                user_token,
-                str(os.getenv("JWT_SIGNATURE_SECRET")),
-                algorithms=["HS256"],
-            )
-
-            if type == "change-password":
-                account = self.__db["accounts"].find_one(
-                    {
-                        "email": jwtUser["email"],
-                        "auth_type": "email",
-                        "password": formUser["old_password"],
-                    }
-                )
-
-                if account != None:
-                    OTP = generateOTP(length=6)
-
-                    encoded = jwt.encode(
-                        {
-                            "id": jwtUser["id"],
-                            "email": jwtUser["email"],
-                            "auth_type": "email",
-                            "old_password": formUser["old_password"],
-                            "new_password": formUser["new_password"],
-                            "description": "Change your password",
-                            "exp": datetime.now(tz=timezone.utc)
-                            + timedelta(seconds=configs.OTP_EXP_OFFSET),
-                        },
-                        str(OTP),
-                        algorithm="HS256",
-                    )
-
-                    response = make_response(
-                        {
-                            "isSended": True,
-                            "exp_offset": configs.OTP_EXP_OFFSET,
-                            "result": "Send otp email successfully",
-                        }
-                    )
-
-                    response.headers.set(
-                        "Access-Control-Expose-Headers", "Authorization"
-                    )
-
-                    response.headers.set("Authorization", encoded)
-                    # email_response = Email_Verification(to=formUser["email"], otp=OTP)
-
-                    # print(email_response)
-                    # if "message_id" in dict(email_response):
-                    return response
-                    # else:
-                    #     return {"isSended": False, "result": "Send otp email failed"}
-
-                else:
-                    return {
-                        "isWrongPassword": True,
-                        "result": "Wrong password",
-                    }
-
-            elif type == "change-email":
-                OTP = generateOTP(length=6)
-
-                encoded = jwt.encode(
-                    {
-                        "id": jwtUser["id"],
-                        "email": jwtUser["email"],
-                        "auth_type": "email",
-                        "description": "Verify your Email",
-                        "exp": datetime.now(tz=timezone.utc)
-                        + timedelta(seconds=configs.OTP_EXP_OFFSET),
-                    },
-                    str(OTP),
-                    algorithm="HS256",
-                )
-
-                response = make_response(
-                    {
-                        "isSended": True,
-                        "exp_offset": configs.OTP_EXP_OFFSET,
-                        "result": "Send otp email successfully",
-                    }
-                )
-
-                response.headers.set("Access-Control-Expose-Headers", "Authorization")
-
-                response.headers.set("Authorization", encoded)
-                # email_response = Email_Verification(to=formUser["email"], otp=OTP)
-
-                # print(email_response)
-                # if "message_id" in dict(email_response):
-                return response
-                # else:
-                #     return {"isSended": False, "result": "Send otp email failed"}
 
         except jwt.ExpiredSignatureError as e:
             InternalServerErrorMessage("Token is expired")

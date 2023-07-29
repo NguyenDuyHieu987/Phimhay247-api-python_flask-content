@@ -41,9 +41,9 @@ def authentication_routes(app):
     def signup_route():
         return authentication.signup()
 
-    ## Verify Email by token
+    ## Verify Sign up
 
-    @app.route("/auth/verify/email", methods=["POST"])
+    @app.route("/auth/verify/<type>", methods=["POST"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    def auth_verify_email_route():
-        return authentication.verify_email()
+    def auth_verify_signup_route(type):
+        return authentication.signup_verify(type)

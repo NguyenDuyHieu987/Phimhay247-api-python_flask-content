@@ -22,7 +22,7 @@ def account_routes(app):
     def change_fullname_route():
         return account.change_fullname()
 
-    @app.route("/account/verify/email/<type>", methods=["POST"])
+    @app.route("/account/verify/<type>", methods=["POST"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    def account_verify_email_route(type):
-        return account.verify_email(type)
+    def account_verify_route(type):
+        return account.account_verify(type)

@@ -2,6 +2,7 @@ import pymongo
 from pymongo.errors import PyMongoError
 from utils.JsonResponse import ConvertJsonResponse as cvtJson
 from utils.ErrorMessage import BadRequestMessage, InternalServerErrorMessage
+from utils.exceptions import NotInTypeError
 from flask import *
 from pymongo import ReturnDocument
 import jwt
@@ -793,67 +794,74 @@ class Authentication:
         except Exception as e:
             InternalServerErrorMessage(e)
 
-    def verify_email(self):
+    def signup_verify(self, type):
         try:
             formUser = request.form
 
-            account = self.__db["accounts"].find_one(
-                {"email": formUser["email"], "auth_type": "email"}
-            )
-
-            if account == None:
-                emailValidate = requests.get(
-                    f"https://emailvalidation.abstractapi.com/v1/?api_key={os.getenv('ABSTRACT_API_KEY')}&email={formUser['email']}"
+            if type == "email":
+                account = self.__db["accounts"].find_one(
+                    {"email": formUser["email"], "auth_type": "email"}
                 )
 
-                emailValidateResponse = emailValidate.json()
-
-                if emailValidateResponse["is_smtp_valid"]["value"] == True:
-                    OTP = generateOTP(length=6)
-
-                    encoded = jwt.encode(
-                        {
-                            "id": formUser["id"],
-                            "username": formUser["username"],
-                            "password": formUser["password"],
-                            "full_name": formUser["full_name"],
-                            "avatar": formUser["avatar"],
-                            "role": "normal",
-                            "email": formUser["email"],
-                            "auth_type": "email",
-                            "description": "Register new account",
-                            "exp": datetime.now(tz=timezone.utc)
-                            + timedelta(seconds=configs.OTP_EXP_OFFSET),
-                        },
-                        str(OTP),
-                        algorithm="HS256",
+                if account == None:
+                    emailValidate = requests.get(
+                        f"https://emailvalidation.abstractapi.com/v1/?api_key={os.getenv('ABSTRACT_API_KEY')}&email={formUser['email']}"
                     )
 
-                    response = make_response(
-                        {
-                            "isSended": True,
-                            "exp_offset": configs.OTP_EXP_OFFSET,
-                            "result": "Send otp email successfully",
-                        }
-                    )
+                    emailValidateResponse = emailValidate.json()
 
-                    response.headers.set(
-                        "Access-Control-Expose-Headers", "Authorization"
-                    )
+                    if emailValidateResponse["is_smtp_valid"]["value"] == True:
+                        OTP = generateOTP(length=6)
 
-                    response.headers.set("Authorization", encoded)
-                    email_response = Email_Verification(to=formUser["email"], otp=OTP)
+                        encoded = jwt.encode(
+                            {
+                                "id": formUser["id"],
+                                "username": formUser["username"],
+                                "password": formUser["password"],
+                                "full_name": formUser["full_name"],
+                                "avatar": formUser["avatar"],
+                                "role": "normal",
+                                "email": formUser["email"],
+                                "auth_type": "email",
+                                "description": "Register new account",
+                                "exp": datetime.now(tz=timezone.utc)
+                                + timedelta(seconds=configs.OTP_EXP_OFFSET),
+                            },
+                            str(OTP),
+                            algorithm="HS256",
+                        )
 
-                    # print(email_response)
-                    # if "message_id" in dict(email_response):
-                    return response
-                    # else:
-                    #     return {"isSended": False, "result": "Send otp email failed"}
+                        response = make_response(
+                            {
+                                "isSended": True,
+                                "exp_offset": configs.OTP_EXP_OFFSET,
+                                "result": "Send otp email successfully",
+                            }
+                        )
 
+                        response.headers.set(
+                            "Access-Control-Expose-Headers", "Authorization"
+                        )
+
+                        response.headers.set("Authorization", encoded)
+                        email_response = Email_Verification(
+                            to=formUser["email"], otp=OTP
+                        )
+
+                        # print(email_response)
+                        # if "message_id" in dict(email_response):
+                        return response
+                        # else:
+                        #     return {"isSended": False, "result": "Send otp email failed"}
+
+                    else:
+                        return {"isInValidEmail": True, "result": "Email is Invalid"}
                 else:
-                    return {"isInValidEmail": True, "result": "Email is Invalid"}
+                    return {"isEmailExist": True, "result": "Email is already exists"}
             else:
-                return {"isEmailExist": True, "result": "Email is already exists"}
+                raise NotInTypeError("verify sign up", type)
+        except NotInTypeError as e:
+            BadRequestMessage(e.message)
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except Exception as e:
