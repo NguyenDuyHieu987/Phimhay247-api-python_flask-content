@@ -83,12 +83,12 @@ class Account(Database):
                         algorithm="HS256",
                     )
 
-                    email_response = Email_Verification(
-                        to=jwtUser["email"],
-                        otp=OTP,
-                        title="Xác nhận thay đổi mật khẩu của bạn",
-                        noteExp=os.getenv("OTP_EXP_OFFSET"),
-                    )
+                    # email_response = Email_Verification(
+                    #     to=jwtUser["email"],
+                    #     otp=OTP,
+                    #     title="Xác nhận thay đổi mật khẩu của bạn",
+                    #     noteExp=os.getenv("OTP_EXP_OFFSET"),
+                    # )
 
                 else:
                     return {
