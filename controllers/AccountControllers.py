@@ -11,11 +11,13 @@ from utils.OTP_Generation import generateOTP
 from datetime import datetime, timezone, timedelta
 import configs
 from utils.Sendinblue_Email_Verification import Email_Verification
+from utils.JwtRedis import JwtRedis
 
 
 class Account(Database):
     def __init__(self):
         self.__db = self.ConnectMongoDB()
+        self.__jwtredis = JwtRedis("user_logout")
 
     def account_verify(self, type):
         try:
@@ -28,6 +30,11 @@ class Account(Database):
                 str(os.getenv("JWT_SIGNATURE_SECRET")),
                 algorithms=["HS256"],
             )
+
+            isAlive = self.__jwtredis.verify(jwtUser)
+
+            if isAlive == False:
+                return {"isTokenAlive": False, "result": "Token is no longer active"}
 
             OTP = generateOTP(length=6)
 
@@ -153,6 +160,11 @@ class Account(Database):
                 algorithms=["HS256"],
             )
 
+            isAlive = self.__jwtredis.verify(jwtUser)
+
+            if isAlive == False:
+                return {"isTokenAlive": False, "result": "Token is no longer active"}
+
             resultUpdate = self.__db["accounts"].update_one(
                 {
                     "id": jwtUser["id"],
@@ -190,6 +202,11 @@ class Account(Database):
                 str(os.getenv("JWT_SIGNATURE_SECRET")),
                 algorithms=["HS256"],
             )
+
+            isAlive = self.__jwtredis.verify(jwtUser)
+
+            if isAlive == False:
+                return {"isTokenAlive": False, "result": "Token is no longer active"}
 
             formData = request.form
 

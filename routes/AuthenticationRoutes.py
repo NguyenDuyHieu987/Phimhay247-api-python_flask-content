@@ -6,6 +6,13 @@ from controllers.AuthenticationControllers import Authentication
 
 def authentication_routes(app):
     authentication = Authentication()
+    ## Log in
+
+    @app.route("/auth/login", methods=["POST"])
+    @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
+    def login_route():
+        return authentication.login()
+
     ## Login Facebook
 
     @app.route("/auth/loginfacebook", methods=["POST"])
@@ -19,13 +26,6 @@ def authentication_routes(app):
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def logingoogle_route():
         return authentication.logingoogle()
-
-    ## Log in
-
-    @app.route("/auth/login", methods=["POST"])
-    @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    def login_route():
-        return authentication.login()
 
     ## Get user by token
 
@@ -45,5 +45,12 @@ def authentication_routes(app):
 
     @app.route("/auth/verify/<type>", methods=["POST"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    def auth_verify_signup_route(type):
+    def verify_signup_route(type):
         return authentication.signup_verify(type)
+
+    ## Log in
+
+    @app.route("/auth/logout", methods=["POST"])
+    @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
+    def logout_route():
+        return authentication.logout()
