@@ -17,11 +17,6 @@ def account_routes(app):
     def change_email_route():
         return account.change_email()
 
-    @app.route("/account/change-fullname", methods=["POST"])
-    @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    def change_fullname_route():
-        return account.change_fullname()
-
     @app.route("/account/verify/<type>", methods=["POST"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def account_verify_route(type):

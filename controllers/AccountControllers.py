@@ -10,6 +10,7 @@ import os
 from utils.OTP_Generation import generateOTP
 from datetime import datetime, timezone, timedelta
 import configs
+from utils.Sendinblue_Email_Verification import Email_Verification
 
 
 class Account(Database):
@@ -28,9 +29,9 @@ class Account(Database):
                 algorithms=["HS256"],
             )
 
-            if type == "email":
-                OTP = generateOTP(length=6)
+            OTP = generateOTP(length=6)
 
+            if type == "email":
                 encoded = jwt.encode(
                     {
                         "id": jwtUser["id"],
@@ -44,24 +45,12 @@ class Account(Database):
                     algorithm="HS256",
                 )
 
-                response = make_response(
-                    {
-                        "isSended": True,
-                        "exp_offset": configs.OTP_EXP_OFFSET,
-                        "result": "Send otp email successfully",
-                    }
-                )
+                # email_response = Email_Verification(
+                #     to=jwtUser["email"],
+                #     otp=OTP,
+                #     noteExp=os.getenv("OTP_EXP_OFFSET"),
+                # )
 
-                response.headers.set("Access-Control-Expose-Headers", "Authorization")
-
-                response.headers.set("Authorization", encoded)
-                # email_response = Email_Verification(to=formUser["email"], otp=OTP)
-
-                # print(email_response)
-                # if "message_id" in dict(email_response):
-                return response
-                # else:
-                #     return {"isSended": False, "result": "Send otp email failed"}
             elif type == "change-password":
                 account = self.__db["accounts"].find_one(
                     {
@@ -72,8 +61,6 @@ class Account(Database):
                 )
 
                 if account != None:
-                    OTP = generateOTP(length=6)
-
                     encoded = jwt.encode(
                         {
                             "id": jwtUser["id"],
@@ -89,26 +76,12 @@ class Account(Database):
                         algorithm="HS256",
                     )
 
-                    response = make_response(
-                        {
-                            "isSended": True,
-                            "exp_offset": configs.OTP_EXP_OFFSET,
-                            "result": "Send otp email successfully",
-                        }
-                    )
-
-                    response.headers.set(
-                        "Access-Control-Expose-Headers", "Authorization"
-                    )
-
-                    response.headers.set("Authorization", encoded)
-                    # email_response = Email_Verification(to=formUser["email"], otp=OTP)
-
-                    # print(email_response)
-                    # if "message_id" in dict(email_response):
-                    return response
-                    # else:
-                    #     return {"isSended": False, "result": "Send otp email failed"}
+                    # email_response = Email_Verification(
+                    #     to=jwtUser["email"],
+                    #     otp=OTP,
+                    #     title="Xác nhận thay đổi mật khẩu của bạn",
+                    #     noteExp=os.getenv("OTP_EXP_OFFSET"),
+                    # )
 
                 else:
                     return {
@@ -117,14 +90,12 @@ class Account(Database):
                     }
 
             elif type == "change-email":
-                OTP = generateOTP(length=6)
-
                 encoded = jwt.encode(
                     {
                         "id": jwtUser["id"],
                         "email": jwtUser["email"],
                         "auth_type": "email",
-                        "description": "Verify your Email",
+                        "description": "Change your Email",
                         "exp": datetime.now(tz=timezone.utc)
                         + timedelta(seconds=configs.OTP_EXP_OFFSET),
                     },
@@ -132,26 +103,33 @@ class Account(Database):
                     algorithm="HS256",
                 )
 
-                response = make_response(
-                    {
-                        "isSended": True,
-                        "exp_offset": configs.OTP_EXP_OFFSET,
-                        "result": "Send otp email successfully",
-                    }
-                )
+                # email_response = Email_Verification(
+                #     to=jwtUser["email"],
+                #     otp=OTP,
+                #     title="Xác nhận thay đổi Email của bạn",
+                #     noteExp=os.getenv("OTP_EXP_OFFSET"),
+                # )
 
-                response.headers.set("Access-Control-Expose-Headers", "Authorization")
-
-                response.headers.set("Authorization", encoded)
-                # email_response = Email_Verification(to=formUser["email"], otp=OTP)
-
-                # print(email_response)
-                # if "message_id" in dict(email_response):
-                return response
-                # else:
-                #     return {"isSended": False, "result": "Send otp email failed"}
             else:
                 raise NotInTypeError("account service", type)
+
+            response = make_response(
+                {
+                    "isSended": True,
+                    "exp_offset": configs.OTP_EXP_OFFSET,
+                    "result": "Send otp email successfully",
+                }
+            )
+
+            response.headers.set("Access-Control-Expose-Headers", "Authorization")
+
+            response.headers.set("Authorization", encoded)
+
+            # print(email_response)
+            # if "message_id" in dict(email_response):
+            return response
+            # else:
+            #     return {"isSended": False, "result": "Send otp email failed"}
         except jwt.ExpiredSignatureError as e:
             InternalServerErrorMessage("Token is expired")
         except jwt.exceptions.DecodeError as e:
@@ -224,46 +202,6 @@ class Account(Database):
                 {
                     "$set": {
                         "email": formData["new_email"],
-                    }
-                },
-            )
-
-            if resultUpdate.modified_count == 1:
-                return {"success": True}
-            else:
-                return {"success": False}
-
-        except jwt.ExpiredSignatureError as e:
-            InternalServerErrorMessage("Token is expired")
-        except jwt.exceptions.DecodeError as e:
-            InternalServerErrorMessage("Token is invalid")
-        except PyMongoError as e:
-            InternalServerErrorMessage(e._message)
-        except Exception as e:
-            InternalServerErrorMessage(e)
-
-    def change_fullname(self):
-        try:
-            user_token = request.headers["Authorization"].replace("Bearer ", "")
-
-            jwtUser = jwt.decode(
-                user_token,
-                str(os.getenv("JWT_SIGNATURE_SECRET")),
-                algorithms=["HS256"],
-            )
-
-            formData = request.form
-
-            resultUpdate = self.__db["accounts"].update_one(
-                {
-                    "id": jwtUser["id"],
-                    "email": jwtUser["email"],
-                    "auth_type": "email",
-                    "full_name": jwtUser["full_name"],
-                },
-                {
-                    "$set": {
-                        "full_name": formData["new_full_name"],
                     }
                 },
             )
