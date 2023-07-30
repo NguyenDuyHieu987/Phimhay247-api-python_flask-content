@@ -219,6 +219,7 @@ class Comment(Database):
                     {
                         "$set": {
                             "content": commentForm["content"],
+                            "updated": True,
                             "updated_at": str(datetime.now()),
                         },
                     },
