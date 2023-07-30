@@ -823,7 +823,7 @@ class Authentication:
                             to=formUser["email"],
                             otp=OTP,
                             title="Xác nhận đăng ký tài khoản",
-                            noteExp=configs.OTP_EXP_OFFSET,
+                            noteExp=os.getenv("OTP_EXP_OFFSET"),
                         )
 
                         # print(email_response)
