@@ -845,6 +845,66 @@ class Authentication:
         except Exception as e:
             InternalServerErrorMessage(e)
 
+    def forgot_password(self, type):
+        try:
+            formUser = request.form
+
+            if type == "email":
+                account = self.__db["accounts"].find_one(
+                    {
+                        "email": formUser["email"],
+                        "auth_type": "email",
+                    }
+                )
+
+                if account != None:
+                    # emailValidate = requests.get(
+                    #     f"https://emailvalidation.abstractapi.com/v1/?api_key={os.getenv('ABSTRACT_API_KEY')}&email={formUser['email']}"
+                    # )
+
+                    # emailValidateResponse = emailValidate.json()
+
+                    # if emailValidateResponse["is_smtp_valid"]["value"] == True:
+                    if True:
+                        encoded = jwt.encode(
+                            {
+                                "id": account["id"],
+                                "email": account["email"],
+                                "auth_type": "email",
+                                "description": "Forgot your password",
+                                "exp": datetime.now(tz=timezone.utc)
+                                + timedelta(seconds=configs.OTP_EXP_OFFSET),
+                            },
+                            str(os.getenv("JWT_SIGNATURE_SECRET")),
+                            algorithm="HS256",
+                        )
+
+                        # email_response = Email_Verification(
+                        #     to=jwtUser["email"],
+                        #     otp=OTP,
+                        #     title="Xác nhận thay đổi mật khẩu của bạn",
+                        #     noteExp=os.getenv("OTP_EXP_OFFSET"),
+                        # )
+
+                        return {
+                            "isSended": True,
+                            "exp_offset": 10 * 60,
+                            "result": "Send email successfully",
+                        }
+
+                    else:
+                        return {"isInValidEmail": True, "result": "Email is Invalid"}
+
+                else:
+                    return {"isEmailExist": True, "result": "Email is already exists"}
+
+        except NotInTypeError as e:
+            BadRequestMessage(e.message)
+        except PyMongoError as e:
+            InternalServerErrorMessage(e._message)
+        except Exception as e:
+            InternalServerErrorMessage(e)
+
     def logout(self):
         try:
             user_token = request.headers["Authorization"].replace("Bearer ", "")

@@ -43,10 +43,17 @@ def authentication_routes(app):
 
     ## Verify Sign up
 
-    @app.route("/auth/verify/<type>", methods=["POST"])
+    @app.route("/auth/verify-signup/<type>", methods=["POST"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def verify_signup_route(type):
         return authentication.signup_verify(type)
+
+    ## Forgot Password
+
+    @app.route("/auth/forgot-password/<type>", methods=["POST"])
+    @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
+    def forgot_password_route(type):
+        return authentication.forgot_password(type)
 
     ## Log in
 
