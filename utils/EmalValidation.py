@@ -15,6 +15,10 @@ def Validate_Email(email):
     #     f"https://api.zerobounce.net/v2/validate?api_key={os.getenv('EMAIL_VALIDATION_API_KEY')}&email={email}"
     # )
 
+    # emailValidate = requests.get(
+    #     f"https://emailverification.whoisxmlapi.com/api/v2?apiKey={os.getenv('EMAIL_VALIDATION_API_KEY')}&emailAddress={email}"
+    # )
+
     emailValidateResponse = emailValidate.json()
 
     ## Abstractapi
@@ -28,6 +32,9 @@ def Validate_Email(email):
 
     # Zerobounce
     # isValid = emailValidateResponse["status"] == "valid"
+
+    # WhoisXML
+    # isValid = emailValidateResponse["smtpCheck"] == "true"
 
     if isValid:
         return True
