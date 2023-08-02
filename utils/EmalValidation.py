@@ -11,6 +11,10 @@ def Validate_Email(email):
     #     f"https://mailbite.io/api/check?key={os.getenv('EMAIL_VALIDATION_API_KEY')}&email={email}"
     # )
 
+    # emailValidate = requests.get(
+    #     f"https://api.zerobounce.net/v2/validate?api_key={os.getenv('EMAIL_VALIDATION_API_KEY')}&email={email}"
+    # )
+
     emailValidateResponse = emailValidate.json()
 
     ## Abstractapi
@@ -21,6 +25,9 @@ def Validate_Email(email):
     #     emailValidateResponse["status"] == "ok"
     #     and emailValidateResponse["email_status"] == "VALID"
     # )
+
+    # Zerobounce
+    # isValid = emailValidateResponse["status"] == "valid"
 
     if isValid:
         return True
