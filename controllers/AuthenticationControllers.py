@@ -14,6 +14,7 @@ from utils.Sendinblue_Email_Verification import Email_Verification
 from utils.OTP_Generation import generateOTP
 from configs.database import Database
 from utils.JwtRedis import JwtRedis
+from utils.EmalValidation import Validate_Email
 
 
 class Authentication:
@@ -778,14 +779,8 @@ class Authentication:
                 )
 
                 if account == None:
-                    # emailValidate = requests.get(
-                    #     f"https://emailvalidation.abstractapi.com/v1/?api_key={os.getenv('ABSTRACT_API_KEY')}&email={formUser['email']}"
-                    # )
-
-                    # emailValidateResponse = emailValidate.json()
-
-                    # if emailValidateResponse["is_smtp_valid"]["value"] == True:
-                    if True:
+                    if Validate_Email(formUser["email"]):
+                        # if True:
                         OTP = generateOTP(length=6)
 
                         encoded = jwt.encode(
@@ -858,13 +853,7 @@ class Authentication:
                 )
 
                 if account != None:
-                    # emailValidate = requests.get(
-                    #     f"https://emailvalidation.abstractapi.com/v1/?api_key={os.getenv('ABSTRACT_API_KEY')}&email={formUser['email']}"
-                    # )
-
-                    # emailValidateResponse = emailValidate.json()
-
-                    # if emailValidateResponse["is_smtp_valid"]["value"] == True:
+                    # if Validate_Email(formUser["email"]):
                     if True:
                         encoded = jwt.encode(
                             {
