@@ -17,7 +17,7 @@ class Trending(Database):
                 limit = request.args.get("limit", default=20, type=int)
 
                 trendings = (
-                    self.__db["trendings"].find().skip(page * limit).limit(limit)
+                    self.__db["trendings"].find({}).skip(page * limit).limit(limit)
                 )
 
                 return {
