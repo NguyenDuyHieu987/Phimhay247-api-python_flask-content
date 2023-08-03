@@ -20,14 +20,12 @@ class Trending(Database):
                     self.__db["trendings"].find().skip(page * limit).limit(limit)
                 )
 
-                return make_response(
-                    {
-                        "page": page + 1,
-                        "results": cvtJson(trendings),
-                        "total": self.__db["trendings"].count_documents({}),
-                        "page_size": 20,
-                    }
-                )
+                return {
+                    "page": page + 1,
+                    "results": cvtJson(trendings),
+                    "total": self.__db["trendings"].count_documents({}),
+                    "page_size": 20,
+                }
             else:
                 raise NotInTypeError("trending", type)
         except PyMongoError as e:
