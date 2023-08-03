@@ -10,4 +10,3 @@ requests
 sib_api_v3_sdk
 flask_caching
 redis
-werkzeug
