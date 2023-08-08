@@ -63,6 +63,7 @@ class Authentication:
                     response = make_response(
                         {
                             "isLogin": True,
+                            "exp_token_hours": int(os.getenv("JWT_EXP_OFFSET")),
                             "result": {
                                 "id": get_account["id"],
                                 "username": get_account["username"],
@@ -75,6 +76,7 @@ class Authentication:
                             },
                         }
                     )
+
                     response.headers.set(
                         "Access-Control-Expose-Headers", "Authorization"
                     )
@@ -240,6 +242,7 @@ class Authentication:
                 response = make_response(
                     {
                         "isLogin": True,
+                        "exp_token_hours": int(os.getenv("JWT_EXP_OFFSET")),
                         "result": {
                             "id": account["id"],
                             "username": account["username"],
@@ -354,6 +357,7 @@ class Authentication:
                 response = make_response(
                     {
                         "isSignUp": True,
+                        "exp_token_hours": int(os.getenv("JWT_EXP_OFFSET")),
                         "result": {
                             "id": get_account["id"],
                             "username": get_account["username"],
