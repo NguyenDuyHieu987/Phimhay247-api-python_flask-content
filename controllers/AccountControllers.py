@@ -229,9 +229,9 @@ class Account(Database):
                 return {"success": False}
 
         except jwt.ExpiredSignatureError as e:
-            InternalServerErrorMessage("Token is expired")
+            return {"isOTPExpired": True, "result": "OTP is expired"}
         except jwt.exceptions.DecodeError as e:
-            InternalServerErrorMessage("Token is invalid")
+            return {"isInvalidOTP": True, "result": "OTP is invalid"}
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except Exception as e:
