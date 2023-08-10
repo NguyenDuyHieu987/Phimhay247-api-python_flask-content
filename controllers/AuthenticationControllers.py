@@ -42,6 +42,10 @@ class Authentication:
                         # return_document=ReturnDocument.AFTER,
                     )
 
+                    exp = datetime.now(tz=timezone.utc) + timedelta(
+                        seconds=configs.JWT_EXP_OFFSET
+                    )
+
                     encoded = jwt.encode(
                         {
                             "id": get_account["id"],
@@ -53,8 +57,7 @@ class Authentication:
                             "email": get_account["email"],
                             "auth_type": get_account["auth_type"],
                             "created_at": get_account["created_at"],
-                            "exp": datetime.now(tz=timezone.utc)
-                            + timedelta(seconds=configs.JWT_EXP_OFFSET),
+                            "exp": exp,
                         },
                         str(os.getenv("JWT_SIGNATURE_SECRET")),
                         algorithm="HS256",
@@ -63,6 +66,7 @@ class Authentication:
                     response = make_response(
                         {
                             "isLogin": True,
+                            "exp_token": exp,
                             "result": {
                                 "id": get_account["id"],
                                 "username": get_account["username"],
@@ -72,8 +76,6 @@ class Authentication:
                                 "auth_type": get_account["auth_type"],
                                 "role": get_account["role"],
                                 "created_at": get_account["created_at"],
-                                "exp": datetime.now(tz=timezone.utc)
-                                + timedelta(seconds=configs.JWT_EXP_OFFSET),
                             },
                         }
                     )
@@ -162,6 +164,10 @@ class Authentication:
                     },
                 )
 
+                exp = datetime.now(tz=timezone.utc) + timedelta(
+                    seconds=configs.JWT_EXP_OFFSET
+                )
+
                 encoded = jwt.encode(
                     {
                         "id": get_account["id"],
@@ -172,8 +178,7 @@ class Authentication:
                         "auth_type": get_account["auth_type"],
                         "role": "normal",
                         "created_at": get_account["created_at"],
-                        "exp": datetime.now(tz=timezone.utc)
-                        + timedelta(seconds=configs.JWT_EXP_OFFSET),
+                        "exp": exp,
                     },
                     str(os.getenv("JWT_SIGNATURE_SECRET")),
                     algorithm="HS256",
@@ -182,6 +187,7 @@ class Authentication:
                 response = make_response(
                     {
                         "isSignUp": True,
+                        "exp_token": exp,
                         "result": {
                             "id": get_account["id"],
                             "username": get_account["username"],
@@ -191,8 +197,6 @@ class Authentication:
                             "auth_type": get_account["auth_type"],
                             "role": get_account["role"],
                             "created_at": get_account["created_at"],
-                            "exp": datetime.now(tz=timezone.utc)
-                            + timedelta(seconds=configs.JWT_EXP_OFFSET),
                         },
                     }
                 )
@@ -212,6 +216,10 @@ class Authentication:
                     return_document=ReturnDocument.AFTER,
                 )
 
+                exp = datetime.now(tz=timezone.utc) + timedelta(
+                    seconds=configs.JWT_EXP_OFFSET
+                )
+
                 encoded = jwt.encode(
                     {
                         "id": account_modified["id"],
@@ -222,8 +230,7 @@ class Authentication:
                         "auth_type": account_modified["auth_type"],
                         "role": "normal",
                         "created_at": account_modified["created_at"],
-                        "exp": datetime.now(tz=timezone.utc)
-                        + timedelta(seconds=configs.JWT_EXP_OFFSET),
+                        "exp": exp,
                     },
                     str(os.getenv("JWT_SIGNATURE_SECRET")),
                     algorithm="HS256",
@@ -244,6 +251,7 @@ class Authentication:
                 response = make_response(
                     {
                         "isLogin": True,
+                        "exp_token": exp,
                         "result": {
                             "id": account["id"],
                             "username": account["username"],
@@ -253,8 +261,6 @@ class Authentication:
                             "auth_type": account["auth_type"],
                             "role": account["role"],
                             "created_at": account["created_at"],
-                            "exp": datetime.now(tz=timezone.utc)
-                            + timedelta(seconds=configs.JWT_EXP_OFFSET),
                         },
                     }
                 )
@@ -339,6 +345,10 @@ class Authentication:
                     },
                 )
 
+                exp = datetime.now(tz=timezone.utc) + timedelta(
+                    seconds=configs.JWT_EXP_OFFSET
+                )
+
                 encoded = jwt.encode(
                     {
                         "id": get_account["id"],
@@ -349,8 +359,7 @@ class Authentication:
                         "auth_type": get_account["auth_type"],
                         "role": "normal",
                         "created_at": get_account["created_at"],
-                        "exp": datetime.now(tz=timezone.utc)
-                        + timedelta(seconds=configs.JWT_EXP_OFFSET),
+                        "exp": exp,
                     },
                     str(os.getenv("JWT_SIGNATURE_SECRET")),
                     algorithm="HS256",
@@ -359,6 +368,7 @@ class Authentication:
                 response = make_response(
                     {
                         "isSignUp": True,
+                        "exp_token": exp,
                         "result": {
                             "id": get_account["id"],
                             "username": get_account["username"],
@@ -368,8 +378,6 @@ class Authentication:
                             "auth_type": get_account["auth_type"],
                             "role": get_account["role"],
                             "created_at": get_account["created_at"],
-                            "exp": datetime.now(tz=timezone.utc)
-                            + timedelta(seconds=configs.JWT_EXP_OFFSET),
                         },
                     }
                 )
@@ -379,6 +387,10 @@ class Authentication:
                 return response
 
             else:
+                exp = datetime.now(tz=timezone.utc) + timedelta(
+                    seconds=configs.JWT_EXP_OFFSET
+                )
+
                 encoded = jwt.encode(
                     {
                         "id": account["id"],
@@ -389,8 +401,7 @@ class Authentication:
                         "auth_type": account["auth_type"],
                         "role": "normal",
                         "created_at": account["created_at"],
-                        "exp": datetime.now(tz=timezone.utc)
-                        + timedelta(seconds=configs.JWT_EXP_OFFSET),
+                        "exp": exp,
                     },
                     str(os.getenv("JWT_SIGNATURE_SECRET")),
                     algorithm="HS256",
@@ -410,6 +421,7 @@ class Authentication:
                 response = make_response(
                     {
                         "isLogin": True,
+                        "exp_token": exp,
                         "result": {
                             "id": account["id"],
                             "username": account["username"],
@@ -419,8 +431,6 @@ class Authentication:
                             "auth_type": account["auth_type"],
                             "role": account["role"],
                             "created_at": account["created_at"],
-                            "exp": datetime.now(tz=timezone.utc)
-                            + timedelta(seconds=configs.JWT_EXP_OFFSET),
                         },
                     }
                 )
@@ -564,6 +574,7 @@ class Authentication:
                 response = make_response(
                     {
                         "isLogin": True,
+                        "exp_token": jwtUser["exp"],
                         "result": {
                             "id": jwtUser["id"],
                             "username": jwtUser["username"],
@@ -573,7 +584,6 @@ class Authentication:
                             "auth_type": jwtUser["auth_type"],
                             "role": jwtUser["role"],
                             "created_at": jwtUser["created_at"],
-                            "exp": jwtUser["exp"],
                         },
                     }
                 )
