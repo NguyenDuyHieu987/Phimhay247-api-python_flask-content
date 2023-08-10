@@ -63,7 +63,8 @@ class Authentication:
                     response = make_response(
                         {
                             "isLogin": True,
-                            "exp_token_hours": int(os.getenv("JWT_EXP_OFFSET")),
+                            "exp": datetime.now(tz=timezone.utc)
+                            + timedelta(seconds=configs.JWT_EXP_OFFSET),
                             "result": {
                                 "id": get_account["id"],
                                 "username": get_account["username"],
@@ -181,6 +182,8 @@ class Authentication:
                 response = make_response(
                     {
                         "isSignUp": True,
+                        "exp": datetime.now(tz=timezone.utc)
+                        + timedelta(seconds=configs.JWT_EXP_OFFSET),
                         "result": {
                             "id": get_account["id"],
                             "username": get_account["username"],
@@ -242,7 +245,8 @@ class Authentication:
                 response = make_response(
                     {
                         "isLogin": True,
-                        "exp_token_hours": int(os.getenv("JWT_EXP_OFFSET")),
+                        "exp": datetime.now(tz=timezone.utc)
+                        + timedelta(seconds=configs.JWT_EXP_OFFSET),
                         "result": {
                             "id": account["id"],
                             "username": account["username"],
@@ -357,7 +361,8 @@ class Authentication:
                 response = make_response(
                     {
                         "isSignUp": True,
-                        "exp_token_hours": int(os.getenv("JWT_EXP_OFFSET")),
+                        "exp": datetime.now(tz=timezone.utc)
+                        + timedelta(seconds=configs.JWT_EXP_OFFSET),
                         "result": {
                             "id": get_account["id"],
                             "username": get_account["username"],
@@ -408,6 +413,8 @@ class Authentication:
                 response = make_response(
                     {
                         "isLogin": True,
+                        "exp": datetime.now(tz=timezone.utc)
+                        + timedelta(seconds=configs.JWT_EXP_OFFSET),
                         "result": {
                             "id": account["id"],
                             "username": account["username"],
