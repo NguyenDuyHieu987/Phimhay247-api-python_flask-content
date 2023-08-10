@@ -63,8 +63,6 @@ class Authentication:
                     response = make_response(
                         {
                             "isLogin": True,
-                            "exp": datetime.now(tz=timezone.utc)
-                            + timedelta(seconds=configs.JWT_EXP_OFFSET),
                             "result": {
                                 "id": get_account["id"],
                                 "username": get_account["username"],
@@ -74,6 +72,8 @@ class Authentication:
                                 "auth_type": get_account["auth_type"],
                                 "role": get_account["role"],
                                 "created_at": get_account["created_at"],
+                                "exp": datetime.now(tz=timezone.utc)
+                                + timedelta(seconds=configs.JWT_EXP_OFFSET),
                             },
                         }
                     )
@@ -182,8 +182,6 @@ class Authentication:
                 response = make_response(
                     {
                         "isSignUp": True,
-                        "exp": datetime.now(tz=timezone.utc)
-                        + timedelta(seconds=configs.JWT_EXP_OFFSET),
                         "result": {
                             "id": get_account["id"],
                             "username": get_account["username"],
@@ -193,7 +191,8 @@ class Authentication:
                             "auth_type": get_account["auth_type"],
                             "role": get_account["role"],
                             "created_at": get_account["created_at"],
-                            # "user_token": encoded,
+                            "exp": datetime.now(tz=timezone.utc)
+                            + timedelta(seconds=configs.JWT_EXP_OFFSET),
                         },
                     }
                 )
@@ -245,8 +244,6 @@ class Authentication:
                 response = make_response(
                     {
                         "isLogin": True,
-                        "exp": datetime.now(tz=timezone.utc)
-                        + timedelta(seconds=configs.JWT_EXP_OFFSET),
                         "result": {
                             "id": account["id"],
                             "username": account["username"],
@@ -256,7 +253,8 @@ class Authentication:
                             "auth_type": account["auth_type"],
                             "role": account["role"],
                             "created_at": account["created_at"],
-                            # "user_token": encoded,
+                            "exp": datetime.now(tz=timezone.utc)
+                            + timedelta(seconds=configs.JWT_EXP_OFFSET),
                         },
                     }
                 )
@@ -361,8 +359,6 @@ class Authentication:
                 response = make_response(
                     {
                         "isSignUp": True,
-                        "exp": datetime.now(tz=timezone.utc)
-                        + timedelta(seconds=configs.JWT_EXP_OFFSET),
                         "result": {
                             "id": get_account["id"],
                             "username": get_account["username"],
@@ -372,7 +368,8 @@ class Authentication:
                             "auth_type": get_account["auth_type"],
                             "role": get_account["role"],
                             "created_at": get_account["created_at"],
-                            # "user_token": encoded,
+                            "exp": datetime.now(tz=timezone.utc)
+                            + timedelta(seconds=configs.JWT_EXP_OFFSET),
                         },
                     }
                 )
@@ -413,8 +410,6 @@ class Authentication:
                 response = make_response(
                     {
                         "isLogin": True,
-                        "exp": datetime.now(tz=timezone.utc)
-                        + timedelta(seconds=configs.JWT_EXP_OFFSET),
                         "result": {
                             "id": account["id"],
                             "username": account["username"],
@@ -424,7 +419,8 @@ class Authentication:
                             "auth_type": account["auth_type"],
                             "role": account["role"],
                             "created_at": account["created_at"],
-                            # "user_token": encoded,
+                            "exp": datetime.now(tz=timezone.utc)
+                            + timedelta(seconds=configs.JWT_EXP_OFFSET),
                         },
                     }
                 )
@@ -577,6 +573,7 @@ class Authentication:
                             "auth_type": jwtUser["auth_type"],
                             "role": jwtUser["role"],
                             "created_at": jwtUser["created_at"],
+                            "exp": jwtUser["exp"],
                         },
                     }
                 )
