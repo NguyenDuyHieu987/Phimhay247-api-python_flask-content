@@ -110,7 +110,7 @@ class Authentication:
                         "username": formUser["name"],
                         "full_name": formUser["name"],
                         "avatar": formUser["picture"]["data"]["url"],
-                        "email": formUser.get("email", ""),
+                        "email": formUser["email"],
                         "auth_type": "facebook",
                         "role": "normal",
                         "created_at": str(datetime.now()),
