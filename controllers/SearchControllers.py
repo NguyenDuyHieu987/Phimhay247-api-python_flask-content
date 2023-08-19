@@ -55,6 +55,7 @@ class Search(Database):
                 # random.shuffle(result)
 
                 return {
+                    "page": page + 1,
                     "results": result,
                     "movie": movie,
                     "tv": tv,
@@ -85,6 +86,7 @@ class Search(Database):
                 )
 
                 return {
+                    "page": page + 1,
                     "results": tv,
                     "total": len(tv),
                     "page_size": 20,
@@ -109,6 +111,7 @@ class Search(Database):
                 )
 
                 return {
+                    "page": page + 1,
                     "results": movie,
                     "total": len(movie),
                     "page_size": 20,
