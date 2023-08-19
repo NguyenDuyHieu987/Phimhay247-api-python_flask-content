@@ -104,43 +104,6 @@ class Authentication:
             account = self.__db["accounts"].find_one({"id": formUser["id"]})
 
             if account == None:
-                list = self.__db["lists"].find_one(
-                    {
-                        "id": formUser["id"],
-                    },
-                )
-
-                newList = {
-                    "created_by": formUser["name"],
-                    "description": "List movie which users are added",
-                    "favorite_count": 0,
-                    "id": formUser["id"],
-                    "name": "List",
-                    "items": [],
-                }
-
-                if list == None:
-                    self.__db["lists"].insert_one(newList)
-
-                    watchlist = self.__db["watchlists"].find_one(
-                        {
-                            "id": formUser["id"],
-                        },
-                    )
-
-                newWatchList = {
-                    "created_by": formUser["name"],
-                    "description": "Videos which users watched",
-                    "favorite_count": 0,
-                    "id": formUser["id"],
-                    "item_count": 0,
-                    "name": "WatchList",
-                    "items": [],
-                }
-
-                if watchlist == None:
-                    self.__db["watchlists"].insert_one(newWatchList)
-
                 self.__db["accounts"].insert_one(
                     {
                         "id": formUser["id"],
@@ -279,43 +242,6 @@ class Authentication:
             account = self.__db["accounts"].find_one({"id": formUser["sub"]})
 
             if account == None:
-                list = self.__db["lists"].find_one(
-                    {
-                        "id": formUser["sub"],
-                    },
-                )
-
-                newList = {
-                    "created_by": formUser["name"],
-                    "description": "List movie which users are added",
-                    "favorite_count": 0,
-                    "id": formUser["sub"],
-                    "name": "List",
-                    "items": [],
-                }
-
-                if list == None:
-                    self.__db["lists"].insert_one(newList)
-
-                watchlist = self.__db["watchlists"].find_one(
-                    {
-                        "id": formUser["sub"],
-                    },
-                )
-
-                newWatchList = {
-                    "created_by": formUser["name"],
-                    "description": "Videos which users watched",
-                    "favorite_count": 0,
-                    "id": formUser["sub"],
-                    "item_count": 0,
-                    "name": "WatchList",
-                    "items": [],
-                }
-
-                if watchlist == None:
-                    self.__db["watchlists"].insert_one(newWatchList)
-
                 self.__db["accounts"].insert_one(
                     {
                         "id": formUser["sub"],
@@ -695,51 +621,14 @@ class Authentication:
             )
 
             if account == None:
-                list = self.__db["lists"].find_one(
-                    {
-                        "id": jwtUser["id"],
-                    },
-                )
-
-                newList = {
-                    "full_name": jwtUser["full_name"],
-                    "description": "List movie which users are added",
-                    "favorite_count": 0,
-                    "id": jwtUser["id"],
-                    "name": "List",
-                    "items": [],
-                }
-
-                if list == None:
-                    self.__db["lists"].insert_one(newList)
-
-                watchlist = self.__db["watchlists"].find_one(
-                    {
-                        "id": jwtUser["id"],
-                    },
-                )
-
-                newWatchList = {
-                    "full_name": jwtUser["full_name"],
-                    "description": "Videos which users watched",
-                    "favorite_count": 0,
-                    "id": jwtUser["id"],
-                    "item_count": 0,
-                    "name": "WatchList",
-                    "items": [],
-                }
-
-                if watchlist == None:
-                    self.__db["watchlists"].insert_one(newWatchList)
-
-                    # if "role" in formUser.to_dict():
-                    #     self.__db["accounts"].insert_one(
-                    #         formUser.to_dict()
-                    #         | {
-                    #             "auth_type": "email",
-                    #         }
-                    #     )
-                    # else:
+                # if "role" in formUser.to_dict():
+                #     self.__db["accounts"].insert_one(
+                #         formUser.to_dict()
+                #         | {
+                #             "auth_type": "email",
+                #         }
+                #     )
+                # else:
 
                 self.__db["accounts"].insert_one(
                     {
