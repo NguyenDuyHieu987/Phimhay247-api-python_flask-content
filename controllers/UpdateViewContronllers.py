@@ -23,7 +23,7 @@ class View(Database):
 
                 return {
                     "success": True,
-                    "result": "Update views of movie successfully",
+                    "result": "Update views movie successfully",
                 }
             elif type == "tv":
                 self.__db["tvs"].update_one(
@@ -32,7 +32,8 @@ class View(Database):
                         "$inc": {"views": 1},
                     },
                 )
-                return {"success": True, "result": "Update views of tv successfully"}
+
+                return {"success": True, "result": "Update views tv successfully"}
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except Exception as e:
