@@ -229,7 +229,6 @@ class Comment(Database):
                     return {"success": True, "content": commentForm["content"]}
                 else:
                     raise DefaultError("Update comment failed")
-
             else:
                 raise DefaultError("Movie is not exists")
 
@@ -284,7 +283,7 @@ class Comment(Database):
                             "type": "children",
                         }
                     )
-                else:
+                elif commentForm["type"] == "children":
                     resultDel1 = self.__db["comments"].delete_one(
                         {
                             "id": commentForm["id"],
