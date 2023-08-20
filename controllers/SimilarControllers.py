@@ -6,6 +6,7 @@ from utils.ErrorMessage import BadRequestMessage, InternalServerErrorMessage
 from utils.exceptions import NotInTypeError
 from flask import *
 from configs.database import Database
+from utils.exceptions import DefaultError
 
 
 class Similar(Database):
@@ -18,73 +19,92 @@ class Similar(Database):
             limit = request.args.get("limit", default=12, type=int)
 
             if type == "movie":
-                movie_similar = self.__db["movies"].find_one({"id": str(movieid)})
-                genres = movie_similar["genres"]
-                country = movie_similar["original_language"]
+                movie = self.__db["movies"].find_one({"id": str(movieid)})
 
-                new_genres = [{"id": int(x["id"])} for x in genres]
+                if tv != None:
+                    genres = movie["genres"]
+                    country = movie["original_language"]
 
-                movie = cvtJson(
-                    self.__db["movies"]
-                    .find(
-                        {
-                            "id": {
-                                "$nin": [str(movieid)],
-                            },
-                            "$or": [
-                                {"original_language": {"$regex": country}},
-                                {
-                                    "genres": {
-                                        "$elemMatch": {"$or": [ChainMap(*new_genres)]}
-                                    }
+                    new_genres = [{"id": int(x["id"])} for x in genres]
+
+                    movie_similar = cvtJson(
+                        self.__db["movies"]
+                        .find(
+                            {
+                                "id": {
+                                    "$nin": [str(movieid)],
                                 },
-                            ],
-                        },
+                                "$or": [
+                                    {"original_language": {"$regex": country}},
+                                    {
+                                        "genres": {
+                                            "$elemMatch": {
+                                                "$or": [ChainMap(*new_genres)]
+                                            }
+                                        }
+                                    },
+                                ],
+                            },
+                        )
+                        .skip(page * limit)
+                        .limit(limit)
+                        .sort([("views", pymongo.DESCENDING)])
                     )
-                    .skip(page * limit)
-                    .limit(limit)
-                    .sort([("views", pymongo.DESCENDING)])
-                )
-                return {
-                    "results": movie,
-                }
+                    return {
+                        "page": page + 1,
+                        "results": movie_similar,
+                        "page_size": limit,
+                    }
+                else:
+                    raise DefaultError("Movie is not exist")
 
             elif type == "tv":
-                tv_similar = self.__db["tvs"].find_one({"id": str(movieid)})
-                genres = tv_similar["genres"]
-                country = tv_similar["original_language"]
+                tv = self.__db["tvs"].find_one({"id": str(movieid)})
 
-                new_genres = [{"id": int(x["id"])} for x in genres]
+                if tv != None:
+                    genres = tv["genres"]
+                    country = tv["original_language"]
 
-                tv = cvtJson(
-                    self.__db["tvs"]
-                    .find(
-                        {
-                            "id": {
-                                "$nin": [str(movieid)],
-                            },
-                            "$or": [
-                                {"original_language": {"$regex": country}},
-                                {
-                                    "genres": {
-                                        "$elemMatch": {"$or": [ChainMap(*new_genres)]}
-                                    }
+                    new_genres = [{"id": int(x["id"])} for x in genres]
+
+                    tv_similar = cvtJson(
+                        self.__db["tvs"]
+                        .find(
+                            {
+                                "id": {
+                                    "$nin": [str(movieid)],
                                 },
-                            ],
-                        },
+                                "$or": [
+                                    {"original_language": {"$regex": country}},
+                                    {
+                                        "genres": {
+                                            "$elemMatch": {
+                                                "$or": [ChainMap(*new_genres)]
+                                            }
+                                        }
+                                    },
+                                ],
+                            },
+                        )
+                        .skip(page * limit)
+                        .limit(limit)
+                        .sort([("views", pymongo.DESCENDING)])
                     )
-                    .skip(page * limit)
-                    .limit(limit)
-                    .sort([("views", pymongo.DESCENDING)])
-                )
-                return {
-                    "results": tv,
-                }
+
+                    return {
+                        "page": page + 1,
+                        "results": tv_similar,
+                        "page_size": limit,
+                    }
+                else:
+                    raise DefaultError("Movie is not exist")
             else:
                 raise NotInTypeError("similar", type)
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except NotInTypeError as e:
+            BadRequestMessage(e.message)
+        except DefaultError as e:
             BadRequestMessage(e.message)
         except Exception as e:
             InternalServerErrorMessage(e)
