@@ -753,7 +753,7 @@ class Authentication:
                                 "auth_type": "email",
                                 "description": "Forgot your password",
                                 "exp": datetime.now(tz=timezone.utc)
-                                + timedelta(seconds=configs.OTP_EXP_OFFSET),
+                                + timedelta(seconds=configs.FORGOT_PASSWORD_EXP_OFFSET),
                             },
                             str(os.getenv("JWT_SIGNATURE_SECRET")),
                             algorithm="HS256",
