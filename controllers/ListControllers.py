@@ -297,7 +297,7 @@ class List(Database):
                             "results": "Add item to list suucessfully",
                         }
                     else:
-                        raise DefaultError("Movie already exist in list")
+                        raise DefaultError("Movie is already exist in list")
 
                 else:
                     raise DefaultError("Movie is not exists")
@@ -368,11 +368,19 @@ class List(Database):
                 algorithms=["HS256"],
             )
 
+            id = request.form["id"]
             movie_id = request.form["movie_id"]
             media_type = request.form["media_type"]
 
             resultDelete1 = self.__db["lists"].delete_one(
                 {
+                    "id": id,
+                    "user_id": jwtUser["id"],
+                    "movie_id": movie_id,
+                    "media_type": media_type,
+                }
+                if id != None
+                else {
                     "user_id": jwtUser["id"],
                     "movie_id": movie_id,
                     "media_type": media_type,
@@ -391,6 +399,8 @@ class List(Database):
             InternalServerErrorMessage("Token is expired")
         except jwt.exceptions.DecodeError as e:
             InternalServerErrorMessage("Token is invalid")
+        except DefaultError as e:
+            BadRequestMessage(e.message)
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except Exception as e:
@@ -415,11 +425,15 @@ class List(Database):
                     self.__db["lists"].find({"user_id": jwtUser["id"]}).skip(0).limit(1)
                 )
                 return {"success": True, "results": cvtJson(list)}
+            else:
+                raise DefaultError("Delete all movie from list failed")
 
         except jwt.ExpiredSignatureError as e:
             InternalServerErrorMessage("Token is expired")
         except jwt.exceptions.DecodeError as e:
             InternalServerErrorMessage("Token is invalid")
+        except DefaultError as e:
+            BadRequestMessage(e.message)
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except Exception as e:

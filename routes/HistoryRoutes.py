@@ -8,14 +8,14 @@ def history_routes(app, cache):
     history = History()
     ## Get history
 
-    @app.route("/history/gethistory/<type>", methods=["GET"])
+    @app.route("/history/get/<type>", methods=["GET"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def gethistory_route(type):
         return history.gethistory(type)
 
     ## Search history
 
-    @app.route("/history/searchhistory/<type>", methods=["GET"])
+    @app.route("/history/search/<type>", methods=["GET"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def search_history_route(type):
         return history.search_history(type)
@@ -29,21 +29,21 @@ def history_routes(app, cache):
 
     ## Add item to history
 
-    @app.route("/history/add_item", methods=["POST"])
+    @app.route("/history/additem", methods=["POST"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def additem_history_route():
         return history.additem_history()
 
     ## Remove item from history
 
-    @app.route("/history/remove_item", methods=["DELETE"])
+    @app.route("/history/removeitem", methods=["DELETE"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def remove_item_history_route():
         return history.remove_item_history()
 
     ## Remove all item from history
 
-    @app.route("/history/removeall_item", methods=["DELETE"])
+    @app.route("/history/removeallitem", methods=["DELETE"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def removeall_item_history_route():
         return history.removeall_item_history()
