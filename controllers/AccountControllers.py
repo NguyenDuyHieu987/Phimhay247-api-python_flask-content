@@ -31,7 +31,7 @@ class Account(Database):
                 algorithms=["HS256"],
             )
 
-            isAlive = self.__jwtredis.verify(jwtUser)
+            isAlive = self.__jwtredis.verify(user_token)
 
             if isAlive == False:
                 return {"isTokenAlive": False, "result": "Token is no longer active"}
@@ -52,11 +52,11 @@ class Account(Database):
                     algorithm="HS256",
                 )
 
-                # email_response = Email_Verification(
-                #     to=jwtUser["email"],
-                #     otp=OTP,
-                #     noteExp=os.getenv("OTP_EXP_OFFSET"),
-                # )
+                email_response = Email_Verification(
+                    to=jwtUser["email"],
+                    otp=OTP,
+                    noteExp=os.getenv("OTP_EXP_OFFSET"),
+                )
 
             elif type == "change-password":
                 account = self.__db["accounts"].find_one(
@@ -110,12 +110,12 @@ class Account(Database):
                     algorithm="HS256",
                 )
 
-                # email_response = Email_Verification(
-                #     to=jwtUser["email"],
-                #     otp=OTP,
-                #     title="Xác nhận thay đổi Email của bạn",
-                #     noteExp=os.getenv("OTP_EXP_OFFSET"),
-                # )
+                email_response = Email_Verification(
+                    to=jwtUser["email"],
+                    otp=OTP,
+                    title="Xác nhận thay đổi Email của bạn",
+                    noteExp=os.getenv("OTP_EXP_OFFSET"),
+                )
 
             else:
                 raise NotInTypeError("account service", type)
@@ -160,7 +160,7 @@ class Account(Database):
                 algorithms=["HS256"],
             )
 
-            isAlive = self.__jwtredis.verify(jwtUser)
+            isAlive = self.__jwtredis.verify(user_token)
 
             if isAlive == False:
                 return {"isTokenAlive": False, "result": "Token is no longer active"}
@@ -196,19 +196,18 @@ class Account(Database):
     def change_email(self):
         try:
             user_token = request.headers["Authorization"].replace("Bearer ", "")
+            formUser = request.form
 
             jwtUser = jwt.decode(
                 user_token,
-                str(os.getenv("JWT_SIGNATURE_SECRET")),
+                str(formUser["otp"]),
                 algorithms=["HS256"],
             )
 
-            isAlive = self.__jwtredis.verify(jwtUser)
+            isAlive = self.__jwtredis.verify(user_token)
 
             if isAlive == False:
                 return {"isTokenAlive": False, "result": "Token is no longer active"}
-
-            formData = request.form
 
             resultUpdate = self.__db["accounts"].update_one(
                 {
@@ -218,7 +217,7 @@ class Account(Database):
                 },
                 {
                     "$set": {
-                        "email": formData["new_email"],
+                        "email": formUser["new_email"],
                     }
                 },
             )
