@@ -331,10 +331,10 @@ class History(Database):
                                 },
                             )
 
-                        return {
-                            "success": True,
-                            "results": "Update item from history suucessfully",
-                        }
+                    return {
+                        "success": True,
+                        "results": "Update item from history suucessfully",
+                    }
                 else:
                     raise DefaultError("Failed to add item to history")
 
@@ -423,10 +423,10 @@ class History(Database):
                                 },
                             )
 
-                            return {
-                                "success": True,
-                                "results": "Update item from history suucessfully",
-                            }
+                        return {
+                            "success": True,
+                            "results": "Update item from history suucessfully",
+                        }
                 else:
                     raise DefaultError("Failed to add item to history")
 
