@@ -36,8 +36,8 @@ class Rate(Database):
 
             if rates == None:
                 return {"success": False}
-
-            return {"success": True, "result": cvtJson(rates)}
+            else:
+                return {"success": True, "result": cvtJson(rates)}
 
         except jwt.ExpiredSignatureError as e:
             InternalServerErrorMessage("Token is expired")
@@ -95,10 +95,11 @@ class Rate(Database):
                                 "updated_at": str(datetime.now()),
                             }
                         )
+
                         if resultInsert1.acknowledged == False:
-                            raise DefaultError("Update rate movie failed")
+                            raise DefaultError("Rate movie failed")
                     else:
-                        raise DefaultError("Update rate movie failed")
+                        raise DefaultError("Rate movie failed")
 
                     return {
                         "success": True,
