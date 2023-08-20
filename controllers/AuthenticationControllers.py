@@ -796,7 +796,7 @@ class Authentication:
             )
 
             self.__jwtredis.sign(
-                jwtUser,
+                user_token,
                 option={"exp": configs.JWT_EXP_OFFSET},
             )
 
