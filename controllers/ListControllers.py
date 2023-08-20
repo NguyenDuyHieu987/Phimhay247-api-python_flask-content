@@ -156,15 +156,21 @@ class List(Database):
                 }
 
             elif type == "movie":
-                list = self.__db["lists"].find(
-                    {
-                        "user_id": jwtUser["id"],
-                        "media_type": type,
-                        "$or": [
-                            {"name": {"$regex": query, "$options": "i"}},
-                            {"original_name": {"$regex": query, "$options": "i"}},
-                        ],
-                    },
+                list = (
+                    self.__db["lists"]
+                    .find(
+                        {
+                            "user_id": jwtUser["id"],
+                            "media_type": type,
+                            "$or": [
+                                {"name": {"$regex": query, "$options": "i"}},
+                                {"original_name": {"$regex": query, "$options": "i"}},
+                            ],
+                        },
+                    )
+                    .sort(
+                        [("created_at", pymongo.DESCENDING)],
+                    )
                 )
 
                 return {
@@ -173,15 +179,21 @@ class List(Database):
                 }
 
             elif type == "tv":
-                list = self.__db["lists"].find(
-                    {
-                        "user_id": jwtUser["id"],
-                        "media_type": type,
-                        "$or": [
-                            {"name": {"$regex": query, "$options": "i"}},
-                            {"original_name": {"$regex": query, "$options": "i"}},
-                        ],
-                    },
+                list = (
+                    self.__db["lists"]
+                    .find(
+                        {
+                            "user_id": jwtUser["id"],
+                            "media_type": type,
+                            "$or": [
+                                {"name": {"$regex": query, "$options": "i"}},
+                                {"original_name": {"$regex": query, "$options": "i"}},
+                            ],
+                        },
+                    )
+                    .sort(
+                        [("created_at", pymongo.DESCENDING)],
+                    )
                 )
 
                 return {
