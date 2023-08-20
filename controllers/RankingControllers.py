@@ -13,54 +13,96 @@ class Rank(Database):
 
     def ranking(self, slug):
         try:
+            page = (request.args.get("page", default=1, type=int)) - 1
+            limit = request.args.get("limit", default=20, type=int)
+
             if slug == "day":
-                page = (request.args.get("page", default=1, type=int)) - 1
-                phimbo = cvtJson(
+                movie = (
+                    self.__db["movies"]
+                    .find({})
+                    .skip(0 * limit / 2)
+                    .limit(limit / 2)
+                    .sort([("views", pymongo.DESCENDING)])
+                )
+
+                tv = (
                     self.__db["tvs"]
-                    .find(
-                        {},
-                        {
-                            "images": 0,
-                            "credits": 0,
-                            "videos": 0,
-                            "production_companies": 0,
-                            "seasons": 0,
-                        },
-                    )
-                    .skip(page * 20)
-                    .limit(20)
+                    .find({})
+                    .skip(0 * limit / 2)
+                    .limit(limit / 2)
+                    .sort([("views", pymongo.DESCENDING)])
                 )
 
                 return {
                     "page": page + 1,
-                    "results": phimbo,
-                    "total": self.__db["tvs"].count_documents({}),
+                    "results": cvtJson(movie + tv),
+                    "page_size": limit,
                 }
             elif slug == "week":
-                page = request.args.get("page", default=1, type=int)
-                nowplaying = cvtJson(
-                    self.__db["tvairingtodays"].find_one({"page": page})
+                movie = (
+                    self.__db["movies"]
+                    .find({})
+                    .skip(1 * limit / 2)
+                    .limit(limit / 2)
+                    .sort([("views", pymongo.DESCENDING)])
                 )
+
+                tv = (
+                    self.__db["tvs"]
+                    .find({})
+                    .skip(1 * limit / 2)
+                    .limit(limit / 2)
+                    .sort([("views", pymongo.DESCENDING)])
+                )
+
                 return {
-                    "page": page,
-                    "results": nowplaying["results"],
-                    "total_pages": nowplaying["total_pages"],
+                    "page": page + 1,
+                    "results": cvtJson(movie + tv),
+                    "page_size": limit,
                 }
             elif slug == "month":
-                page = request.args.get("page", default=1, type=int)
-                upcoming = cvtJson(self.__db["tvontheairs"].find_one({"page": page}))
+                movie = (
+                    self.__db["movies"]
+                    .find({})
+                    .skip(2 * limit / 2)
+                    .limit(limit / 2)
+                    .sort([("views", pymongo.DESCENDING)])
+                )
+
+                tv = (
+                    self.__db["tvs"]
+                    .find({})
+                    .skip(2 * limit / 2)
+                    .limit(limit / 2)
+                    .sort([("views", pymongo.DESCENDING)])
+                )
+
                 return {
-                    "page": page,
-                    "results": upcoming["results"],
-                    "total_pages": upcoming["total_pages"],
+                    "page": page + 1,
+                    "results": cvtJson(movie + tv),
+                    "page_size": limit,
                 }
             elif slug == "all":
-                page = request.args.get("page", default=1, type=int)
-                popular = cvtJson(self.__db["tvpopulars"].find_one({"page": page}))
+                movie = (
+                    self.__db["movies"]
+                    .find({})
+                    .skip(3 * limit / 2)
+                    .limit(limit / 2)
+                    .sort([("views", pymongo.DESCENDING)])
+                )
+
+                tv = (
+                    self.__db["tvs"]
+                    .find({})
+                    .skip(3 * limit / 2)
+                    .limit(limit / 2)
+                    .sort([("views", pymongo.DESCENDING)])
+                )
+
                 return {
-                    "page": page,
-                    "results": popular["results"],
-                    "total_pages": popular["total_pages"],
+                    "page": page + 1,
+                    "results": cvtJson(movie + tv),
+                    "page_size": limit,
                 }
             else:
                 raise NotInTypeError("ranking", type)
