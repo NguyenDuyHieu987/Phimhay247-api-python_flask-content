@@ -451,6 +451,7 @@ class History(Database):
                 algorithms=["HS256"],
             )
 
+            id = request.form["id"]
             movie_id = request.form["movie_id"]
             media_type = request.form["media_type"]
 

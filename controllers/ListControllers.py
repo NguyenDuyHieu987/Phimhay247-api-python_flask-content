@@ -374,13 +374,6 @@ class List(Database):
 
             resultDelete1 = self.__db["lists"].delete_one(
                 {
-                    "id": id,
-                    "user_id": jwtUser["id"],
-                    "movie_id": movie_id,
-                    "media_type": media_type,
-                }
-                if id != None
-                else {
                     "user_id": jwtUser["id"],
                     "movie_id": movie_id,
                     "media_type": media_type,
