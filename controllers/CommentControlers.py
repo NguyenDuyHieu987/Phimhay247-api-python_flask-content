@@ -36,7 +36,14 @@ class Comment(Database):
                 .limit(limit)
             )
 
-            return {"results": cvtJson(comments)}
+            total = self.__db["comments"].count_documents(
+                {
+                    "movie_id": str(movieId),
+                    "movie_type": str(movieType),
+                }
+            )
+
+            return {"results": cvtJson(comments), "total": total}
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except Exception as e:
