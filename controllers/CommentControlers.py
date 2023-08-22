@@ -271,7 +271,7 @@ class Comment(Database):
                 commentForm = request.form
 
                 if commentForm["type"] == "parent":
-                    self.__db["comments"].delete_one(
+                    result1 = self.__db["comments"].delete_one(
                         {
                             "id": commentForm["id"],
                             "user_id": str(jwtUser["id"]),
@@ -282,7 +282,7 @@ class Comment(Database):
                         }
                     )
 
-                    self.__db["comments"].delete_many(
+                    childrens = self.__db["comments"].find(
                         {
                             "movie_id": str(id),
                             "movie_type": str(movieType),
@@ -290,6 +290,31 @@ class Comment(Database):
                             "type": "children",
                         }
                     )
+
+                    if len(childrens) > 0:
+                        result2 = self.__db["comments"].delete_many(
+                            {
+                                "movie_id": str(id),
+                                "movie_type": str(movieType),
+                                "parent_id": commentForm["id"],
+                                "type": "children",
+                            }
+                        )
+
+                        if result1.deleted_count == 1 and result2.deleted_count >= 1:
+                            return {
+                                "success": True,
+                            }
+                        else:
+                            raise DefaultError("Delete comment failed")
+                    elif len(childrens) == 0:
+                        if result1.deleted_count == 1:
+                            return {
+                                "success": True,
+                            }
+                        else:
+                            raise DefaultError("Delete comment failed")
+
                 elif commentForm["type"] == "children":
                     resultDel1 = self.__db["comments"].delete_one(
                         {
@@ -306,23 +331,27 @@ class Comment(Database):
                         }
                     )
 
-                    if resultDel1.deleted_count > 0:
-                        self.__db["comments"].update_one(
-                            {
-                                "id": commentForm["parent_id"],
-                                "movie_id": str(id),
-                                "movie_type": str(movieType),
-                                "type": "parent",
-                            },
-                            {
-                                "$inc": {"childrens": -1},
-                            },
-                        )
+                    resultUpdate1 = self.__db["comments"].update_one(
+                        {
+                            "id": commentForm["parent_id"],
+                            "movie_id": str(id),
+                            "movie_type": str(movieType),
+                            "type": "parent",
+                        },
+                        {
+                            "$inc": {"childrens": -1},
+                        },
+                    )
+
+                    if (
+                        resultDel1.deleted_count == 0
+                        and resultUpdate1.modified_count == 1
+                    ):
+                        return {
+                            "success": True,
+                        }
                     else:
                         raise DefaultError("Delete comment failed")
-                return {
-                    "success": True,
-                }
             else:
                 raise DefaultError("Movie is not exists")
 
