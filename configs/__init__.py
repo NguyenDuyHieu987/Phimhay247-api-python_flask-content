@@ -11,9 +11,13 @@ API_MORMAL_ORIGINS_CONFIG = [
     "http://localhost:3000",
     "https://phimhay247.site",
     "https://phimhay247.tech",
+    "https://v1.phimhay247.tech",
+    "https://v2.phimhay247.tech",
     # www
     "https://www.phimhay247.site",
     "https://www.phimhay247.tech",
+    "https://www.v1.phimhay247.tech",
+    "https://www.v2.phimhay247.tech",
     "https://phimhay247-static-site.pages.dev",
 ]
 
