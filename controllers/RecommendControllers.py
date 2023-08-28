@@ -101,7 +101,7 @@ class Recommend(Database):
                     self.__db["movies"]
                     .find(
                         {
-                            "$and": [
+                            "$or": [
                                 {
                                     "original_language": {
                                         "$in": frequency_countries_list
@@ -126,7 +126,7 @@ class Recommend(Database):
                     self.__db["tvs"]
                     .find(
                         {
-                            "$and": [
+                            "$or": [
                                 {
                                     "original_language": {
                                         "$in": frequency_countries_list
