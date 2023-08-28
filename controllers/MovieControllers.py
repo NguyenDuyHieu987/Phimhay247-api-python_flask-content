@@ -67,8 +67,6 @@ class Movie(Database):
 
                 if item_list != None:
                     movie = movie | {"in_list": True}
-                else:
-                    movie = movie | {"in_list": False}
 
                 item_history = self.__db["histories"].find_one(
                     {
@@ -80,15 +78,12 @@ class Movie(Database):
 
                 if item_history != None:
                     movie = movie | {
-                        "in_history": True,
                         "history_progress": {
                             "duration": item_history["duration"],
                             "percent": item_history["percent"],
                             "seconds": item_history["seconds"],
                         },
                     }
-                else:
-                    movie = movie | {"in_history": False}
 
                 rates = self.__db["rates"].find_one(
                     {
@@ -100,12 +95,7 @@ class Movie(Database):
 
                 if rates != None:
                     movie = movie | {
-                        "is_rated": True,
                         "rated_value": rates["rate_value"],
-                    }
-                else:
-                    movie = movie | {
-                        "is_rated": False,
                     }
 
                 return cvtJson(movie)
