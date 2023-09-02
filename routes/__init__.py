@@ -27,10 +27,15 @@ def route(app, cache):
 
     tv_routes(app, cache)
 
-    # Tv seasons
-    from routes.TvSeasonsRoutes import tv_seasons_routes
+    # Season
+    from routes.SeasonsRoutes import seasons_routes
 
-    tv_seasons_routes(app, cache)
+    seasons_routes(app, cache)
+
+    # Episode
+    from routes.EpisodeRoutes import episode_routes
+
+    episode_routes(app, cache)
 
     # Rating
     from routes.RatingRoutes import rating_routes
@@ -109,14 +114,14 @@ def route(app, cache):
 
     # History
 
-    ## Get history
+    # Get history
     from routes.HistoryRoutes import history_routes
 
     history_routes(app, cache)
 
     # Recommend (Suggest)
 
-    ## Get Recommend
+    # Get Recommend
     from routes.RecommendRoutes import recommend_routes
 
     recommend_routes(app, cache)

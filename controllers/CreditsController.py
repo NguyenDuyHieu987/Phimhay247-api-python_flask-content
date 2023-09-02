@@ -13,7 +13,7 @@ class Credits(Database):
 
     def get_credits(self, id):
         try:
-            credits = self.__db["credits"].find_one({"id": str(id)})
+            credits = self.__db["credits"].find_one({"movie_id": str(id)})
             return cvtJson(credits)
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)

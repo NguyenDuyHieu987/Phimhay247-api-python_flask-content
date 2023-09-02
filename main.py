@@ -12,8 +12,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-sys.path.insert(0, "/Python/Phimhay247-api-python_flask-content")
-sys.path.insert(0, "/mnt/d/Python/Phimhay247-api-python_flask-content")
+sys.path.insert(0, "/Python/The-Movie-Flask-Api")
+sys.path.insert(0, "/mnt/d/Python/The-Movie-Flask-Api")
 
 app = Flask(__name__)
 # CORS(
@@ -44,9 +44,7 @@ cache.init_app(app)
 
 
 # route app
-
 from routes import route
-
 
 route(app, cache)
 

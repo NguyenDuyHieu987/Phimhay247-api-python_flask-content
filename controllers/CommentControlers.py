@@ -1,5 +1,6 @@
 import pymongo
 from pymongo.errors import PyMongoError
+from pymongo import ReturnDocument
 from utils.JsonResponse import ConvertJsonResponse as cvtJson
 from utils.ErrorMessage import BadRequestMessage, InternalServerErrorMessage
 from utils.exceptions import DefaultError
@@ -79,7 +80,8 @@ class Comment(Database):
 
     def post_comment(self, movieType, id):
         try:
-            user_token = request.headers["Authorization"].replace("Bearer ", "")
+            user_token = request.headers["Authorization"].replace(
+                "Bearer ", "")
 
             jwtUser = jwt.decode(
                 user_token,
@@ -90,9 +92,11 @@ class Comment(Database):
             isExistMovies = False
 
             if movieType == "movie":
-                isExistMovies = self.__db["movies"].find_one({"id": str(id)}) != None
+                isExistMovies = self.__db["movies"].find_one(
+                    {"id": str(id)}) != None
             elif movieType == "tv":
-                isExistMovies = self.__db["tvs"].find_one({"id": str(id)}) != None
+                isExistMovies = self.__db["tvs"].find_one(
+                    {"id": str(id)}) != None
 
             if isExistMovies == True:
                 commentForm = request.form
@@ -121,7 +125,7 @@ class Comment(Database):
                             }
                         )
 
-                        if resultInsert1.acknowledged == True:
+                        if resultInsert1.inserted_id != None:
                             self.__db["comments"].update_one(
                                 {
                                     "id": commentForm["parent_id"],
@@ -157,7 +161,8 @@ class Comment(Database):
                             "updated_at": str(datetime.now()),
                         }
                     )
-                    if resultInsert2.acknowledged == False:
+
+                    if resultInsert2.inserted_id == None:
                         raise DefaultError("Post comment failed")
 
                 return {
@@ -197,7 +202,8 @@ class Comment(Database):
 
     def edit_comment(self, movieType, id):
         try:
-            user_token = request.headers["Authorization"].replace("Bearer ", "")
+            user_token = request.headers["Authorization"].replace(
+                "Bearer ", "")
 
             jwtUser = jwt.decode(
                 user_token,
@@ -208,9 +214,11 @@ class Comment(Database):
             isExistMovies = False
 
             if movieType == "movie":
-                isExistMovies = self.__db["movies"].find_one({"id": str(id)}) != None
+                isExistMovies = self.__db["movies"].find_one(
+                    {"id": str(id)}) != None
             elif movieType == "tv":
-                isExistMovies = self.__db["tvs"].find_one({"id": str(id)}) != None
+                isExistMovies = self.__db["tvs"].find_one(
+                    {"id": str(id)}) != None
 
             if isExistMovies == True:
                 commentForm = request.form
@@ -252,7 +260,8 @@ class Comment(Database):
 
     def delete_comment(self, movieType, id):
         try:
-            user_token = request.headers["Authorization"].replace("Bearer ", "")
+            user_token = request.headers["Authorization"].replace(
+                "Bearer ", "")
 
             jwtUser = jwt.decode(
                 user_token,
@@ -263,9 +272,11 @@ class Comment(Database):
             isExistMovies = False
 
             if movieType == "movie":
-                isExistMovies = self.__db["movies"].find_one({"id": str(id)}) != None
+                isExistMovies = self.__db["movies"].find_one(
+                    {"id": str(id)}) != None
             elif movieType == "tv":
-                isExistMovies = self.__db["tvs"].find_one({"id": str(id)}) != None
+                isExistMovies = self.__db["tvs"].find_one(
+                    {"id": str(id)}) != None
 
             if isExistMovies == True:
                 commentForm = request.form
@@ -355,6 +366,280 @@ class Comment(Database):
             else:
                 raise DefaultError("Movie is not exists")
 
+        except jwt.ExpiredSignatureError as e:
+            InternalServerErrorMessage("Token is expired")
+        except jwt.exceptions.DecodeError as e:
+            InternalServerErrorMessage("Token is invalid")
+        except PyMongoError as e:
+            InternalServerErrorMessage(e._message)
+        except DefaultError as e:
+            BadRequestMessage(e.message)
+        except Exception as e:
+            InternalServerErrorMessage(e)
+
+    def like(self, id):
+        try:
+            user_token = request.headers["Authorization"].replace(
+                "Bearer ", "")
+
+            jwtUser = jwt.decode(
+                user_token,
+                str(os.getenv("JWT_SIGNATURE_SECRET")),
+                algorithms=["HS256"],
+            )
+
+            isLike = self.__db["commentlikes"].find_one({
+                "user_id": jwtUser["id"],
+                "comment_id": id,
+                "type": 'like',
+            })
+
+            isDisLike = self.__db["commentlikes"].find_one({
+                "user_id": jwtUser["id"],
+                "comment_id": id,
+                "type": 'dislike',
+            })
+
+            if isDisLike != None:
+                result = self.__db["commentlikes"].delete_one({
+                    "user_id": jwtUser["id"],
+                    "comment_id": id,
+                    "type": 'dislike',
+                })
+
+                result2 = self.__db["comments"].find_one_and_update(
+                    {
+                        "id": id,
+                    },
+                    {
+                        "$inc": {"dislike": -1},
+                    },
+                    return_document=ReturnDocument.AFTER,
+                )
+
+                if result.deleted_count < 1 or result2 == None:
+                    raise DefaultError('Like comment failed')
+
+            if isLike == None:
+                result = self.__db["commentlikes"].insert_one({
+                    "id": str(uuid.uuid4()),
+                    "user_id": jwtUser["id"],
+                    "comment_id": id,
+                    "type": 'like',
+                    "created_at": str(datetime.now()),
+                    "updated_at": str(datetime.now()),
+                })
+
+                if result.inserted_id != None:
+                    result2 = self.__db["comments"].find_one_and_update(
+                        {
+                            "id": id,
+                        },
+                        {
+                            "$inc": {"like": 1},
+                        },
+                        return_document=ReturnDocument.AFTER,
+                    )
+
+                    if result2 != None:
+                        return {
+                            "success": True,
+                            "action": 'like',
+                            "like": result2["like"],
+                        }
+                    else:
+                        raise DefaultError('Like comment failed')
+
+                else:
+                    raise DefaultError('Like comment failed')
+            else:
+                result = self.__db["commentlikes"].delete_one({
+                    "user_id": jwtUser["id"],
+                    "comment_id": id,
+                    "type": 'like',
+                })
+
+                if result.deleted_count == 1:
+                    result2 = self.__db["comments"].find_one_and_update(
+                        {
+                            "id": id,
+                        },
+                        {
+                            "$inc": {"like": -1},
+                        },
+                        return_document=ReturnDocument.AFTER,
+                    )
+
+                    if result2 != None:
+                        return {
+                            "success": True,
+                            "action": 'unlike',
+                            "like": result2["like"],
+                        }
+                    else:
+                        raise DefaultError('Unlike comment failed')
+                else:
+                    raise DefaultError('Unlike comment failed')
+
+        except jwt.ExpiredSignatureError as e:
+            InternalServerErrorMessage("Token is expired")
+        except jwt.exceptions.DecodeError as e:
+            InternalServerErrorMessage("Token is invalid")
+        except PyMongoError as e:
+            InternalServerErrorMessage(e._message)
+        except DefaultError as e:
+            BadRequestMessage(e.message)
+        except Exception as e:
+            InternalServerErrorMessage(e)
+
+    def dislike(self, id):
+        try:
+            user_token = request.headers["Authorization"].replace(
+                "Bearer ", "")
+
+            jwtUser = jwt.decode(
+                user_token,
+                str(os.getenv("JWT_SIGNATURE_SECRET")),
+                algorithms=["HS256"],
+            )
+
+            isDisLike = self.__db["commentlikes"].find_one({
+                "user_id": jwtUser["id"],
+                "comment_id": id,
+                "type": 'dislike',
+            })
+
+            isLike = self.__db["commentlikes"].find_one({
+                "user_id": jwtUser["id"],
+                "comment_id": id,
+                "type": 'like',
+            })
+
+            if isLike != None:
+                result = self.__db["commentlikes"].delete_one({
+                    "user_id": jwtUser["id"],
+                    "comment_id": id,
+                    "type": 'like',
+                })
+
+                result2 = self.__db["comments"].find_one_and_update(
+                    {
+                        "id": id,
+                    },
+                    {
+                        "$inc": {"like": -1},
+                    },
+                    return_document=ReturnDocument.AFTER,
+                )
+
+                if result.deleted_count < 1 or result2 == None:
+                    raise DefaultError('Dislike comment failed')
+
+            if isDisLike == None:
+                result = self.__db["commentlikes"].insert_one({
+                    "id": str(uuid.uuid4()),
+                    "user_id": jwtUser["id"],
+                    "comment_id": id,
+                    "type": 'dislike',
+                    "created_at": str(datetime.now()),
+                    "updated_at": str(datetime.now()),
+                })
+
+                if result.inserted_id != None:
+                    result2 = self.__db["comments"].find_one_and_update(
+                        {
+                            "id": id,
+                        },
+                        {
+                            "$inc": {"dislike": 1},
+                        },
+                        return_document=ReturnDocument.AFTER,
+                    )
+
+                    if result2 != None:
+                        return {
+                            "success": True,
+                            "action": 'dislike',
+                            "dislike": result2["dislike"],
+                        }
+                    else:
+                        raise DefaultError('Dislike comment failed')
+                else:
+                    raise DefaultError('Dislike comment failed')
+            else:
+                result = self.__db["commentlikes"].delete_one({
+                    "user_id": jwtUser["id"],
+                    "comment_id": id,
+                    "type": 'dislike',
+                })
+
+                if result.deleted_count == 1:
+                    result2 = self.__db["comments"].find_one_and_update(
+                        {
+                            "id": id,
+                        },
+                        {
+                            "$inc": {"dislike": -1},
+                        },
+                        return_document=ReturnDocument.AFTER,
+                    )
+
+                    if result2 != None:
+                        return {
+                            "success": True,
+                            "action": 'undislike',
+                            "dislike": result2["dislike"],
+                        }
+                    else:
+                        raise DefaultError('Undislike comment failed')
+                else:
+                    raise DefaultError('Undislike comment failed')
+
+        except jwt.ExpiredSignatureError as e:
+            InternalServerErrorMessage("Token is expired")
+        except jwt.exceptions.DecodeError as e:
+            InternalServerErrorMessage("Token is invalid")
+        except PyMongoError as e:
+            InternalServerErrorMessage(e._message)
+        except DefaultError as e:
+            BadRequestMessage(e.message)
+        except Exception as e:
+            InternalServerErrorMessage(e)
+
+    def check_like_dislike(self, id):
+        try:
+            user_token = request.headers["Authorization"].replace(
+                "Bearer ", "")
+
+            jwtUser = jwt.decode(
+                user_token,
+                str(os.getenv("JWT_SIGNATURE_SECRET")),
+                algorithms=["HS256"],
+            )
+
+            isLike = self.__db["commentlikes"].find_one({
+                "user_id": jwtUser["id"],
+                "comment_id": id,
+                "type": 'like',
+            })
+
+            if isLike != None:
+                return {
+                    "success": True,
+                    "type": 'like',
+                }
+
+            isDisLike = self.__db["commentlikes"].find_one({
+                "user_id": jwtUser["id"],
+                "comment_id": id,
+                "type": 'dislike',
+            })
+
+            if isDisLike != None:
+                return {
+                    "success": True,
+                    "type": 'dislike',
+                }
         except jwt.ExpiredSignatureError as e:
             InternalServerErrorMessage("Token is expired")
         except jwt.exceptions.DecodeError as e:

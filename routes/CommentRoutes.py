@@ -31,3 +31,18 @@ def comment_routes(app):
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def delete_comment_route(movieType, id):
         return comment.delete_comment(movieType, id)
+
+    @app.route("/comment/like/<id>", methods=["POST"])
+    @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
+    def like_comment_route(id):
+        return comment.like(id)
+
+    @app.route("/comment/dislike/<id>", methods=["POST"])
+    @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
+    def dislike_comment_route(id):
+        return comment.dislike(id)
+
+    @app.route("/comment/check-like-dislike/<id>", methods=["GET"])
+    @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
+    def check_like_dislike_comment_route(id):
+        return comment.check_like_dislike(id)

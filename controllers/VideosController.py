@@ -13,7 +13,7 @@ class Videos(Database):
 
     def get_videos(self, id):
         try:
-            videos = self.__db["videos"].find_one({"id": str(id)})
+            videos = self.__db["videos"].find_one({"movie_id": str(id)})
             return cvtJson(videos)
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)

@@ -13,7 +13,7 @@ class Images(Database):
 
     def get_images(self, id):
         try:
-            images = self.__db["images"].find_one({"id": str(id)})
+            images = self.__db["images"].find_one({"movie_id": str(id)})
             return cvtJson(images)
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)

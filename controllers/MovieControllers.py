@@ -6,6 +6,7 @@ from flask import *
 from pymongo import ReturnDocument
 import os
 import jwt
+from collections import ChainMap
 
 # import uuid
 from configs.database import Database
@@ -21,41 +22,108 @@ class Movie(Database):
                 "append_to_response", default="", type=str
             )
             # exceptValue = {"images": 0, "credits": 0, "videos": 0}
-            extraValue = {}
+            extraValue = {
+                "images": [],
+                "videos": [],
+                "credits": []
+            }
 
             if append_to_response != "":
                 if "images" in append_to_response.split(","):
-                    # exceptValue.pop("images")
-                    images = self.__db["images"].find_one({"id": str(id)})
-                    extraValue["images"] = images["items"]
-                if "credits" in append_to_response.split(","):
-                    # exceptValue.pop("credits")
-                    credits = self.__db["credits"].find_one({"id": str(id)})
-                    extraValue["credits"] = credits["items"]
+                    # images = self.__db["images"].find_one(
+                    #     {"movie_id": str(id)})
+                    # extraValue["images"] = images["items"]
+
+                    extraValue["images"] = [{
+                        "$lookup": {
+                            "from": 'images',
+                            "localField": 'id',
+                            "foreignField": 'movie_id',
+                            "as": 'images',
+                        },
+                    },
+                        {"$unwind": '$images'},
+                        {
+                            "$addFields": {
+                                "images": '$images.items',
+                            },
+                    }]
+
                 if "videos" in append_to_response.split(","):
-                    # exceptValue.pop("videos")
-                    videos = self.__db["videos"].find_one({"id": str(id)})
-                    extraValue["videos"] = videos["items"]
+                    # videos = self.__db["videos"].find_one(
+                    #     {"movie_id": str(id)})
+                    # extraValue["videos"] = videos["items"]
+
+                    extraValue["videos"] = [
+                        {
+                            "$lookup": {
+                                "from": 'videos',
+                                "localField": 'id',
+                                "foreignField": 'movie_id',
+                                "as": 'videos',
+                            },
+                        },
+                        {"$unwind": '$videos'},
+                        {
+                            "$addFields": {
+                                "videos": '$videos.items',
+                            },
+                        },
+                    ]
+
+                if "credits" in append_to_response.split(","):
+                    # credits = self.__db["credits"].find_one(
+                    #     {"movie_id": str(id)})
+                    # extraValue["credits"] = credits["items"]
+
+                    extraValue["credits"] = [
+                        {
+                            "$lookup": {
+                                "from": 'credits',
+                                "localField": 'id',
+                                "foreignField": 'movie_id',
+                                "as": 'credits',
+                            },
+                        },
+                        {"$unwind": '$credits'},
+                        {
+                            "$addFields": {
+                                "credits": '$credits.items',
+                            },
+                        },
+                    ]
 
             # movie = self.__db["movies"].find_one({"id": str(id)}, exceptValue)
 
-            movie = self.__db["movies"].find_one({"id": str(id)}) | extraValue
+            # movie = self.__db["movies"].find_one({"id": str(id)}) | extraValue
+
+            movie = cvtJson(self.__db["movies"].aggregate([
+                {
+                    "$match": {"id": id},
+                },
+                *extraValue["images"],
+                *extraValue["videos"],
+                *extraValue["credits"],
+            ]))
 
             headers = request.headers
 
             if "Authorization" not in headers:
-                if movie != None:
-                    return cvtJson(movie)
+                if len(movie) > 0:
+                    return movie[0]
                 else:
                     return {"not_found": True, "result": "Can not find the movie"}
             else:
-                user_token = request.headers["Authorization"].replace("Bearer ", "")
+                user_token = request.headers["Authorization"].replace(
+                    "Bearer ", "")
 
                 jwtUser = jwt.decode(
                     user_token,
                     str(os.getenv("JWT_SIGNATURE_SECRET")),
                     algorithms=["HS256"],
                 )
+
+                extraValue2 = {}
 
                 item_list = self.__db["lists"].find_one(
                     {
@@ -66,7 +134,7 @@ class Movie(Database):
                 )
 
                 if item_list != None:
-                    movie = movie | {"in_list": True}
+                    extraValue2 = extraValue2 | {"in_list": True}
 
                 item_history = self.__db["histories"].find_one(
                     {
@@ -77,7 +145,7 @@ class Movie(Database):
                 )
 
                 if item_history != None:
-                    movie = movie | {
+                    extraValue2 = extraValue2 | {
                         "history_progress": {
                             "duration": item_history["duration"],
                             "percent": item_history["percent"],
@@ -94,11 +162,11 @@ class Movie(Database):
                 )
 
                 if rates != None:
-                    movie = movie | {
+                    extraValue2 = extraValue2 | {
                         "rated_value": rates["rate_value"],
                     }
 
-                return cvtJson(movie)
+                return cvtJson(movie[0] | extraValue2)
 
         except jwt.ExpiredSignatureError as e:
             InternalServerErrorMessage("Token is expired")

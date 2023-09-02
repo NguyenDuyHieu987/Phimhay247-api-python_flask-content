@@ -19,41 +19,182 @@ class TV(Database):
                 "append_to_response", default="", type=str
             )
             # exceptValue = {"images": 0, "credits": 0, "videos": 0}
-            extraValue = {}
+            extraValue = {
+                "images": [],
+                "videos": [],
+                "credits": [],
+                "seasons": [],
+                "episodes": []
+            }
 
             if append_to_response != "":
                 if "images" in append_to_response.split(","):
-                    # exceptValue.pop("images")
-                    images = self.__db["images"].find_one({"id": str(id)})
-                    extraValue["images"] = images["items"]
-                if "credits" in append_to_response.split(","):
-                    # exceptValue.pop("credits")
-                    credits = self.__db["credits"].find_one({"id": str(id)})
-                    extraValue["credits"] = credits["items"]
+                    # images = self.__db["images"].find_one(
+                    #     {"movie_id": str(id)})
+                    # extraValue["images"] = images["items"]
+
+                    extraValue["images"] = [{
+                        "$lookup": {
+                            "from": 'images',
+                            "localField": 'id',
+                            "foreignField": 'movie_id',
+                            "as": 'images',
+                        },
+                    },
+                        {"$unwind": '$images'},
+                        {
+                            "$addFields": {
+                                "images": '$images.items',
+                            },
+                    }]
+
                 if "videos" in append_to_response.split(","):
-                    # exceptValue.pop("videos")
-                    videos = self.__db["videos"].find_one({"id": str(id)})
-                    extraValue["videos"] = videos["items"]
+                    # videos = self.__db["videos"].find_one(
+                    #     {"movie_id": str(id)})
+                    # extraValue["videos"] = videos["items"]
+
+                    extraValue["videos"] = [
+                        {
+                            "$lookup": {
+                                "from": 'videos',
+                                "localField": 'id',
+                                "foreignField": 'movie_id',
+                                "as": 'videos',
+                            },
+                        },
+                        {"$unwind": '$videos'},
+                        {
+                            "$addFields": {
+                                "videos": '$videos.items',
+                            },
+                        },
+                    ]
+
+                if "credits" in append_to_response.split(","):
+                    # credits = self.__db["credits"].find_one(
+                    #     {"movie_id": str(id)})
+                    # extraValue["credits"] = credits["items"]
+
+                    extraValue["credits"] = [
+                        {
+                            "$lookup": {
+                                "from": 'credits',
+                                "localField": 'id',
+                                "foreignField": 'movie_id',
+                                "as": 'credits',
+                            },
+                        },
+                        {"$unwind": '$credits'},
+                        {
+                            "$addFields": {
+                                "credits": '$credits.items',
+                            },
+                        },
+                    ]
+
+                if "seasons" in append_to_response.split(","):
+                    # seasons = self.__db["seasons"].find({
+                    #     "movie_id": id,
+                    # })
+
+                    # extraValue["seasons"] = seasons
+
+                    extraValue["seasons"] = [
+                        {
+                            "$lookup": {
+                                "from": 'seasons',
+                                "localField": 'series_id',
+                                "foreignField": 'series_id',
+                                "as": 'seasons',
+                            },
+                        },
+                        {
+                            "$addFields": {
+                                "number_of_seasons": {"$size": '$seasons'},
+                            },
+                        },
+                    ]
+
+                if "episodes" in append_to_response.split(","):
+                    # episodes = self.__db["episodes"].find({
+                    #     "movie_id": id,
+                    # })
+
+                    # extraValue["episodes"] = episodes
+
+                    extraValue["episodes"] = [
+                        {
+                            "$lookup": {
+                                "from": 'episodes',
+                                "localField": 'id',
+                                "foreignField": 'movie_id',
+                                "as": 'episodes',
+                            },
+                        },
+                        {
+                            "$lookup": {
+                                "from": 'episodes',
+                                "localField": 'season_id',
+                                "foreignField": 'season_id',
+                                "as": 'episodes',
+                            },
+                        },
+                    ]
 
             # tv = self.__db["tvs"].find_one({"id": str(id)}, exceptValue)
 
-            tv = self.__db["tvs"].find_one({"id": str(id)}) | extraValue
+            # tv = self.__db["tvs"].find_one({"id": str(id)}) | extraValue
+
+            tv = cvtJson(self.__db["tvs"].aggregate([
+                {
+                    "$match": {"id": id},
+                },
+                *extraValue["images"],
+                *extraValue["videos"],
+                *extraValue["credits"],
+                *extraValue["seasons"],
+                *extraValue["episodes"],
+                {
+                    "$lookup": {
+                        "from": 'episodes',
+                                "localField": 'id',
+                                "foreignField": 'movie_id',
+                                "as": 'number_of_episodes',
+                    },
+                },
+                {
+                    "$lookup": {
+                        "from": 'episodes',
+                        "localField": 'season_id',
+                        "foreignField": 'season_id',
+                                "as": 'number_of_episodes',
+                    },
+                },
+                {
+                    "$addFields": {
+                        "number_of_episodes": {"$size": '$number_of_episodes'},
+                    },
+                },
+            ]))
 
             headers = request.headers
 
             if "Authorization" not in headers:
-                if tv != None:
-                    return cvtJson(tv)
+                if len(tv) > 0:
+                    return tv[0]
                 else:
                     return {"not_found": True, "result": "Can not find the tv"}
             else:
-                user_token = request.headers["Authorization"].replace("Bearer ", "")
+                user_token = request.headers["Authorization"].replace(
+                    "Bearer ", "")
 
                 jwtUser = jwt.decode(
                     user_token,
                     str(os.getenv("JWT_SIGNATURE_SECRET")),
                     algorithms=["HS256"],
                 )
+
+                extraValue2 = {}
 
                 item_list = self.__db["lists"].find_one(
                     {
@@ -64,7 +205,7 @@ class TV(Database):
                 )
 
                 if item_list != None:
-                    tv = tv | {"in_list": True}
+                    extraValue2 = extraValue2 | {"in_list": True}
 
                 item_history = self.__db["histories"].find_one(
                     {
@@ -75,7 +216,7 @@ class TV(Database):
                 )
 
                 if item_history != None:
-                    tv = tv | {
+                    extraValue2 = extraValue2 | {
                         "history_progress": {
                             "duration": item_history["duration"],
                             "percent": item_history["percent"],
@@ -92,11 +233,11 @@ class TV(Database):
                 )
 
                 if rates != None:
-                    tv = tv | {
+                    extraValue2 = extraValue2 | {
                         "rated_value": rates["rate_value"],
                     }
 
-                return cvtJson(tv)
+                return cvtJson(tv[0] | extraValue2)
 
         except jwt.ExpiredSignatureError as e:
             InternalServerErrorMessage("Token is expired")
