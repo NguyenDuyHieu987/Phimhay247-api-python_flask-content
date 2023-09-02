@@ -21,20 +21,93 @@ class Comment(Database):
             skip = request.args.get("skip", default=1, type=int) - 1
             limit = request.args.get("limit", default=20, type=int)
 
+            # comments = (
+            #     self.__db["comments"]
+            #     .find(
+            #         {
+            #             "movie_id": str(movieId),
+            #             "movie_type": str(movieType),
+            #             "type": "parent",
+            #         }
+            #     )
+            #     .sort(
+            #         [("created_at", pymongo.DESCENDING)],
+            #     )
+            #     .skip(skip * limit)
+            #     .limit(limit)
+            # )
+
             comments = (
                 self.__db["comments"]
-                .find(
-                    {
-                        "movie_id": str(movieId),
-                        "movie_type": str(movieType),
-                        "type": "parent",
-                    }
+                .aggregate(
+                    [{
+                        "$match": {
+                            "movie_id": str(movieId),
+                            "movie_type": str(movieType),
+                            "type": "parent",
+                        }
+                    },
+                        {
+                        "$sort": {"created_at": pymongo.DESCENDING}
+                    },
+                        {
+                        "$skip": skip * limit
+                    },
+                        {
+                        "$limit": limit
+                    },
+                        {
+                        "$lookup": {
+                            "from": 'comments',
+                            "localField": 'id',
+                            "foreignField": 'parent_id',
+                            "as": "childrens",
+                        }
+                    },
+                        {
+                        "$addFields": {
+                            "childrens": {"$size": '$childrens'},
+                        },
+                    },
+                        {
+                        "$lookup": {
+                            "from": 'commentlikes',
+                            "localField": 'id',
+                            "foreignField": 'comment_id',
+                            "pipeline": [
+                                {
+                                    "$match": {
+                                        "$expr": {"$eq": ["$type", "like"]
+                                                  }}}
+                            ],
+                            "as": "like",
+                        }
+                    },
+                        {
+                        "$addFields": {
+                            "like": {"$size": '$like'},
+                        },
+                    }, {
+                        "$lookup": {
+                            "from": 'commentlikes',
+                            "localField": 'id',
+                            "foreignField": 'comment_id',
+                            "pipeline": [
+                                {
+                                    "$match": {
+                                        "$expr": {"$eq": ["$type", "dislike"]
+                                                  }}}
+                            ],
+                            "as": "dislike",
+                        }
+                    },
+                        {
+                        "$addFields": {
+                            "dislike": {"$size": '$dislike'},
+                        },
+                    },
+                    ]
                 )
-                .sort(
-                    [("created_at", pymongo.DESCENDING)],
-                )
-                .skip(skip * limit)
-                .limit(limit)
             )
 
             total = self.__db["comments"].count_documents(
@@ -119,25 +192,28 @@ class Comment(Database):
                                 "movie_type": str(movieType),
                                 "parent_id": commentForm["parent_id"],
                                 "type": "children",
-                                "childrens": 0,
+                                # "childrens": 0,
+                                # "like": 0,
+                                # "dislike": 0,
                                 "created_at": str(datetime.now()),
                                 "updated_at": str(datetime.now()),
                             }
                         )
 
-                        if resultInsert1.inserted_id != None:
-                            self.__db["comments"].update_one(
-                                {
-                                    "id": commentForm["parent_id"],
-                                    "movie_id": str(id),
-                                    "movie_type": str(movieType),
-                                    "type": "parent",
-                                },
-                                {
-                                    "$inc": {"childrens": 1},
-                                },
-                            )
-                        else:
+                        # if resultInsert1.inserted_id != None:
+                        #     self.__db["comments"].update_one(
+                        #         {
+                        #             "id": commentForm["parent_id"],
+                        #             "movie_id": str(id),
+                        #             "movie_type": str(movieType),
+                        #             "type": "parent",
+                        #         },
+                        #         {
+                        #             "$inc": {"childrens": 1},
+                        #         },
+                        #     )
+
+                        if resultInsert1.inserted_id == None:
                             raise DefaultError("Post comment failed")
 
                 else:
@@ -156,7 +232,9 @@ class Comment(Database):
                             "type": commentForm["type"]
                             if "type" in commentForm
                             else "parent",
-                            "childrens": 0,
+                            # "childrens": 0,
+                            # "like": 0,
+                            # "dislike": 0,
                             "created_at": str(datetime.now()),
                             "updated_at": str(datetime.now()),
                         }
@@ -182,6 +260,8 @@ class Comment(Database):
                         if "type" in commentForm
                         else "parent",
                         "childrens": 0,
+                        "like": 0,
+                        "dislike": 0,
                         "created_at": str(datetime.now()),
                         "updated_at": str(datetime.now()),
                     },
@@ -342,21 +422,21 @@ class Comment(Database):
                         }
                     )
 
-                    resultUpdate1 = self.__db["comments"].update_one(
-                        {
-                            "id": commentForm["parent_id"],
-                            "movie_id": str(id),
-                            "movie_type": str(movieType),
-                            "type": "parent",
-                        },
-                        {
-                            "$inc": {"childrens": -1},
-                        },
-                    )
+                    # resultUpdate1 = self.__db["comments"].update_one(
+                    #     {
+                    #         "id": commentForm["parent_id"],
+                    #         "movie_id": str(id),
+                    #         "movie_type": str(movieType),
+                    #         "type": "parent",
+                    #     },
+                    #     {
+                    #         "$inc": {"childrens": -1},
+                    #     },
+                    # )
 
                     if (
-                        resultDel1.deleted_count == 0
-                        and resultUpdate1.modified_count == 1
+                        resultDel1.deleted_count == 1
+                        # and resultUpdate1.modified_count == 1
                     ):
                         return {
                             "success": True,
@@ -407,17 +487,18 @@ class Comment(Database):
                     "type": 'dislike',
                 })
 
-                result2 = self.__db["comments"].find_one_and_update(
-                    {
-                        "id": id,
-                    },
-                    {
-                        "$inc": {"dislike": -1},
-                    },
-                    return_document=ReturnDocument.AFTER,
-                )
+                # result2 = self.__db["comments"].find_one_and_update(
+                #     {
+                #         "id": id,
+                #     },
+                #     {
+                #         "$inc": {"dislike": -1},
+                #     },
+                #     return_document=ReturnDocument.AFTER,
+                # )
 
-                if result.deleted_count < 1 or result2 == None:
+                if result.deleted_count < 1:
+                    # or result2 == None:
                     raise DefaultError('Like comment failed')
 
             if isLike == None:
@@ -431,24 +512,24 @@ class Comment(Database):
                 })
 
                 if result.inserted_id != None:
-                    result2 = self.__db["comments"].find_one_and_update(
-                        {
-                            "id": id,
-                        },
-                        {
-                            "$inc": {"like": 1},
-                        },
-                        return_document=ReturnDocument.AFTER,
-                    )
+                    # result2 = self.__db["comments"].find_one_and_update(
+                    #     {
+                    #         "id": id,
+                    #     },
+                    #     {
+                    #         "$inc": {"like": 1},
+                    #     },
+                    #     return_document=ReturnDocument.AFTER,
+                    # )
 
-                    if result2 != None:
-                        return {
-                            "success": True,
-                            "action": 'like',
-                            "like": result2["like"],
-                        }
-                    else:
-                        raise DefaultError('Like comment failed')
+                    # if result2 != None:
+                    return {
+                        "success": True,
+                        "action": 'like',
+                        # "like": result2["like"],
+                    }
+                    # else:
+                    #     raise DefaultError('Like comment failed')
 
                 else:
                     raise DefaultError('Like comment failed')
@@ -460,24 +541,24 @@ class Comment(Database):
                 })
 
                 if result.deleted_count == 1:
-                    result2 = self.__db["comments"].find_one_and_update(
-                        {
-                            "id": id,
-                        },
-                        {
-                            "$inc": {"like": -1},
-                        },
-                        return_document=ReturnDocument.AFTER,
-                    )
+                    # result2 = self.__db["comments"].find_one_and_update(
+                    #     {
+                    #         "id": id,
+                    #     },
+                    #     {
+                    #         "$inc": {"like": -1},
+                    #     },
+                    #     return_document=ReturnDocument.AFTER,
+                    # )
 
-                    if result2 != None:
-                        return {
-                            "success": True,
-                            "action": 'unlike',
-                            "like": result2["like"],
-                        }
-                    else:
-                        raise DefaultError('Unlike comment failed')
+                    # if result2 != None:
+                    return {
+                        "success": True,
+                        "action": 'unlike',
+                        # "like": result2["like"],
+                    }
+                    # else:
+                    #     raise DefaultError('Unlike comment failed')
                 else:
                     raise DefaultError('Unlike comment failed')
 
@@ -522,17 +603,18 @@ class Comment(Database):
                     "type": 'like',
                 })
 
-                result2 = self.__db["comments"].find_one_and_update(
-                    {
-                        "id": id,
-                    },
-                    {
-                        "$inc": {"like": -1},
-                    },
-                    return_document=ReturnDocument.AFTER,
-                )
+                # result2 = self.__db["comments"].find_one_and_update(
+                #     {
+                #         "id": id,
+                #     },
+                #     {
+                #         "$inc": {"like": -1},
+                #     },
+                #     return_document=ReturnDocument.AFTER,
+                # )
 
-                if result.deleted_count < 1 or result2 == None:
+                if result.deleted_count < 1:
+                    # or result2 == None:
                     raise DefaultError('Dislike comment failed')
 
             if isDisLike == None:
@@ -546,24 +628,24 @@ class Comment(Database):
                 })
 
                 if result.inserted_id != None:
-                    result2 = self.__db["comments"].find_one_and_update(
-                        {
-                            "id": id,
-                        },
-                        {
-                            "$inc": {"dislike": 1},
-                        },
-                        return_document=ReturnDocument.AFTER,
-                    )
+                    # result2 = self.__db["comments"].find_one_and_update(
+                    #     {
+                    #         "id": id,
+                    #     },
+                    #     {
+                    #         "$inc": {"dislike": 1},
+                    #     },
+                    #     return_document=ReturnDocument.AFTER,
+                    # )
 
-                    if result2 != None:
-                        return {
-                            "success": True,
-                            "action": 'dislike',
-                            "dislike": result2["dislike"],
-                        }
-                    else:
-                        raise DefaultError('Dislike comment failed')
+                    # if result2 != None:
+                    return {
+                        "success": True,
+                        "action": 'dislike',
+                        # "dislike": result2["dislike"],
+                    }
+                    # else:
+                    #     raise DefaultError('Dislike comment failed')
                 else:
                     raise DefaultError('Dislike comment failed')
             else:
@@ -574,24 +656,24 @@ class Comment(Database):
                 })
 
                 if result.deleted_count == 1:
-                    result2 = self.__db["comments"].find_one_and_update(
-                        {
-                            "id": id,
-                        },
-                        {
-                            "$inc": {"dislike": -1},
-                        },
-                        return_document=ReturnDocument.AFTER,
-                    )
+                    # result2 = self.__db["comments"].find_one_and_update(
+                    #     {
+                    #         "id": id,
+                    #     },
+                    #     {
+                    #         "$inc": {"dislike": -1},
+                    #     },
+                    #     return_document=ReturnDocument.AFTER,
+                    # )
 
-                    if result2 != None:
-                        return {
-                            "success": True,
-                            "action": 'undislike',
-                            "dislike": result2["dislike"],
-                        }
-                    else:
-                        raise DefaultError('Undislike comment failed')
+                    # if result2 != None:
+                    return {
+                        "success": True,
+                        "action": 'undislike',
+                        # "dislike": result2["dislike"],
+                    }
+                    # else:
+                    # raise DefaultError('Undislike comment failed')
                 else:
                     raise DefaultError('Undislike comment failed')
 
@@ -640,6 +722,10 @@ class Comment(Database):
                     "success": True,
                     "type": 'dislike',
                 }
+
+            return {
+                "success": False,
+            }
         except jwt.ExpiredSignatureError as e:
             InternalServerErrorMessage("Token is expired")
         except jwt.exceptions.DecodeError as e:

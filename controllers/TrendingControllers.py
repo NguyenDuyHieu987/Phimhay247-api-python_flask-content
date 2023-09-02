@@ -16,9 +16,36 @@ class Trending(Database):
                 page = request.args.get("page", default=1, type=int) - 1
                 limit = request.args.get("limit", default=20, type=int)
 
-                trendings = (
-                    self.__db["trendings"].find({}).skip(page * limit).limit(limit)
-                )
+                trendings = (self.__db["trendings"].find(
+                    {}).skip(page * limit).limit(limit))
+
+                # trendings = self.__db["trendings"].aggregate([
+                #     {
+                #         "$skip": page * limit
+                #     },
+                #     {
+                #         "$limit": limit
+                #     },
+                #     # {
+                #     #     "$unwind": "$genres"
+                #     # },
+                #     {
+                #         "$lookup": {
+                #             "from": 'genres',
+                #             # "localField": 'genres.id',
+                #             # "foreignField": 'id',
+                #             "let": {
+                #                 "idGen": "$genres.id",
+                #             },
+                #             "pipeline": [
+                #                 {"$match": {
+                #                     "$expr": {"$eq": ["$id", "$$idGen"]}}},
+
+                #             ],
+                #             "as": 'genres',
+                #         },
+                #     },
+                # ])
 
                 return cvtJson(
                     {
