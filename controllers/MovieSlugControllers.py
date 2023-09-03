@@ -17,7 +17,7 @@ class MovieSlug(Database):
                 page = request.args.get("page", default=1, type=int) - 1
 
                 phimle = cvtJson(self.__db["movies"].find({}).skip(
-                    page * 20).limit(20).sort([("views", pymongo.DESCENDING)]))
+                    page * 20).limit(20))
 
                 return {
                     "page": page + 1,
