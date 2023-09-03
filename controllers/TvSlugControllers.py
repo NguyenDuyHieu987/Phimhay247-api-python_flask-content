@@ -15,7 +15,8 @@ class TVSlug(Database):
         try:
             if slug == "all":
                 page = (request.args.get("page", default=1, type=int)) - 1
-                phimbo = cvtJson(self.__db["tvs"].find({}).skip(page * 20).limit(20))
+                phimbo = cvtJson(self.__db["tvs"].find({}).skip(
+                    page * 20).limit(20).sort([("views", pymongo.DESCENDING)]))
 
                 return {
                     "page": page + 1,
@@ -26,7 +27,8 @@ class TVSlug(Database):
             elif slug == "airingtoday":
                 page = request.args.get("page", default=1, type=int) - 1
                 nowplaying = cvtJson(
-                    self.__db["tvairingtodays"].find({}).skip(page * 20).limit(20)
+                    self.__db["tvairingtodays"].find(
+                        {}).skip(page * 20).limit(20)
                 )
                 return {
                     "page": page + 1,
