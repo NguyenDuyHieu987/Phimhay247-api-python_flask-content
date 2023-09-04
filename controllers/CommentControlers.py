@@ -37,6 +37,77 @@ class Comment(Database):
             #     .limit(limit)
             # )
 
+            headers = request.headers
+
+            likeDislike = []
+
+            if "Authorization" not in headers:
+                user_token = request.headers["Authorization"].replace(
+                    "Bearer ", "")
+
+                jwtUser = jwt.decode(
+                    user_token,
+                    str(os.getenv("JWT_SIGNATURE_SECRET")),
+                    algorithms=["HS256"],
+                )
+
+                likeDislike = [
+                    {
+                        "$lookup": {
+                            "from": 'commentlikes',
+                            "localField": 'id',
+                            "foreignField": 'comment_id',
+                            "pipeline": [
+                                {
+                                    "$match": {
+                                        "$and": [
+                                            {"$expr": {
+                                                "$eq": ['$type', 'like']}},
+                                            {"$expr": {
+                                                "$eq": ['$user_id', jwtUser["id"]]}},
+                                        ],
+                                    },
+                                },
+                            ],
+                            "as": 'is_like',
+                        },
+                    },
+                    {
+                        "$addFields": {
+                            "is_like": {
+                                "$eq": [{"$size": '$is_like'}, 1],
+                            },
+                        },
+                    },
+                    {
+                        "$lookup": {
+                            "from": 'commentlikes',
+                            "localField": 'id',
+                            "foreignField": 'comment_id',
+                            "pipeline": [
+                                {
+                                    "$match": {
+                                        "$and": [
+                                            {"$expr": {
+                                                "$eq": ['$type', 'dislike']}},
+                                            {"$expr": {
+                                                "$eq": ['$user_id', jwtUser["id"]]}},
+                                        ],
+                                    },
+                                },
+                            ],
+                            "as": 'is_dislike',
+                        },
+                    },
+                    {
+                        "$addFields": {
+                            "is_dislike": {
+                                "$eq": [{"$size": '$is_dislike'}, 1],
+                            },
+                        },
+                    },
+                ]
+
             comments = (
                 self.__db["comments"]
                 .aggregate(
@@ -106,6 +177,7 @@ class Comment(Database):
                             "dislike": {"$size": '$dislike'},
                         },
                     },
+                        *likeDislike,
                     ]
                 )
             )
@@ -128,21 +200,154 @@ class Comment(Database):
             skip = request.args.get("skip", default=1, type=int) - 1
             limit = request.args.get("limit", default=10, type=int)
 
+            # comments = (
+            #     self.__db["comments"]
+            #     .find(
+            #         {
+            #             "movie_id": str(movieId),
+            #             "parent_id": str(parentId),
+            #             "movie_type": str(movieType),
+            #             "type": "children",
+            #         }
+            #     )
+            #     .sort(
+            #         [("created_at", pymongo.ASCENDING)],
+            #     )
+            #     .skip(skip * limit)
+            #     .limit(limit)
+            # )
+
+            headers = request.headers
+
+            likeDislike = []
+
+            if "Authorization" not in headers:
+                user_token = request.headers["Authorization"].replace(
+                    "Bearer ", "")
+
+                jwtUser = jwt.decode(
+                    user_token,
+                    str(os.getenv("JWT_SIGNATURE_SECRET")),
+                    algorithms=["HS256"],
+                )
+
+                likeDislike = [
+                    {
+                        "$lookup": {
+                            "from": 'commentlikes',
+                            "localField": 'id',
+                            "foreignField": 'comment_id',
+                            "pipeline": [
+                                {
+                                    "$match": {
+                                        "$and": [
+                                            {"$expr": {
+                                                "$eq": ['$type', 'like']}},
+                                            {"$expr": {
+                                                "$eq": ['$user_id', jwtUser["id"]]}},
+                                        ],
+                                    },
+                                },
+                            ],
+                            "as": 'is_like',
+                        },
+                    },
+                    {
+                        "$addFields": {
+                            "is_like": {
+                                "$eq": [{"$size": '$is_like'}, 1],
+                            },
+                        },
+                    },
+                    {
+                        "$lookup": {
+                            "from": 'commentlikes',
+                            "localField": 'id',
+                            "foreignField": 'comment_id',
+                            "pipeline": [
+                                {
+                                    "$match": {
+                                        "$and": [
+                                            {"$expr": {
+                                                "$eq": ['$type', 'dislike']}},
+                                            {"$expr": {
+                                                "$eq": ['$user_id', jwtUser["id"]]}},
+                                        ],
+                                    },
+                                },
+                            ],
+                            "as": 'is_dislike',
+                        },
+                    },
+                    {
+                        "$addFields": {
+                            "is_dislike": {
+                                "$eq": [{"$size": '$is_dislike'}, 1],
+                            },
+                        },
+                    },
+                ]
+
             comments = (
                 self.__db["comments"]
-                .find(
-                    {
-                        "movie_id": str(movieId),
-                        "parent_id": str(parentId),
-                        "movie_type": str(movieType),
-                        "type": "children",
-                    }
+                .aggregate(
+                    [{
+                        "$match": {
+                            "movie_id": str(movieId),
+                            "parent_id": str(parentId),
+                            "movie_type": str(movieType),
+                            "type": "children",
+                        }
+                    },
+                        {
+                        "$sort": {"created_at": pymongo.DESCENDING}
+                    },
+                        {
+                        "$skip": skip * limit
+                    },
+                        {
+                        "$limit": limit
+                    },
+                        {
+                        "$lookup": {
+                            "from": 'commentlikes',
+                            "localField": 'id',
+                            "foreignField": 'comment_id',
+                            "pipeline": [
+                                {
+                                    "$match": {
+                                        "$expr": {"$eq": ["$type", "like"]
+                                                  }}}
+                            ],
+                            "as": "like",
+                        }
+                    },
+                        {
+                        "$addFields": {
+                            "like": {"$size": '$like'},
+                        },
+                    }, {
+                        "$lookup": {
+                            "from": 'commentlikes',
+                            "localField": 'id',
+                            "foreignField": 'comment_id',
+                            "pipeline": [
+                                {
+                                    "$match": {
+                                        "$expr": {"$eq": ["$type", "dislike"]
+                                                  }}}
+                            ],
+                            "as": "dislike",
+                        }
+                    },
+                        {
+                        "$addFields": {
+                            "dislike": {"$size": '$dislike'},
+                        },
+                    },
+                        *likeDislike,
+                    ]
                 )
-                .sort(
-                    [("created_at", pymongo.ASCENDING)],
-                )
-                .skip(skip * limit)
-                .limit(limit)
             )
 
             return {"results": cvtJson(comments)}
