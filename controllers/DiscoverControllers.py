@@ -249,7 +249,7 @@ class Discover(Database):
                         "results": movie + tv,
                     }
 
-            elif type == "movieall":
+            elif type == "movie":
                 if sort_by != "":
                     if sort_by == "views_desc":
                         movie = discover_movie(
@@ -329,7 +329,7 @@ class Discover(Database):
                         "results": movie,
                     }
 
-            elif type == "tvall":
+            elif type == "tv":
                 if sort_by != "":
                     if sort_by == "views_desc":
                         tv = discover_tv(

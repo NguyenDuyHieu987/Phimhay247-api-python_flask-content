@@ -148,52 +148,23 @@ class TV(Database):
                                 "as": 'episodes',
                             },
                         },
+                        {
+                            "$addFields": {
+                                "number_of_episodes": {"$size": '$episodes'},
+                            },
+                        },
                     ]
 
-            # tv = self.__db["tvs"].find_one({"id": str(id)}, exceptValue)
-
-            # tv = self.__db["tvs"].find_one({"id": str(id)}) | extraValue
-
-            tv = cvtJson(self.__db["tvs"].aggregate([
-                {
-                    "$match": {"id": id},
-                },
-                *extraValue["images"],
-                *extraValue["videos"],
-                *extraValue["credits"],
-                *extraValue["seasons"],
-                *extraValue["episodes"],
-                {
-                    "$lookup": {
-                        "from": 'episodes',
-                                "localField": 'id',
-                                "foreignField": 'movie_id',
-                                "as": 'number_of_episodes',
-                    },
-                },
-                {
-                    "$lookup": {
-                        "from": 'episodes',
-                        "localField": 'season_id',
-                        "foreignField": 'season_id',
-                                "as": 'number_of_episodes',
-                    },
-                },
-                {
-                    "$addFields": {
-                        "number_of_episodes": {"$size": '$number_of_episodes'},
-                    },
-                },
-            ]))
-
+        
             headers = request.headers
+            
+            extraValue2 = {
+                "list":[],
+                "history":[],
+                "rate":[],
+            }
 
-            if "Authorization" not in headers:
-                if len(tv) > 0:
-                    return tv[0]
-                else:
-                    return {"not_found": True, "result": "Can not find the tv"}
-            else:
+            if "Authorization" in headers:
                 user_token = request.headers["Authorization"].replace(
                     "Bearer ", "")
 
@@ -203,50 +174,168 @@ class TV(Database):
                     algorithms=["HS256"],
                 )
 
-                extraValue2 = {}
 
-                item_list = self.__db["lists"].find_one(
+                # item_list = self.__db["lists"].find_one(
+                #     {
+                #         "user_id": jwtUser["id"],
+                #         "movie_id": id,
+                #         "media_type": "tv",
+                #     },
+                # )
+
+                # if item_list != None:
+                #     extraValue2 = extraValue2 | {"in_list": True}
+                
+                extraValue2["list"] = [
                     {
-                        "user_id": jwtUser["id"],
-                        "movie_id": id,
-                        "media_type": "tv",
-                    },
-                )
-
-                if item_list != None:
-                    extraValue2 = extraValue2 | {"in_list": True}
-
-                item_history = self.__db["histories"].find_one(
-                    {
-                        "user_id": jwtUser["id"],
-                        "movie_id": id,
-                        "media_type": "tv",
-                    },
-                )
-
-                if item_history != None:
-                    extraValue2 = extraValue2 | {
-                        "history_progress": {
-                            "duration": item_history["duration"],
-                            "percent": item_history["percent"],
-                            "seconds": item_history["seconds"],
+                        "$lookup": {
+                        "from": 'lists',
+                        "localField": 'id',
+                        "foreignField": 'movie_id',
+                        "pipeline": [
+                            {
+                            "$match": {
+                                "$and": [
+                                { "$expr": { "$eq": ['$media_type', 'tv'] } },
+                                { "$expr": { "$eq": ['$user_id', jwtUser["id"]] } },
+                                ],
+                            },
+                            },
+                        ],
+                        "as": 'in_list',
                         },
-                    }
-
-                rates = self.__db["rates"].find_one(
+                    },
                     {
-                        "user_id": jwtUser["id"],
-                        "movie_id": str(id),
-                        "movie_type": "tv",
-                    }
-                )
+                        "$addFields": {
+                            "in_list": {
+                                "$eq": [{ "$size": '$in_list' }, 1],
+                            },
+                        },
+                    },
+                ]   
 
-                if rates != None:
-                    extraValue2 = extraValue2 | {
-                        "rated_value": rates["rate_value"],
-                    }
+                # item_history = self.__db["histories"].find_one(
+                #     {
+                #         "user_id": jwtUser["id"],
+                #         "movie_id": id,
+                #         "media_type": "tv",
+                #     },
+                # )
 
-                return cvtJson(tv[0] | extraValue2)
+                # if item_history != None:
+                #     extraValue2 = extraValue2 | {
+                #         "history_progress": {
+                #             "duration": item_history["duration"],
+                #             "percent": item_history["percent"],
+                #             "seconds": item_history["seconds"],
+                #         },
+                #     }
+                
+                extraValue2["history"] = [
+                    {
+                        "$lookup": {
+                        "from": 'histories',
+                        "localField": 'id',
+                        "foreignField": 'movie_id',
+                        "pipeline": [
+                            {
+                            "$match": {
+                                "$and": [
+                                { "$expr": { "$eq": ['$media_type', 'tv'] } },
+                                { "$expr": { "$eq": ['$user_id', jwtUser["id"]] } },
+                                ],
+                            },
+                            },
+                        ],
+                        "as": 'in_list',
+                        },
+                    },
+                    {
+                        "$addFields": {
+                            "history_progress": {
+                                "$cond": [
+                                    {
+                                        "$eq": [{ "$size": '$history_progress' }, 1],
+                                    },
+                                    {
+                                        "duration": '$history_progress.duration',
+                                        "percent": '$history_progress.percent',
+                                        "seconds": '$history_progress.seconds',
+                                    },
+                                    '$$REMOVE',
+                                ],
+                            },
+                        },
+                    },
+                ]   
+
+                # rates = self.__db["rates"].find_one(
+                #     {
+                #         "user_id": jwtUser["id"],
+                #         "movie_id": str(id),
+                #         "movie_type": "tv",
+                #     }
+                # )
+
+                # if rates != None:
+                #     extraValue2 = extraValue2 | {
+                #         "rated_value": rates["rate_value"],
+                #     }
+                
+                extraValue2["rate"] = [
+                    {
+                        "$lookup": {
+                        "from": 'rates',
+                        "localField": 'id',
+                        "foreignField": 'movie_id',
+                        "pipeline": [
+                            {
+                            "$match": {
+                                "$and": [
+                                { "$expr": { "$eq": ['$movie_type', 'tv'] } },
+                                { "$expr": { "$eq": ['$user_id', jwtUser["id"]] } },
+                                ],
+                            },
+                            },
+                        ],
+                        "as": 'in_list',
+                        },
+                    },
+                    {
+                        "$unwind": {
+                            "path": '$rated_value',
+                            "preserveNullAndEmptyArrays": True,
+                        },
+                    },
+                    {
+                        "$addFields": {
+                            "rated_value": '$rated_value.rate_value',
+                        },
+                    },
+                ]   
+
+                # return cvtJson(tv[0] | extraValue2)
+            
+            tv = cvtJson(self.__db["tvs"].aggregate([
+                {
+                    "$match": {"id": id},
+                },
+                *extraValue["images"],
+                *extraValue["videos"],
+                *extraValue["credits"],
+                *extraValue["seasons"],
+                *extraValue["episodes"],
+                *extraValue2["list"],
+                *extraValue2["history"],
+                *extraValue2["rate"], 
+            ]))
+            
+            
+            if len(tv) == 0:
+                return {"not_found": True, "result": "Can not find the tv"}
+            
+            return cvtJson(tv[0]) 
+                    # | extraValue
 
         except jwt.ExpiredSignatureError as e:
             InternalServerErrorMessage("Token is expired")
