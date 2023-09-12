@@ -3,6 +3,7 @@ from pymongo.errors import PyMongoError
 from utils.JsonResponse import ConvertJsonResponse as cvtJson
 from utils.ErrorMessage import BadRequestMessage, InternalServerErrorMessage
 from utils.exceptions import NotInTypeError
+from utils.exceptions import DefaultError
 from flask import *
 from pymongo import ReturnDocument
 import jwt
@@ -10,14 +11,14 @@ import os
 from datetime import datetime, timezone, timedelta
 import requests
 import configs
-from utils.Sendinblue_Email_Verification import Email_Verification
-from utils.OTP_Generation import generateOTP
+from utils.SendinblueEmail import SendiblueEmail
+from utils.OTPGeneration import generateOTP
 from configs.database import Database
 from utils.JwtRedis import JwtRedis
 from utils.EmalValidation import Validate_Email
 
 
-class Authentication:
+class Authentication(SendiblueEmail):
     def __init__(self):
         database = Database()
         self.__db = database.ConnectMongoDB()
@@ -705,7 +706,7 @@ class Authentication:
                         )
 
                         response.headers.set("Authorization", encoded)
-                        email_response = Email_Verification(
+                        email_response = self.Verification_OTP(
                             to=formUser["email"],
                             otp=OTP,
                             title="Xác nhận đăng ký tài khoản",
@@ -744,8 +745,8 @@ class Authentication:
                 )
 
                 if account != None:
-                    # if Validate_Email(formUser["email"]):
-                    if True:
+                    if Validate_Email(formUser["email"]):
+                    # if True:
                         encoded = jwt.encode(
                             {
                                 "id": account["id"],
@@ -758,17 +759,18 @@ class Authentication:
                             str(os.getenv("JWT_SIGNATURE_SECRET")),
                             algorithm="HS256",
                         )
+                        
+                        resetPasswordLink = f"{os.getenv('APP_URL')}/ForgotPassword?/#reset&token={encoded}"
 
-                        # email_response = Email_Verification(
-                        #     to=jwtUser["email"],
-                        #     otp=OTP,
-                        #     title="Xác nhận thay đổi mật khẩu của bạn",
-                        #     noteExp=os.getenv("OTP_EXP_OFFSET"),
-                        # )
+                        email_response = self.Verification_ForgotPassword(
+                            to=formUser["email"],
+                            resetPasswordLink=resetPasswordLink,
+                            noteExp=int(os.getenv("FORGOT_PASSWORD_EXP_OFFSET")),
+                        )
 
                         return {
                             "isSended": True,
-                            "exp_offset": 10 * 60,
+                            "exp_offset": configs.FORGOT_PASSWORD_EXP_OFFSET,
                             "result": "Send email successfully",
                         }
 
@@ -777,11 +779,15 @@ class Authentication:
 
                 else:
                     return {"isEmailExist": True, "result": "Email is already exists"}
-
+            else:
+                raise DefaultError(f"Forgot password with method: {type} is not support!")
+                
         except NotInTypeError as e:
             BadRequestMessage(e.message)
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
+        except DefaultError as e:
+            BadRequestMessage(e.message)
         except Exception as e:
             InternalServerErrorMessage(e)
 
@@ -810,3 +816,4 @@ class Authentication:
             InternalServerErrorMessage(e._message)
         except Exception as e:
             InternalServerErrorMessage(e)
+            

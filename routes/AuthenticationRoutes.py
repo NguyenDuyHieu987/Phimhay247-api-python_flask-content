@@ -55,7 +55,7 @@ def authentication_routes(app):
     def forgot_password_route(type):
         return authentication.forgot_password(type)
 
-    ## Log in
+    ## Log out
 
     @app.route("/auth/logout", methods=["POST"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)

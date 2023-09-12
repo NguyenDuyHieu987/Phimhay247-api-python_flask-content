@@ -7,14 +7,14 @@ from configs.database import Database
 from utils.exceptions import NotInTypeError
 import jwt
 import os
-from utils.OTP_Generation import generateOTP
+from utils.OTPGeneration import generateOTP
 from datetime import datetime, timezone, timedelta
 import configs
-from utils.Sendinblue_Email_Verification import Email_Verification
+from utils.SendinblueEmail import SendiblueEmail
 from utils.JwtRedis import JwtRedis
 
 
-class Account(Database):
+class Account(Database, SendiblueEmail):
     def __init__(self):
         self.__db = self.ConnectMongoDB()
         self.__jwtredis = JwtRedis("user_logout")
@@ -52,7 +52,7 @@ class Account(Database):
                     algorithm="HS256",
                 )
 
-                email_response = Email_Verification(
+                email_response = self.Verification_OTP(
                     to=jwtUser["email"],
                     otp=OTP,
                     noteExp=os.getenv("OTP_EXP_OFFSET"),
@@ -83,7 +83,7 @@ class Account(Database):
                         algorithm="HS256",
                     )
 
-                    email_response = Email_Verification(
+                    email_response = self.Verification_OTP(
                         to=jwtUser["email"],
                         otp=OTP,
                         title="Xác nhận thay đổi mật khẩu của bạn",
@@ -110,7 +110,7 @@ class Account(Database):
                     algorithm="HS256",
                 )
 
-                email_response = Email_Verification(
+                email_response = self.Verification_OTP(
                     to=jwtUser["email"],
                     otp=OTP,
                     title="Xác nhận thay đổi Email của bạn",
