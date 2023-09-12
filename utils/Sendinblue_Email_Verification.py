@@ -26,7 +26,7 @@ def Email_Verification(
     try:
         email_campaigns = sib_api_v3_sdk.SendSmtpEmail(
             subject="Mã xác thực email của bạn",
-            sender={"name": "Phimhay247", "email": "account@phimhay247.site"},
+            sender={"name": "Phimhay247", "email": "account@phimhay247z.org"},
             to=[{"email": to}],
             html_content=Template(html_content).safe_substitute(
                 title=title,
