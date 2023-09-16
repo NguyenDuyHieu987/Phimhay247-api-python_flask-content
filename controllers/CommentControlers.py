@@ -42,8 +42,7 @@ class Comment(Database):
             likeDislike = []
 
             if "Authorization" not in headers:
-                user_token = request.headers["Authorization"].replace(
-                    "Bearer ", "")
+                user_token = request.headers["Authorization"].replace("Bearer ", "")
 
                 jwtUser = jwt.decode(
                     user_token,
@@ -54,132 +53,123 @@ class Comment(Database):
                 likeDislike = [
                     {
                         "$lookup": {
-                            "from": 'commentlikes',
-                            "localField": 'id',
-                            "foreignField": 'comment_id',
+                            "from": "commentlikes",
+                            "localField": "id",
+                            "foreignField": "comment_id",
                             "pipeline": [
                                 {
                                     "$match": {
                                         "$and": [
-                                            {"$expr": {
-                                                "$eq": ['$type', 'like']}},
-                                            {"$expr": {
-                                                "$eq": ['$user_id', jwtUser["id"]]}},
+                                            {"$expr": {"$eq": ["$type", "like"]}},
+                                            {
+                                                "$expr": {
+                                                    "$eq": ["$user_id", jwtUser["id"]]
+                                                }
+                                            },
                                         ],
                                     },
                                 },
                             ],
-                            "as": 'is_like',
+                            "as": "is_like",
                         },
                     },
                     {
                         "$addFields": {
                             "is_like": {
-                                "$eq": [{"$size": '$is_like'}, 1],
+                                "$eq": [{"$size": "$is_like"}, 1],
                             },
                         },
                     },
                     {
                         "$lookup": {
-                            "from": 'commentlikes',
-                            "localField": 'id',
-                            "foreignField": 'comment_id',
+                            "from": "commentlikes",
+                            "localField": "id",
+                            "foreignField": "comment_id",
                             "pipeline": [
                                 {
                                     "$match": {
                                         "$and": [
-                                            {"$expr": {
-                                                "$eq": ['$type', 'dislike']}},
-                                            {"$expr": {
-                                                "$eq": ['$user_id', jwtUser["id"]]}},
+                                            {"$expr": {"$eq": ["$type", "dislike"]}},
+                                            {
+                                                "$expr": {
+                                                    "$eq": ["$user_id", jwtUser["id"]]
+                                                }
+                                            },
                                         ],
                                     },
                                 },
                             ],
-                            "as": 'is_dislike',
+                            "as": "is_dislike",
                         },
                     },
                     {
                         "$addFields": {
                             "is_dislike": {
-                                "$eq": [{"$size": '$is_dislike'}, 1],
+                                "$eq": [{"$size": "$is_dislike"}, 1],
                             },
                         },
                     },
                 ]
 
-            comments = (
-                self.__db["comments"]
-                .aggregate(
-                    [{
+            comments = self.__db["comments"].aggregate(
+                [
+                    {
                         "$match": {
                             "movie_id": str(movieId),
                             "movie_type": str(movieType),
                             "type": "parent",
                         }
                     },
-                        {
-                        "$sort": {"created_at": pymongo.DESCENDING}
-                    },
-                        {
-                        "$skip": skip * limit
-                    },
-                        {
-                        "$limit": limit
-                    },
-                        {
+                    {"$sort": {"created_at": pymongo.DESCENDING}},
+                    {"$skip": skip * limit},
+                    {"$limit": limit},
+                    {
                         "$lookup": {
-                            "from": 'comments',
-                            "localField": 'id',
-                            "foreignField": 'parent_id',
+                            "from": "comments",
+                            "localField": "id",
+                            "foreignField": "parent_id",
                             "as": "childrens",
                         }
                     },
-                        {
+                    {
                         "$addFields": {
-                            "childrens": {"$size": '$childrens'},
+                            "childrens": {"$size": "$childrens"},
                         },
                     },
-                        {
+                    {
                         "$lookup": {
-                            "from": 'commentlikes',
-                            "localField": 'id',
-                            "foreignField": 'comment_id',
+                            "from": "commentlikes",
+                            "localField": "id",
+                            "foreignField": "comment_id",
                             "pipeline": [
-                                {
-                                    "$match": {
-                                        "$expr": {"$eq": ["$type", "like"]
-                                                  }}}
+                                {"$match": {"$expr": {"$eq": ["$type", "like"]}}}
                             ],
                             "as": "like",
                         }
                     },
-                        {
+                    {
                         "$addFields": {
-                            "like": {"$size": '$like'},
+                            "like": {"$size": "$like"},
                         },
-                    }, {
+                    },
+                    {
                         "$lookup": {
-                            "from": 'commentlikes',
-                            "localField": 'id',
-                            "foreignField": 'comment_id',
+                            "from": "commentlikes",
+                            "localField": "id",
+                            "foreignField": "comment_id",
                             "pipeline": [
-                                {
-                                    "$match": {
-                                        "$expr": {"$eq": ["$type", "dislike"]
-                                                  }}}
+                                {"$match": {"$expr": {"$eq": ["$type", "dislike"]}}}
                             ],
                             "as": "dislike",
                         }
                     },
-                        {
+                    {
                         "$addFields": {
-                            "dislike": {"$size": '$dislike'},
+                            "dislike": {"$size": "$dislike"},
                         },
                     },
-                        *likeDislike,
-                    ]
-                )
+                    *likeDislike,
+                ]
             )
 
             total = self.__db["comments"].count_documents(
@@ -222,8 +212,7 @@ class Comment(Database):
             likeDislike = []
 
             if "Authorization" not in headers:
-                user_token = request.headers["Authorization"].replace(
-                    "Bearer ", "")
+                user_token = request.headers["Authorization"].replace("Bearer ", "")
 
                 jwtUser = jwt.decode(
                     user_token,
@@ -234,64 +223,67 @@ class Comment(Database):
                 likeDislike = [
                     {
                         "$lookup": {
-                            "from": 'commentlikes',
-                            "localField": 'id',
-                            "foreignField": 'comment_id',
+                            "from": "commentlikes",
+                            "localField": "id",
+                            "foreignField": "comment_id",
                             "pipeline": [
                                 {
                                     "$match": {
                                         "$and": [
-                                            {"$expr": {
-                                                "$eq": ['$type', 'like']}},
-                                            {"$expr": {
-                                                "$eq": ['$user_id', jwtUser["id"]]}},
+                                            {"$expr": {"$eq": ["$type", "like"]}},
+                                            {
+                                                "$expr": {
+                                                    "$eq": ["$user_id", jwtUser["id"]]
+                                                }
+                                            },
                                         ],
                                     },
                                 },
                             ],
-                            "as": 'is_like',
+                            "as": "is_like",
                         },
                     },
                     {
                         "$addFields": {
                             "is_like": {
-                                "$eq": [{"$size": '$is_like'}, 1],
+                                "$eq": [{"$size": "$is_like"}, 1],
                             },
                         },
                     },
                     {
                         "$lookup": {
-                            "from": 'commentlikes',
-                            "localField": 'id',
-                            "foreignField": 'comment_id',
+                            "from": "commentlikes",
+                            "localField": "id",
+                            "foreignField": "comment_id",
                             "pipeline": [
                                 {
                                     "$match": {
                                         "$and": [
-                                            {"$expr": {
-                                                "$eq": ['$type', 'dislike']}},
-                                            {"$expr": {
-                                                "$eq": ['$user_id', jwtUser["id"]]}},
+                                            {"$expr": {"$eq": ["$type", "dislike"]}},
+                                            {
+                                                "$expr": {
+                                                    "$eq": ["$user_id", jwtUser["id"]]
+                                                }
+                                            },
                                         ],
                                     },
                                 },
                             ],
-                            "as": 'is_dislike',
+                            "as": "is_dislike",
                         },
                     },
                     {
                         "$addFields": {
                             "is_dislike": {
-                                "$eq": [{"$size": '$is_dislike'}, 1],
+                                "$eq": [{"$size": "$is_dislike"}, 1],
                             },
                         },
                     },
                 ]
 
-            comments = (
-                self.__db["comments"]
-                .aggregate(
-                    [{
+            comments = self.__db["comments"].aggregate(
+                [
+                    {
                         "$match": {
                             "movie_id": str(movieId),
                             "parent_id": str(parentId),
@@ -299,55 +291,43 @@ class Comment(Database):
                             "type": "children",
                         }
                     },
-                        {
-                        "$sort": {"created_at": pymongo.DESCENDING}
-                    },
-                        {
-                        "$skip": skip * limit
-                    },
-                        {
-                        "$limit": limit
-                    },
-                        {
+                    {"$sort": {"created_at": pymongo.DESCENDING}},
+                    {"$skip": skip * limit},
+                    {"$limit": limit},
+                    {
                         "$lookup": {
-                            "from": 'commentlikes',
-                            "localField": 'id',
-                            "foreignField": 'comment_id',
+                            "from": "commentlikes",
+                            "localField": "id",
+                            "foreignField": "comment_id",
                             "pipeline": [
-                                {
-                                    "$match": {
-                                        "$expr": {"$eq": ["$type", "like"]
-                                                  }}}
+                                {"$match": {"$expr": {"$eq": ["$type", "like"]}}}
                             ],
                             "as": "like",
                         }
                     },
-                        {
+                    {
                         "$addFields": {
-                            "like": {"$size": '$like'},
+                            "like": {"$size": "$like"},
                         },
-                    }, {
+                    },
+                    {
                         "$lookup": {
-                            "from": 'commentlikes',
-                            "localField": 'id',
-                            "foreignField": 'comment_id',
+                            "from": "commentlikes",
+                            "localField": "id",
+                            "foreignField": "comment_id",
                             "pipeline": [
-                                {
-                                    "$match": {
-                                        "$expr": {"$eq": ["$type", "dislike"]
-                                                  }}}
+                                {"$match": {"$expr": {"$eq": ["$type", "dislike"]}}}
                             ],
                             "as": "dislike",
                         }
                     },
-                        {
+                    {
                         "$addFields": {
-                            "dislike": {"$size": '$dislike'},
+                            "dislike": {"$size": "$dislike"},
                         },
                     },
-                        *likeDislike,
-                    ]
-                )
+                    *likeDislike,
+                ]
             )
 
             return {"results": cvtJson(comments)}
@@ -358,8 +338,7 @@ class Comment(Database):
 
     def post_comment(self, movieType, id):
         try:
-            user_token = request.headers["Authorization"].replace(
-                "Bearer ", "")
+            user_token = request.headers["Authorization"].replace("Bearer ", "")
 
             jwtUser = jwt.decode(
                 user_token,
@@ -370,11 +349,9 @@ class Comment(Database):
             isExistMovies = False
 
             if movieType == "movie":
-                isExistMovies = self.__db["movies"].find_one(
-                    {"id": str(id)}) != None
+                isExistMovies = self.__db["movies"].find_one({"id": str(id)}) != None
             elif movieType == "tv":
-                isExistMovies = self.__db["tvs"].find_one(
-                    {"id": str(id)}) != None
+                isExistMovies = self.__db["tvs"].find_one({"id": str(id)}) != None
 
             if isExistMovies == True:
                 commentForm = request.form
@@ -489,8 +466,7 @@ class Comment(Database):
 
     def edit_comment(self, movieType, id):
         try:
-            user_token = request.headers["Authorization"].replace(
-                "Bearer ", "")
+            user_token = request.headers["Authorization"].replace("Bearer ", "")
 
             jwtUser = jwt.decode(
                 user_token,
@@ -501,11 +477,9 @@ class Comment(Database):
             isExistMovies = False
 
             if movieType == "movie":
-                isExistMovies = self.__db["movies"].find_one(
-                    {"id": str(id)}) != None
+                isExistMovies = self.__db["movies"].find_one({"id": str(id)}) != None
             elif movieType == "tv":
-                isExistMovies = self.__db["tvs"].find_one(
-                    {"id": str(id)}) != None
+                isExistMovies = self.__db["tvs"].find_one({"id": str(id)}) != None
 
             if isExistMovies == True:
                 commentForm = request.form
@@ -549,8 +523,7 @@ class Comment(Database):
 
     def delete_comment(self, movieType, id):
         try:
-            user_token = request.headers["Authorization"].replace(
-                "Bearer ", "")
+            user_token = request.headers["Authorization"].replace("Bearer ", "")
 
             jwtUser = jwt.decode(
                 user_token,
@@ -561,11 +534,9 @@ class Comment(Database):
             isExistMovies = False
 
             if movieType == "movie":
-                isExistMovies = self.__db["movies"].find_one(
-                    {"id": str(id)}) != None
+                isExistMovies = self.__db["movies"].find_one({"id": str(id)}) != None
             elif movieType == "tv":
-                isExistMovies = self.__db["tvs"].find_one(
-                    {"id": str(id)}) != None
+                isExistMovies = self.__db["tvs"].find_one({"id": str(id)}) != None
 
             if isExistMovies == True:
                 commentForm = request.form
@@ -644,7 +615,8 @@ class Comment(Database):
                     # )
 
                     if (
-                        resultDel1.deleted_count == 1
+                        resultDel1.deleted_count
+                        == 1
                         # and resultUpdate1.modified_count == 1
                     ):
                         return {
@@ -670,8 +642,7 @@ class Comment(Database):
 
     def like(self, id):
         try:
-            user_token = request.headers["Authorization"].replace(
-                "Bearer ", "")
+            user_token = request.headers["Authorization"].replace("Bearer ", "")
 
             jwtUser = jwt.decode(
                 user_token,
@@ -679,24 +650,30 @@ class Comment(Database):
                 algorithms=["HS256"],
             )
 
-            isLike = self.__db["commentlikes"].find_one({
-                "user_id": jwtUser["id"],
-                "comment_id": id,
-                "type": 'like',
-            })
-
-            isDisLike = self.__db["commentlikes"].find_one({
-                "user_id": jwtUser["id"],
-                "comment_id": id,
-                "type": 'dislike',
-            })
-
-            if isDisLike != None:
-                result = self.__db["commentlikes"].delete_one({
+            isLike = self.__db["commentlikes"].find_one(
+                {
                     "user_id": jwtUser["id"],
                     "comment_id": id,
-                    "type": 'dislike',
-                })
+                    "type": "like",
+                }
+            )
+
+            isDisLike = self.__db["commentlikes"].find_one(
+                {
+                    "user_id": jwtUser["id"],
+                    "comment_id": id,
+                    "type": "dislike",
+                }
+            )
+
+            if isDisLike != None:
+                result = self.__db["commentlikes"].delete_one(
+                    {
+                        "user_id": jwtUser["id"],
+                        "comment_id": id,
+                        "type": "dislike",
+                    }
+                )
 
                 # result2 = self.__db["comments"].find_one_and_update(
                 #     {
@@ -710,17 +687,19 @@ class Comment(Database):
 
                 if result.deleted_count < 1:
                     # or result2 == None:
-                    raise DefaultError('Like comment failed')
+                    raise DefaultError("Like comment failed")
 
             if isLike == None:
-                result = self.__db["commentlikes"].insert_one({
-                    "id": str(uuid.uuid4()),
-                    "user_id": jwtUser["id"],
-                    "comment_id": id,
-                    "type": 'like',
-                    "created_at": str(datetime.now()),
-                    "updated_at": str(datetime.now()),
-                })
+                result = self.__db["commentlikes"].insert_one(
+                    {
+                        "id": str(uuid.uuid4()),
+                        "user_id": jwtUser["id"],
+                        "comment_id": id,
+                        "type": "like",
+                        "created_at": str(datetime.now()),
+                        "updated_at": str(datetime.now()),
+                    }
+                )
 
                 if result.inserted_id != None:
                     # result2 = self.__db["comments"].find_one_and_update(
@@ -736,20 +715,22 @@ class Comment(Database):
                     # if result2 != None:
                     return {
                         "success": True,
-                        "action": 'like',
+                        "action": "like",
                         # "like": result2["like"],
                     }
                     # else:
                     #     raise DefaultError('Like comment failed')
 
                 else:
-                    raise DefaultError('Like comment failed')
+                    raise DefaultError("Like comment failed")
             else:
-                result = self.__db["commentlikes"].delete_one({
-                    "user_id": jwtUser["id"],
-                    "comment_id": id,
-                    "type": 'like',
-                })
+                result = self.__db["commentlikes"].delete_one(
+                    {
+                        "user_id": jwtUser["id"],
+                        "comment_id": id,
+                        "type": "like",
+                    }
+                )
 
                 if result.deleted_count == 1:
                     # result2 = self.__db["comments"].find_one_and_update(
@@ -765,13 +746,13 @@ class Comment(Database):
                     # if result2 != None:
                     return {
                         "success": True,
-                        "action": 'unlike',
+                        "action": "unlike",
                         # "like": result2["like"],
                     }
                     # else:
                     #     raise DefaultError('Unlike comment failed')
                 else:
-                    raise DefaultError('Unlike comment failed')
+                    raise DefaultError("Unlike comment failed")
 
         except jwt.ExpiredSignatureError as e:
             make_response().delete_cookie("user_token")
@@ -788,8 +769,7 @@ class Comment(Database):
 
     def dislike(self, id):
         try:
-            user_token = request.headers["Authorization"].replace(
-                "Bearer ", "")
+            user_token = request.headers["Authorization"].replace("Bearer ", "")
 
             jwtUser = jwt.decode(
                 user_token,
@@ -797,24 +777,30 @@ class Comment(Database):
                 algorithms=["HS256"],
             )
 
-            isDisLike = self.__db["commentlikes"].find_one({
-                "user_id": jwtUser["id"],
-                "comment_id": id,
-                "type": 'dislike',
-            })
-
-            isLike = self.__db["commentlikes"].find_one({
-                "user_id": jwtUser["id"],
-                "comment_id": id,
-                "type": 'like',
-            })
-
-            if isLike != None:
-                result = self.__db["commentlikes"].delete_one({
+            isDisLike = self.__db["commentlikes"].find_one(
+                {
                     "user_id": jwtUser["id"],
                     "comment_id": id,
-                    "type": 'like',
-                })
+                    "type": "dislike",
+                }
+            )
+
+            isLike = self.__db["commentlikes"].find_one(
+                {
+                    "user_id": jwtUser["id"],
+                    "comment_id": id,
+                    "type": "like",
+                }
+            )
+
+            if isLike != None:
+                result = self.__db["commentlikes"].delete_one(
+                    {
+                        "user_id": jwtUser["id"],
+                        "comment_id": id,
+                        "type": "like",
+                    }
+                )
 
                 # result2 = self.__db["comments"].find_one_and_update(
                 #     {
@@ -828,17 +814,19 @@ class Comment(Database):
 
                 if result.deleted_count < 1:
                     # or result2 == None:
-                    raise DefaultError('Dislike comment failed')
+                    raise DefaultError("Dislike comment failed")
 
             if isDisLike == None:
-                result = self.__db["commentlikes"].insert_one({
-                    "id": str(uuid.uuid4()),
-                    "user_id": jwtUser["id"],
-                    "comment_id": id,
-                    "type": 'dislike',
-                    "created_at": str(datetime.now()),
-                    "updated_at": str(datetime.now()),
-                })
+                result = self.__db["commentlikes"].insert_one(
+                    {
+                        "id": str(uuid.uuid4()),
+                        "user_id": jwtUser["id"],
+                        "comment_id": id,
+                        "type": "dislike",
+                        "created_at": str(datetime.now()),
+                        "updated_at": str(datetime.now()),
+                    }
+                )
 
                 if result.inserted_id != None:
                     # result2 = self.__db["comments"].find_one_and_update(
@@ -854,19 +842,21 @@ class Comment(Database):
                     # if result2 != None:
                     return {
                         "success": True,
-                        "action": 'dislike',
+                        "action": "dislike",
                         # "dislike": result2["dislike"],
                     }
                     # else:
                     #     raise DefaultError('Dislike comment failed')
                 else:
-                    raise DefaultError('Dislike comment failed')
+                    raise DefaultError("Dislike comment failed")
             else:
-                result = self.__db["commentlikes"].delete_one({
-                    "user_id": jwtUser["id"],
-                    "comment_id": id,
-                    "type": 'dislike',
-                })
+                result = self.__db["commentlikes"].delete_one(
+                    {
+                        "user_id": jwtUser["id"],
+                        "comment_id": id,
+                        "type": "dislike",
+                    }
+                )
 
                 if result.deleted_count == 1:
                     # result2 = self.__db["comments"].find_one_and_update(
@@ -882,13 +872,13 @@ class Comment(Database):
                     # if result2 != None:
                     return {
                         "success": True,
-                        "action": 'undislike',
+                        "action": "undislike",
                         # "dislike": result2["dislike"],
                     }
                     # else:
                     # raise DefaultError('Undislike comment failed')
                 else:
-                    raise DefaultError('Undislike comment failed')
+                    raise DefaultError("Undislike comment failed")
 
         except jwt.ExpiredSignatureError as e:
             make_response().delete_cookie("user_token")
@@ -905,8 +895,7 @@ class Comment(Database):
 
     def check_like_dislike(self, id):
         try:
-            user_token = request.headers["Authorization"].replace(
-                "Bearer ", "")
+            user_token = request.headers["Authorization"].replace("Bearer ", "")
 
             jwtUser = jwt.decode(
                 user_token,
@@ -914,28 +903,32 @@ class Comment(Database):
                 algorithms=["HS256"],
             )
 
-            isLike = self.__db["commentlikes"].find_one({
-                "user_id": jwtUser["id"],
-                "comment_id": id,
-                "type": 'like',
-            })
+            isLike = self.__db["commentlikes"].find_one(
+                {
+                    "user_id": jwtUser["id"],
+                    "comment_id": id,
+                    "type": "like",
+                }
+            )
 
             if isLike != None:
                 return {
                     "success": True,
-                    "type": 'like',
+                    "type": "like",
                 }
 
-            isDisLike = self.__db["commentlikes"].find_one({
-                "user_id": jwtUser["id"],
-                "comment_id": id,
-                "type": 'dislike',
-            })
+            isDisLike = self.__db["commentlikes"].find_one(
+                {
+                    "user_id": jwtUser["id"],
+                    "comment_id": id,
+                    "type": "dislike",
+                }
+            )
 
             if isDisLike != None:
                 return {
                     "success": True,
-                    "type": 'dislike',
+                    "type": "dislike",
                 }
 
             return {

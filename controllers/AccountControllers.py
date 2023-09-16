@@ -193,7 +193,7 @@ class Account(Database, SendiblueEmail):
     def change_email(self):
         try:
             verify_token = request.headers["Authorization"].replace("Bearer ", "")
-            
+
             formUser = request.form
 
             jwtUser = jwt.decode(
