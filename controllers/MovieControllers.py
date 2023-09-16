@@ -103,7 +103,8 @@ class Movie(Database):
 
             if "Authorization" in headers:
                 user_token = request.headers["Authorization"].replace(
-                    "Bearer ", "")
+                    "Bearer ", ""
+                ) or request.cookies.get("user_token")
 
                 jwtUser = jwt.decode(
                     user_token,

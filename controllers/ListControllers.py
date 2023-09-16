@@ -18,7 +18,9 @@ class List(Database):
 
     def getlist(self, type):
         try:
-            user_token = request.headers["Authorization"].replace("Bearer ", "")
+            user_token = request.headers["Authorization"].replace(
+                "Bearer ", ""
+            ) or request.cookies.get("user_token")
 
             jwtUser = jwt.decode(
                 user_token,
@@ -124,7 +126,9 @@ class List(Database):
 
     def search_list(self, type):
         try:
-            user_token = request.headers["Authorization"].replace("Bearer ", "")
+            user_token = request.headers["Authorization"].replace(
+                "Bearer ", ""
+            ) or request.cookies.get("user_token")
 
             jwtUser = jwt.decode(
                 user_token,
@@ -216,7 +220,9 @@ class List(Database):
 
     def getitem_list(self, type, movieId):
         try:
-            user_token = request.headers["Authorization"].replace("Bearer ", "")
+            user_token = request.headers["Authorization"].replace(
+                "Bearer ", ""
+            ) or request.cookies.get("user_token")
 
             jwtUser = jwt.decode(
                 user_token,
@@ -250,7 +256,9 @@ class List(Database):
 
     def additem_list(self):
         try:
-            user_token = request.headers["Authorization"].replace("Bearer ", "")
+            user_token = request.headers["Authorization"].replace(
+                "Bearer ", ""
+            ) or request.cookies.get("user_token")
 
             jwtUser = jwt.decode(
                 user_token,
@@ -368,7 +376,9 @@ class List(Database):
 
     def remove_item_list(self):
         try:
-            user_token = request.headers["Authorization"].replace("Bearer ", "")
+            user_token = request.headers["Authorization"].replace(
+                "Bearer ", ""
+            ) or request.cookies.get("user_token")
 
             jwtUser = jwt.decode(
                 user_token,
@@ -411,7 +421,9 @@ class List(Database):
 
     def removeall_item_list(self):
         try:
-            user_token = request.headers["Authorization"].replace("Bearer ", "")
+            user_token = request.headers["Authorization"].replace(
+                "Bearer ", ""
+            ) or request.cookies.get("user_token")
 
             jwtUser = jwt.decode(
                 user_token,

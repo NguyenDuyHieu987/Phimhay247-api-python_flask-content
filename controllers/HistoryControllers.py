@@ -18,7 +18,9 @@ class History(Database):
 
     def gethistory(self, type):
         try:
-            user_token = request.headers["Authorization"].replace("Bearer ", "")
+            user_token = request.headers["Authorization"].replace(
+                "Bearer ", ""
+            ) or request.cookies.get("user_token")
 
             jwtUser = jwt.decode(
                 user_token,
@@ -122,7 +124,9 @@ class History(Database):
 
     def search_history(self, type):
         try:
-            user_token = request.headers["Authorization"].replace("Bearer ", "")
+            user_token = request.headers["Authorization"].replace(
+                "Bearer ", ""
+            ) or request.cookies.get("user_token")
 
             jwtUser = jwt.decode(
                 user_token,
@@ -199,7 +203,9 @@ class History(Database):
 
     def getitem_history(self, type, movieId):
         try:
-            user_token = request.headers["Authorization"].replace("Bearer ", "")
+            user_token = request.headers["Authorization"].replace(
+                "Bearer ", ""
+            ) or request.cookies.get("user_token")
 
             jwtUser = jwt.decode(
                 user_token,
@@ -231,7 +237,9 @@ class History(Database):
 
     def additem_history(self):
         try:
-            user_token = request.headers["Authorization"].replace("Bearer ", "")
+            user_token = request.headers["Authorization"].replace(
+                "Bearer ", ""
+            ) or request.cookies.get("user_token")
 
             jwtUser = jwt.decode(
                 user_token,
@@ -443,7 +451,9 @@ class History(Database):
 
     def remove_item_history(self):
         try:
-            user_token = request.headers["Authorization"].replace("Bearer ", "")
+            user_token = request.headers["Authorization"].replace(
+                "Bearer ", ""
+            ) or request.cookies.get("user_token")
 
             jwtUser = jwt.decode(
                 user_token,
@@ -482,7 +492,9 @@ class History(Database):
 
     def removeall_item_history(self):
         try:
-            user_token = request.headers["Authorization"].replace("Bearer ", "")
+            user_token = request.headers["Authorization"].replace(
+                "Bearer ", ""
+            ) or request.cookies.get("user_token")
 
             jwtUser = jwt.decode(
                 user_token,

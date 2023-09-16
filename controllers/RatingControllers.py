@@ -18,7 +18,9 @@ class Rate(Database):
 
     def get_rating(self, type, id):
         try:
-            user_token = request.headers["Authorization"].replace("Bearer ", "")
+            user_token = request.headers["Authorization"].replace(
+                "Bearer ", ""
+            ) or request.cookies.get("user_token")
 
             jwtUser = jwt.decode(
                 user_token,
@@ -54,7 +56,9 @@ class Rate(Database):
 
     def rating(self, type, id):
         try:
-            user_token = request.headers["Authorization"].replace("Bearer ", "")
+            user_token = request.headers["Authorization"].replace(
+                "Bearer ", ""
+            ) or request.cookies.get("user_token")
 
             jwtUser = jwt.decode(
                 user_token,

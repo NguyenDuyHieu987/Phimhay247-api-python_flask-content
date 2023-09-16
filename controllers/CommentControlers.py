@@ -42,7 +42,9 @@ class Comment(Database):
             likeDislike = []
 
             if "Authorization" not in headers:
-                user_token = request.headers["Authorization"].replace("Bearer ", "")
+                user_token = request.headers["Authorization"].replace(
+                "Bearer ", ""
+            ) or request.cookies.get("user_token")
 
                 jwtUser = jwt.decode(
                     user_token,
@@ -212,7 +214,9 @@ class Comment(Database):
             likeDislike = []
 
             if "Authorization" not in headers:
-                user_token = request.headers["Authorization"].replace("Bearer ", "")
+                user_token = request.headers["Authorization"].replace(
+                "Bearer ", ""
+            ) or request.cookies.get("user_token")
 
                 jwtUser = jwt.decode(
                     user_token,
@@ -338,7 +342,9 @@ class Comment(Database):
 
     def post_comment(self, movieType, id):
         try:
-            user_token = request.headers["Authorization"].replace("Bearer ", "")
+            user_token = request.headers["Authorization"].replace(
+                "Bearer ", ""
+            ) or request.cookies.get("user_token")
 
             jwtUser = jwt.decode(
                 user_token,
@@ -466,7 +472,9 @@ class Comment(Database):
 
     def edit_comment(self, movieType, id):
         try:
-            user_token = request.headers["Authorization"].replace("Bearer ", "")
+            user_token = request.headers["Authorization"].replace(
+                "Bearer ", ""
+            ) or request.cookies.get("user_token")
 
             jwtUser = jwt.decode(
                 user_token,
@@ -523,7 +531,9 @@ class Comment(Database):
 
     def delete_comment(self, movieType, id):
         try:
-            user_token = request.headers["Authorization"].replace("Bearer ", "")
+            user_token = request.headers["Authorization"].replace(
+                "Bearer ", ""
+            ) or request.cookies.get("user_token")
 
             jwtUser = jwt.decode(
                 user_token,
@@ -642,7 +652,9 @@ class Comment(Database):
 
     def like(self, id):
         try:
-            user_token = request.headers["Authorization"].replace("Bearer ", "")
+            user_token = request.headers["Authorization"].replace(
+                "Bearer ", ""
+            ) or request.cookies.get("user_token")
 
             jwtUser = jwt.decode(
                 user_token,
@@ -769,7 +781,9 @@ class Comment(Database):
 
     def dislike(self, id):
         try:
-            user_token = request.headers["Authorization"].replace("Bearer ", "")
+            user_token = request.headers["Authorization"].replace(
+                "Bearer ", ""
+            ) or request.cookies.get("user_token")
 
             jwtUser = jwt.decode(
                 user_token,
@@ -895,7 +909,9 @@ class Comment(Database):
 
     def check_like_dislike(self, id):
         try:
-            user_token = request.headers["Authorization"].replace("Bearer ", "")
+            user_token = request.headers["Authorization"].replace(
+                "Bearer ", ""
+            ) or request.cookies.get("user_token")
 
             jwtUser = jwt.decode(
                 user_token,

@@ -16,7 +16,9 @@ class Recommend(Database):
 
     def get_recommend(self):
         try:
-            user_token = request.headers["Authorization"].replace("Bearer ", "")
+            user_token = request.headers["Authorization"].replace(
+                "Bearer ", ""
+            ) or request.cookies.get("user_token")
 
             jwtUser = jwt.decode(
                 user_token,
