@@ -3,22 +3,12 @@ from flask_cors import CORS
 api_normal_cors_config1 = {
     "allow_headers": "*",
     "origins": [
-        "http://localhost:8080",
-        "http://localhost:8081",
         "http://localhost:3000",
-        "https://phimhay247.site",
-        "https://phimhay247.tech",
-        "https://dashboard.phimhay247.site",
-        "https://dashboard.phimhay247.tech",
-        "https://dash.phimhay247.site",
-        "https://dash.phimhay247.tech",
+        "https://phimhay247z.org",
+        "https://dashboard.phimhay247z.org",
+        "https://dash.phimhay247z.org",
         # www
-        "https://www.phimhay247.site",
-        "https://www.phimhay247.tech",
-        "https://www.dashboard.phimhay247.site",
-        "https://www.dashboard.phimhay247.tech",
-        "https://www.dash.phimhay247.site",
-        "https://www.dash.phimhay247.tech",
+        "https://www.phimhay247z.org",
     ],
     "methods": ["GET"],
 }
@@ -26,22 +16,12 @@ api_normal_cors_config1 = {
 api_normal_cors_config2 = {
     "allow_headers": "*",
     "origins": [
-        "http://localhost:8080",
-        "http://localhost:8081",
         "http://localhost:3000",
-        "https://phimhay247.site",
-        "https://phimhay247.tech",
-        "https://dashboard.phimhay247.site",
-        "https://dashboard.phimhay247.tech",
-        "https://dash.phimhay247.site",
-        "https://dash.phimhay247.tech",
+        "https://phimhay247z.org",
+        "https://dashboard.phimhay247z.org",
+        "https://dash.phimhay247z.org",
         # www
-        "https://www.phimhay247.site",
-        "https://www.phimhay247.tech",
-        "https://www.dashboard.phimhay247.site",
-        "https://www.dashboard.phimhay247.tech",
-        "https://www.dash.phimhay247.site",
-        "https://www.dash.phimhay247.tech",
+        "https://www.phimhay247z.org",
     ],
     "methods": ["GET", "POST"],
 }
@@ -50,18 +30,9 @@ api_normal_cors_config2 = {
 api_admin_cors_config = {
     "allow_headers": "*",
     "origins": [
-        "http://localhost:8080",
-        "http://localhost:8081",
         "http://localhost:3000",
-        "https://dashboard.phimhay247.site",
-        "https://dashboard.phimhay247.tech",
-        "https://dash.phimhay247.site",
-        "https://dash.phimhay247.tech",
-        # www
-        "https://www.dashboard.phimhay247.site",
-        "https://www.dashboard.phimhay247.tech",
-        "https://www.dash.phimhay247.site",
-        "https://www.dash.phimhay247.tech",
+        "https://dashboard.phimhay247z.org",
+        "https://dash.phimhay247z.org",
     ],
     "methods": ["OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"],
 }
@@ -69,7 +40,8 @@ api_admin_cors_config = {
 
 def cors_app(app):
     CORS(
-        app
+        app,
+        supports_credentials=True
         # resources={
         #     r"/auth/*": api_normal_cors_config2,
         #     r"/trending/*": api_normal_cors_config1,
