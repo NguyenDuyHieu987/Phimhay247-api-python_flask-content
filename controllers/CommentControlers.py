@@ -475,8 +475,10 @@ class Comment(Database):
                 raise DefaultError("Movie is not exists")
 
         except jwt.ExpiredSignatureError as e:
+            make_response().delete_cookie("user_token")
             InternalServerErrorMessage("Token is expired")
-        except jwt.exceptions.DecodeError as e:
+        except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
+            make_response().delete_cookie("user_token")
             InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
@@ -533,8 +535,10 @@ class Comment(Database):
                 raise DefaultError("Movie is not exists")
 
         except jwt.ExpiredSignatureError as e:
+            make_response().delete_cookie("user_token")
             InternalServerErrorMessage("Token is expired")
-        except jwt.exceptions.DecodeError as e:
+        except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
+            make_response().delete_cookie("user_token")
             InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
@@ -652,8 +656,10 @@ class Comment(Database):
                 raise DefaultError("Movie is not exists")
 
         except jwt.ExpiredSignatureError as e:
+            make_response().delete_cookie("user_token")
             InternalServerErrorMessage("Token is expired")
-        except jwt.exceptions.DecodeError as e:
+        except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
+            make_response().delete_cookie("user_token")
             InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
@@ -768,8 +774,10 @@ class Comment(Database):
                     raise DefaultError('Unlike comment failed')
 
         except jwt.ExpiredSignatureError as e:
+            make_response().delete_cookie("user_token")
             InternalServerErrorMessage("Token is expired")
-        except jwt.exceptions.DecodeError as e:
+        except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
+            make_response().delete_cookie("user_token")
             InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
@@ -883,8 +891,10 @@ class Comment(Database):
                     raise DefaultError('Undislike comment failed')
 
         except jwt.ExpiredSignatureError as e:
+            make_response().delete_cookie("user_token")
             InternalServerErrorMessage("Token is expired")
-        except jwt.exceptions.DecodeError as e:
+        except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
+            make_response().delete_cookie("user_token")
             InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
@@ -932,8 +942,10 @@ class Comment(Database):
                 "success": False,
             }
         except jwt.ExpiredSignatureError as e:
+            make_response().delete_cookie("user_token")
             InternalServerErrorMessage("Token is expired")
-        except jwt.exceptions.DecodeError as e:
+        except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
+            make_response().delete_cookie("user_token")
             InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)

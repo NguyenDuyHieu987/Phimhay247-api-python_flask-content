@@ -159,9 +159,11 @@ class Recommend(Database):
                 }
 
         except jwt.ExpiredSignatureError as e:
-            return {"is_token_expired": True, "result": "Token is expired"}
-        except jwt.exceptions.DecodeError as e:
-            return {"is_invalid_token": True, "result": "Token is invalid"}
+            make_response().delete_cookie("user_token")
+            InternalServerErrorMessage("Token is expired")
+        except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
+            make_response().delete_cookie("user_token")
+            InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except Exception as e:

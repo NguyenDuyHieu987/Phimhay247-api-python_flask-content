@@ -81,6 +81,13 @@ class Authentication(SendiblueEmail):
                     response.headers.set(
                         "Access-Control-Expose-Headers", "Authorization"
                     )
+
+                    response.set_cookie(
+                        key="user_token",
+                        value=encoded,
+                        max_age=configs.JWT_EXP_OFFSET,
+                    )
+
                     response.headers.set("Authorization", encoded)
 
                     return response
@@ -100,6 +107,7 @@ class Authentication(SendiblueEmail):
             faceBookUser = requests.get(
                 f"https://graph.facebook.com/v15.0/me?access_token={accessToken}&fields=id,name,email,picture"
             )
+
             formUser = faceBookUser.json()
 
             account = self.__db["accounts"].find_one({"id": formUser["id"]})
@@ -158,7 +166,15 @@ class Authentication(SendiblueEmail):
                         },
                     }
                 )
+
                 response.headers.set("Access-Control-Expose-Headers", "Authorization")
+
+                response.set_cookie(
+                    key="user_token",
+                    value=encoded,
+                    max_age=configs.JWT_EXP_OFFSET,
+                )
+
                 response.headers.set("Authorization", encoded)
 
                 return response
@@ -219,7 +235,15 @@ class Authentication(SendiblueEmail):
                         },
                     }
                 )
+
                 response.headers.set("Access-Control-Expose-Headers", "Authorization")
+
+                response.set_cookie(
+                    key="user_token",
+                    value=encoded,
+                    max_age=configs.JWT_EXP_OFFSET,
+                )
+
                 response.headers.set("Authorization", encoded)
 
                 return response
@@ -296,7 +320,15 @@ class Authentication(SendiblueEmail):
                         },
                     }
                 )
+
                 response.headers.set("Access-Control-Expose-Headers", "Authorization")
+
+                response.set_cookie(
+                    key="user_token",
+                    value=encoded,
+                    max_age=configs.JWT_EXP_OFFSET,
+                )
+
                 response.headers.set("Authorization", encoded)
 
                 return response
@@ -347,6 +379,13 @@ class Authentication(SendiblueEmail):
                     }
                 )
                 response.headers.set("Access-Control-Expose-Headers", "Authorization")
+
+                response.set_cookie(
+                    key="user_token",
+                    value=encoded,
+                    max_age=configs.JWT_EXP_OFFSET,
+                )
+
                 response.headers.set("Authorization", encoded)
 
                 return response
@@ -358,7 +397,9 @@ class Authentication(SendiblueEmail):
 
     def getuser_by_token(self):
         try:
-            user_token = request.headers["Authorization"].replace("Bearer ", "")
+            user_token = request.headers["Authorization"].replace(
+                "Bearer ", ""
+            ) or request.cookies.get("user_token")
 
             jwtUser = jwt.decode(
                 user_token,
@@ -500,6 +541,7 @@ class Authentication(SendiblueEmail):
                 )
 
                 response.headers.set("Access-Control-Expose-Headers", "Authorization")
+
                 response.headers.set("Authorization", user_token)
 
                 return response
@@ -507,9 +549,21 @@ class Authentication(SendiblueEmail):
                 return {"isLogin": False, "result": "Token is no longer active"}
 
         except jwt.ExpiredSignatureError as e:
-            return {"isTokenExpired": True, "result": "Token is expired"}
-        except jwt.exceptions.DecodeError as e:
-            return {"isInvalidToken": True, "result": "Token is invalid"}
+            response = make_response(
+                {"isTokenExpired": True, "result": "Token is expired"}
+            )
+
+            response.delete_cookie("user_token")
+
+            return response
+        except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
+            response = make_response(
+                {"isInvalidToken": True, "result": "Token is invalid"}
+            )
+
+            response.delete_cookie("user_token")
+
+            return response
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except Exception as e:
@@ -609,10 +663,10 @@ class Authentication(SendiblueEmail):
     def signup(self):
         try:
             formUser = request.form
-            user_token = request.headers["Authorization"].replace("Bearer ", "")
+            signup_token = request.headers["Authorization"].replace("Bearer ", "")
 
             jwtUser = jwt.decode(
-                user_token,
+                signup_token,
                 str(formUser["otp"]),
                 algorithms=["HS256"],
             )
@@ -654,7 +708,7 @@ class Authentication(SendiblueEmail):
                 return {"isAccountExist": True, "result": "Account is already exists"}
         except jwt.ExpiredSignatureError as e:
             return {"isOTPExpired": True, "result": "OTP is expired"}
-        except jwt.exceptions.DecodeError as e:
+        except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
             return {"isInvalidOTP": True, "result": "OTP is invalid"}
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
@@ -746,7 +800,7 @@ class Authentication(SendiblueEmail):
 
                 if account != None:
                     if Validate_Email(formUser["email"]):
-                    # if True:
+                        # if True:
                         encoded = jwt.encode(
                             {
                                 "id": account["id"],
@@ -759,7 +813,7 @@ class Authentication(SendiblueEmail):
                             str(os.getenv("JWT_SIGNATURE_SECRET")),
                             algorithm="HS256",
                         )
-                        
+
                         resetPasswordLink = f"{os.getenv('APP_URL')}/ForgotPassword?/#reset&token={encoded}"
 
                         email_response = self.Verification_ForgotPassword(
@@ -780,8 +834,10 @@ class Authentication(SendiblueEmail):
                 else:
                     return {"isEmailExist": True, "result": "Email is already exists"}
             else:
-                raise DefaultError(f"Forgot password with method: {type} is not support!")
-                
+                raise DefaultError(
+                    f"Forgot password with method: {type} is not support!"
+                )
+
         except NotInTypeError as e:
             BadRequestMessage(e.message)
         except PyMongoError as e:
@@ -793,7 +849,9 @@ class Authentication(SendiblueEmail):
 
     def logout(self):
         try:
-            user_token = request.headers["Authorization"].replace("Bearer ", "")
+            user_token = request.headers["Authorization"].replace(
+                "Bearer ", ""
+            ) or request.cookies.get("user_token")
 
             jwtUser = jwt.decode(
                 user_token,
@@ -806,14 +864,21 @@ class Authentication(SendiblueEmail):
                 option={"exp": configs.JWT_EXP_OFFSET},
             )
 
-            return {"isLogout": True, "result": "Log out successfully"}
+            response = make_response(
+                {"isLogout": True, "result": "Log out successfully"}
+            )
 
-        except jwt.ExpiredSignatureError as e:
+            response.delete_cookie("user_token")
+
+            return response
+
+        except jwt.exceptions.ExpiredSignatureError as e:
+            response.delete_cookie("user_token")
             InternalServerErrorMessage("Token is expired")
-        except jwt.exceptions.DecodeError as e:
+        except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
+            response.delete_cookie("user_token")
             InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except Exception as e:
             InternalServerErrorMessage(e)
-            

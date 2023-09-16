@@ -112,8 +112,10 @@ class List(Database):
                 }
 
         except jwt.ExpiredSignatureError as e:
+            make_response().delete_cookie("user_token")
             InternalServerErrorMessage("Token is expired")
-        except jwt.exceptions.DecodeError as e:
+        except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
+            make_response().delete_cookie("user_token")
             InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
@@ -202,8 +204,10 @@ class List(Database):
                 }
 
         except jwt.ExpiredSignatureError as e:
+            make_response().delete_cookie("user_token")
             InternalServerErrorMessage("Token is expired")
-        except jwt.exceptions.DecodeError as e:
+        except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
+            make_response().delete_cookie("user_token")
             InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
@@ -234,8 +238,10 @@ class List(Database):
                 return {"success": False, "result": "Failed to get item in list"}
 
         except jwt.ExpiredSignatureError as e:
+            make_response().delete_cookie("user_token")
             InternalServerErrorMessage("Token is expired")
-        except jwt.exceptions.DecodeError as e:
+        except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
+            make_response().delete_cookie("user_token")
             InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
@@ -348,8 +354,10 @@ class List(Database):
                     raise DefaultError("Movie is not exists")
 
         except jwt.ExpiredSignatureError as e:
+            make_response().delete_cookie("user_token")
             InternalServerErrorMessage("Token is expired")
-        except jwt.exceptions.DecodeError as e:
+        except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
+            make_response().delete_cookie("user_token")
             InternalServerErrorMessage("Token is invalid")
         except DefaultError as e:
             BadRequestMessage(e.message)
@@ -389,8 +397,10 @@ class List(Database):
                 raise DefaultError("Delete movie from list failed")
 
         except jwt.ExpiredSignatureError as e:
+            make_response().delete_cookie("user_token")
             InternalServerErrorMessage("Token is expired")
-        except jwt.exceptions.DecodeError as e:
+        except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
+            make_response().delete_cookie("user_token")
             InternalServerErrorMessage("Token is invalid")
         except DefaultError as e:
             BadRequestMessage(e.message)
@@ -422,8 +432,10 @@ class List(Database):
                 raise DefaultError("Delete all movie from list failed")
 
         except jwt.ExpiredSignatureError as e:
+            make_response().delete_cookie("user_token")
             InternalServerErrorMessage("Token is expired")
-        except jwt.exceptions.DecodeError as e:
+        except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
+            make_response().delete_cookie("user_token")
             InternalServerErrorMessage("Token is invalid")
         except DefaultError as e:
             BadRequestMessage(e.message)

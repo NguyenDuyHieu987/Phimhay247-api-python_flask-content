@@ -138,8 +138,10 @@ class Account(Database, SendiblueEmail):
             # else:
             #     return {"isSended": False, "result": "Send otp email failed"}
         except jwt.ExpiredSignatureError as e:
+            response.delete_cookie("user_token")
             InternalServerErrorMessage("Token is expired")
-        except jwt.exceptions.DecodeError as e:
+        except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
+            response.delete_cookie("user_token")
             InternalServerErrorMessage("Token is invalid")
         except NotInTypeError as e:
             BadRequestMessage(e.message)
@@ -152,18 +154,13 @@ class Account(Database, SendiblueEmail):
         try:
             formUser = request.form
 
-            user_token = request.headers["Authorization"].replace("Bearer ", "")
+            verify_token = request.headers["Authorization"].replace("Bearer ", "")
 
             jwtUser = jwt.decode(
-                user_token,
+                verify_token,
                 str(formUser["otp"]),
                 algorithms=["HS256"],
             )
-
-            isAlive = self.__jwtredis.verify(user_token)
-
-            if isAlive == False:
-                return {"isTokenAlive": False, "result": "Token is no longer active"}
 
             resultUpdate = self.__db["accounts"].update_one(
                 {
@@ -186,7 +183,7 @@ class Account(Database, SendiblueEmail):
 
         except jwt.ExpiredSignatureError as e:
             return {"isOTPExpired": True, "result": "OTP is expired"}
-        except jwt.exceptions.DecodeError as e:
+        except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
             return {"isInvalidOTP": True, "result": "OTP is invalid"}
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
@@ -195,19 +192,15 @@ class Account(Database, SendiblueEmail):
 
     def change_email(self):
         try:
-            user_token = request.headers["Authorization"].replace("Bearer ", "")
+            verify_token = request.headers["Authorization"].replace("Bearer ", "")
+            
             formUser = request.form
 
             jwtUser = jwt.decode(
-                user_token,
+                verify_token,
                 str(formUser["otp"]),
                 algorithms=["HS256"],
             )
-
-            isAlive = self.__jwtredis.verify(user_token)
-
-            if isAlive == False:
-                return {"isTokenAlive": False, "result": "Token is no longer active"}
 
             resultUpdate = self.__db["accounts"].update_one(
                 {
@@ -229,7 +222,7 @@ class Account(Database, SendiblueEmail):
 
         except jwt.ExpiredSignatureError as e:
             return {"isOTPExpired": True, "result": "OTP is expired"}
-        except jwt.exceptions.DecodeError as e:
+        except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
             return {"isInvalidOTP": True, "result": "OTP is invalid"}
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)

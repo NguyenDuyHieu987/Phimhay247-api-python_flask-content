@@ -113,7 +113,7 @@ class History(Database):
 
         except jwt.ExpiredSignatureError as e:
             InternalServerErrorMessage("Token is expired")
-        except jwt.exceptions.DecodeError as e:
+        except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
             InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
@@ -190,7 +190,7 @@ class History(Database):
 
         except jwt.ExpiredSignatureError as e:
             InternalServerErrorMessage("Token is expired")
-        except jwt.exceptions.DecodeError as e:
+        except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
             InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
@@ -222,7 +222,7 @@ class History(Database):
 
         except jwt.ExpiredSignatureError as e:
             InternalServerErrorMessage("Token is expired")
-        except jwt.exceptions.DecodeError as e:
+        except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
             InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
@@ -432,7 +432,7 @@ class History(Database):
 
         except jwt.ExpiredSignatureError as e:
             InternalServerErrorMessage("Token is expired")
-        except jwt.exceptions.DecodeError as e:
+        except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
             InternalServerErrorMessage("Token is invalid")
         except DefaultError as e:
             BadRequestMessage(e.message)
@@ -473,7 +473,7 @@ class History(Database):
 
         except jwt.ExpiredSignatureError as e:
             InternalServerErrorMessage("Token is expired")
-        except jwt.exceptions.DecodeError as e:
+        except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
             InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
@@ -506,7 +506,7 @@ class History(Database):
 
         except jwt.ExpiredSignatureError as e:
             InternalServerErrorMessage("Token is expired")
-        except jwt.exceptions.DecodeError as e:
+        except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
             InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
