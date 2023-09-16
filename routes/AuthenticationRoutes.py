@@ -15,21 +15,21 @@ def authentication_routes(app):
 
     ## Login Facebook
 
-    @app.route("/auth/loginfacebook", methods=["POST"])
+    @app.route("/auth/login-facebook", methods=["POST"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def loginfacebook_route():
         return authentication.loginfacebook()
 
     ## Login Google
 
-    @app.route("/auth/logingoogle", methods=["POST"])
+    @app.route("/auth/login-google", methods=["POST"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def logingoogle_route():
         return authentication.logingoogle()
 
     ## Get user by token
 
-    @app.route("/auth/getusertoken", methods=["GET"])
+    @app.route("/auth/getuser", methods=["GET"])
     @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def getuser_by_token_route():
         return authentication.getuser_by_token()
