@@ -24,7 +24,7 @@ class TV(Database):
                 "videos": [],
                 "credits": [],
                 "seasons": [],
-                "episodes": []
+                "episodes": [],
             }
 
             if append_to_response != "":
@@ -33,20 +33,22 @@ class TV(Database):
                     #     {"movie_id": str(id)})
                     # extraValue["images"] = images["items"]
 
-                    extraValue["images"] = [{
-                        "$lookup": {
-                            "from": 'images',
-                            "localField": 'id',
-                            "foreignField": 'movie_id',
-                            "as": 'images',
+                    extraValue["images"] = [
+                        {
+                            "$lookup": {
+                                "from": "images",
+                                "localField": "id",
+                                "foreignField": "movie_id",
+                                "as": "images",
+                            },
                         },
-                    },
-                        {"$unwind": '$images'},
+                        {"$unwind": "$images"},
                         {
                             "$addFields": {
-                                "images": '$images.items',
+                                "images": "$images.items",
                             },
-                    }]
+                        },
+                    ]
 
                 if "videos" in append_to_response.split(","):
                     # videos = self.__db["videos"].find_one(
@@ -56,16 +58,16 @@ class TV(Database):
                     extraValue["videos"] = [
                         {
                             "$lookup": {
-                                "from": 'videos',
-                                "localField": 'id',
-                                "foreignField": 'movie_id',
-                                "as": 'videos',
+                                "from": "videos",
+                                "localField": "id",
+                                "foreignField": "movie_id",
+                                "as": "videos",
                             },
                         },
-                        {"$unwind": '$videos'},
+                        {"$unwind": "$videos"},
                         {
                             "$addFields": {
-                                "videos": '$videos.items',
+                                "videos": "$videos.items",
                             },
                         },
                     ]
@@ -78,16 +80,16 @@ class TV(Database):
                     extraValue["credits"] = [
                         {
                             "$lookup": {
-                                "from": 'credits',
-                                "localField": 'id',
-                                "foreignField": 'movie_id',
-                                "as": 'credits',
+                                "from": "credits",
+                                "localField": "id",
+                                "foreignField": "movie_id",
+                                "as": "credits",
                             },
                         },
-                        {"$unwind": '$credits'},
+                        {"$unwind": "$credits"},
                         {
                             "$addFields": {
-                                "credits": '$credits.items',
+                                "credits": "$credits.items",
                             },
                         },
                     ]
@@ -102,24 +104,24 @@ class TV(Database):
                     extraValue["seasons"] = [
                         {
                             "$lookup": {
-                                "from": 'seasons',
-                                "localField": 'season_id',
-                                "foreignField": 'id',
-                                "as": 'season',
+                                "from": "seasons",
+                                "localField": "season_id",
+                                "foreignField": "id",
+                                "as": "season",
                             },
                         },
-                        {"$unwind": '$season'},
+                        {"$unwind": "$season"},
                         {
                             "$lookup": {
-                                "from": 'seasons',
-                                "localField": 'series_id',
-                                "foreignField": 'series_id',
-                                "as": 'seasons',
+                                "from": "seasons",
+                                "localField": "series_id",
+                                "foreignField": "series_id",
+                                "as": "seasons",
                             },
                         },
                         {
                             "$addFields": {
-                                "number_of_seasons": {"$size": '$seasons'},
+                                "number_of_seasons": {"$size": "$seasons"},
                             },
                         },
                     ]
@@ -134,18 +136,18 @@ class TV(Database):
                     extraValue["episodes"] = [
                         {
                             "$lookup": {
-                                "from": 'episodes',
-                                "localField": 'id',
-                                "foreignField": 'movie_id',
-                                "as": 'episodes',
+                                "from": "episodes",
+                                "localField": "id",
+                                "foreignField": "movie_id",
+                                "as": "episodes",
                             },
                         },
                         {
                             "$lookup": {
-                                "from": 'episodes',
-                                "localField": 'season_id',
-                                "foreignField": 'season_id',
-                                "as": 'episodes',
+                                "from": "episodes",
+                                "localField": "season_id",
+                                "foreignField": "season_id",
+                                "as": "episodes",
                             },
                         },
                         # {
@@ -188,28 +190,30 @@ class TV(Database):
                 extraValue2["list"] = [
                     {
                         "$lookup": {
-                            "from": 'lists',
-                            "localField": 'id',
-                            "foreignField": 'movie_id',
+                            "from": "lists",
+                            "localField": "id",
+                            "foreignField": "movie_id",
                             "pipeline": [
                                 {
                                     "$match": {
                                         "$and": [
-                                            {"$expr": {
-                                                "$eq": ['$media_type', 'tv']}},
-                                            {"$expr": {
-                                                "$eq": ['$user_id', jwtUser["id"]]}},
+                                            {"$expr": {"$eq": ["$media_type", "tv"]}},
+                                            {
+                                                "$expr": {
+                                                    "$eq": ["$user_id", jwtUser["id"]]
+                                                }
+                                            },
                                         ],
                                     },
                                 },
                             ],
-                            "as": 'in_list',
+                            "as": "in_list",
                         },
                     },
                     {
                         "$addFields": {
                             "in_list": {
-                                "$eq": [{"$size": '$in_list'}, 1],
+                                "$eq": [{"$size": "$in_list"}, 1],
                             },
                         },
                     },
@@ -235,22 +239,24 @@ class TV(Database):
                 extraValue2["history"] = [
                     {
                         "$lookup": {
-                            "from": 'histories',
-                            "localField": 'id',
-                            "foreignField": 'movie_id',
+                            "from": "histories",
+                            "localField": "id",
+                            "foreignField": "movie_id",
                             "pipeline": [
                                 {
                                     "$match": {
                                         "$and": [
-                                            {"$expr": {
-                                                "$eq": ['$media_type', 'tv']}},
-                                            {"$expr": {
-                                                "$eq": ['$user_id', jwtUser["id"]]}},
+                                            {"$expr": {"$eq": ["$media_type", "tv"]}},
+                                            {
+                                                "$expr": {
+                                                    "$eq": ["$user_id", jwtUser["id"]]
+                                                }
+                                            },
                                         ],
                                     },
                                 },
                             ],
-                            "as": 'in_list',
+                            "as": "history_progress",
                         },
                     },
                     {
@@ -258,14 +264,17 @@ class TV(Database):
                             "history_progress": {
                                 "$cond": [
                                     {
-                                        "$eq": [{"$size": '$history_progress'}, 1],
+                                        "$eq": [
+                                            {"$size": "$history_progress"},
+                                            1,
+                                        ],
                                     },
                                     {
-                                        "duration": '$history_progress.duration',
-                                        "percent": '$history_progress.percent',
-                                        "seconds": '$history_progress.seconds',
+                                        "duration": "$history_progress.duration",
+                                        "percent": "$history_progress.percent",
+                                        "seconds": "$history_progress.seconds",
                                     },
-                                    '$$REMOVE',
+                                    "$$REMOVE",
                                 ],
                             },
                         },
@@ -288,53 +297,58 @@ class TV(Database):
                 extraValue2["rate"] = [
                     {
                         "$lookup": {
-                            "from": 'rates',
-                            "localField": 'id',
-                            "foreignField": 'movie_id',
+                            "from": "rates",
+                            "localField": "id",
+                            "foreignField": "movie_id",
                             "pipeline": [
                                 {
                                     "$match": {
                                         "$and": [
-                                            {"$expr": {
-                                                "$eq": ['$movie_type', 'tv']}},
-                                            {"$expr": {
-                                                "$eq": ['$user_id', jwtUser["id"]]}},
+                                            {"$expr": {"$eq": ["$movie_type", "tv"]}},
+                                            {
+                                                "$expr": {
+                                                    "$eq": ["$user_id", jwtUser["id"]]
+                                                }
+                                            },
                                         ],
                                     },
                                 },
                             ],
-                            "as": 'in_list',
+                            "as": "rated_value",
                         },
                     },
                     {
                         "$unwind": {
-                            "path": '$rated_value',
+                            "path": "$rated_value",
                             "preserveNullAndEmptyArrays": True,
                         },
                     },
                     {
                         "$addFields": {
-                            "rated_value": '$rated_value.rate_value',
+                            "rated_value": "$rated_value.rate_value",
                         },
                     },
                 ]
 
                 # return cvtJson(tv[0] | extraValue2)
 
-            tv = cvtJson(self.__db["tvs"].aggregate([
-                {
-                    "$match": {"id": id},
-                },
-                *extraValue["images"],
-                *extraValue["videos"],
-                *extraValue["credits"],
-                *extraValue["seasons"],
-                *extraValue["episodes"],
-                *extraValue2["list"],
-                *extraValue2["history"],
-                *extraValue2["rate"],
-            ]))
-            
+            tv = cvtJson(
+                self.__db["tvs"].aggregate(
+                    [
+                        {
+                            "$match": {"id": id},
+                        },
+                        *extraValue["images"],
+                        *extraValue["videos"],
+                        *extraValue["credits"],
+                        *extraValue["seasons"],
+                        *extraValue["episodes"],
+                        *extraValue2["list"],
+                        *extraValue2["history"],
+                        *extraValue2["rate"],
+                    ]
+                )
+            )
 
             if len(tv) == 0:
                 return {"not_found": True, "result": "Can not find the tv"}

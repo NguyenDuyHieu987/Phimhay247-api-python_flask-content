@@ -184,7 +184,7 @@ class Movie(Database):
                             },
                             },
                         ],
-                        "as": 'in_list',
+                        "as": 'history_progress',
                         },
                     },
                     {
@@ -236,7 +236,7 @@ class Movie(Database):
                             },
                             },
                         ],
-                        "as": 'in_list',
+                        "as": 'rated_value',
                         },
                     },
                     {
