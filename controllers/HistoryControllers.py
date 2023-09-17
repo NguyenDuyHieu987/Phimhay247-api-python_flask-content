@@ -114,8 +114,14 @@ class History(Database):
                 }
 
         except jwt.ExpiredSignatureError as e:
+            make_response().delete_cookie(
+                "user_token", samesite="lax", secure=True, httponly=False
+            )
             InternalServerErrorMessage("Token is expired")
         except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
+            make_response().delete_cookie(
+                "user_token", samesite="lax", secure=True, httponly=False
+            )
             InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
@@ -193,8 +199,14 @@ class History(Database):
                 }
 
         except jwt.ExpiredSignatureError as e:
+            make_response().delete_cookie(
+                "user_token", samesite="lax", secure=True, httponly=False
+            )
             InternalServerErrorMessage("Token is expired")
         except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
+            make_response().delete_cookie(
+                "user_token", samesite="lax", secure=True, httponly=False
+            )
             InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
@@ -227,8 +239,14 @@ class History(Database):
                 return {"success": False, "result": "Failed to get item in history"}
 
         except jwt.ExpiredSignatureError as e:
+            make_response().delete_cookie(
+                "user_token", samesite="lax", secure=True, httponly=False
+            )
             InternalServerErrorMessage("Token is expired")
         except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
+            make_response().delete_cookie(
+                "user_token", samesite="lax", secure=True, httponly=False
+            )
             InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
@@ -439,8 +457,14 @@ class History(Database):
                     raise DefaultError("Failed to add item to history")
 
         except jwt.ExpiredSignatureError as e:
+            make_response().delete_cookie(
+                "user_token", samesite="lax", secure=True, httponly=False
+            )
             InternalServerErrorMessage("Token is expired")
         except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
+            make_response().delete_cookie(
+                "user_token", samesite="lax", secure=True, httponly=False
+            )
             InternalServerErrorMessage("Token is invalid")
         except DefaultError as e:
             BadRequestMessage(e.message)
@@ -482,8 +506,14 @@ class History(Database):
                 raise DefaultError("Delete movie from history failed")
 
         except jwt.ExpiredSignatureError as e:
+            make_response().delete_cookie(
+                "user_token", samesite="lax", secure=True, httponly=False
+            )
             InternalServerErrorMessage("Token is expired")
         except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
+            make_response().delete_cookie(
+                "user_token", samesite="lax", secure=True, httponly=False
+            )
             InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
@@ -517,8 +547,14 @@ class History(Database):
                 return {"success": True, "results": cvtJson(history)}
 
         except jwt.ExpiredSignatureError as e:
+            make_response().delete_cookie(
+                "user_token", samesite="lax", secure=True, httponly=False
+            )
             InternalServerErrorMessage("Token is expired")
         except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
+            make_response().delete_cookie(
+                "user_token", samesite="lax", secure=True, httponly=False
+            )
             InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)

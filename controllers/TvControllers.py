@@ -163,7 +163,7 @@ class TV(Database):
                 "rate": [],
             }
 
-            if "Authorization" in headers:
+            if "Authorization" in headers or request.cookies.get("user_token") != None:
                 user_token = request.headers["Authorization"].replace(
                     "Bearer ", ""
                 ) or request.cookies.get("user_token")
@@ -334,6 +334,7 @@ class TV(Database):
                 *extraValue2["history"],
                 *extraValue2["rate"],
             ]))
+            
 
             if len(tv) == 0:
                 return {"not_found": True, "result": "Can not find the tv"}
@@ -342,10 +343,14 @@ class TV(Database):
             # | extraValue
 
         except jwt.ExpiredSignatureError as e:
-            make_response().delete_cookie("user_token")
+            make_response().delete_cookie(
+                "user_token", samesite="lax", secure=True, httponly=False
+            )
             InternalServerErrorMessage("Token is expired")
         except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
-            make_response().delete_cookie("user_token")
+            make_response().delete_cookie(
+                "user_token", samesite="lax", secure=True, httponly=False
+            )
             InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)

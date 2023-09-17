@@ -86,6 +86,9 @@ class Authentication(SendiblueEmail):
                         key="user_token",
                         value=encoded,
                         max_age=configs.JWT_EXP_OFFSET,
+                        samesite="lax",
+                        secure=True,
+                        httponly=False,
                     )
 
                     response.headers.set("Authorization", encoded)
@@ -173,6 +176,9 @@ class Authentication(SendiblueEmail):
                     key="user_token",
                     value=encoded,
                     max_age=configs.JWT_EXP_OFFSET,
+                    samesite="lax",
+                    secure=True,
+                    httponly=False,
                 )
 
                 response.headers.set("Authorization", encoded)
@@ -242,6 +248,9 @@ class Authentication(SendiblueEmail):
                     key="user_token",
                     value=encoded,
                     max_age=configs.JWT_EXP_OFFSET,
+                    samesite="lax",
+                    secure=True,
+                    httponly=False,
                 )
 
                 response.headers.set("Authorization", encoded)
@@ -327,6 +336,9 @@ class Authentication(SendiblueEmail):
                     key="user_token",
                     value=encoded,
                     max_age=configs.JWT_EXP_OFFSET,
+                    samesite="lax",
+                    secure=True,
+                    httponly=False,
                 )
 
                 response.headers.set("Authorization", encoded)
@@ -384,6 +396,9 @@ class Authentication(SendiblueEmail):
                     key="user_token",
                     value=encoded,
                     max_age=configs.JWT_EXP_OFFSET,
+                    samesite="lax",
+                    secure=True,
+                    httponly=False,
                 )
 
                 response.headers.set("Authorization", encoded)
@@ -400,6 +415,9 @@ class Authentication(SendiblueEmail):
             user_token = request.headers["Authorization"].replace(
                 "Bearer ", ""
             ) or request.cookies.get("user_token")
+
+            if user_token == None:
+                return
 
             jwtUser = jwt.decode(
                 user_token,
@@ -553,7 +571,9 @@ class Authentication(SendiblueEmail):
                 {"isTokenExpired": True, "result": "Token is expired"}
             )
 
-            response.delete_cookie("user_token")
+            response.delete_cookie(
+                "user_token", samesite="lax", secure=True, httponly=False
+            )
 
             return response
         except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
@@ -561,7 +581,9 @@ class Authentication(SendiblueEmail):
                 {"isInvalidToken": True, "result": "Token is invalid"}
             )
 
-            response.delete_cookie("user_token")
+            response.delete_cookie(
+                "user_token", samesite="lax", secure=True, httponly=False
+            )
 
             return response
         except PyMongoError as e:
@@ -868,15 +890,21 @@ class Authentication(SendiblueEmail):
                 {"isLogout": True, "result": "Log out successfully"}
             )
 
-            response.delete_cookie("user_token")
+            response.delete_cookie(
+                "user_token", samesite="lax", secure=True, httponly=False
+            )
 
             return response
 
         except jwt.exceptions.ExpiredSignatureError as e:
-            response.delete_cookie("user_token")
+            response.delete_cookie(
+                "user_token", samesite="lax", secure=True, httponly=False
+            )
             InternalServerErrorMessage("Token is expired")
         except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
-            response.delete_cookie("user_token")
+            response.delete_cookie(
+                "user_token", samesite="lax", secure=True, httponly=False
+            )
             InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)

@@ -42,10 +42,14 @@ class Rate(Database):
                 return {"success": True, "result": cvtJson(rates)}
 
         except jwt.ExpiredSignatureError as e:
-            make_response().delete_cookie("user_token")
+            make_response().delete_cookie(
+                "user_token", samesite="lax", secure=True, httponly=False
+            )
             InternalServerErrorMessage("Token is expired")
         except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
-            make_response().delete_cookie("user_token")
+            make_response().delete_cookie(
+                "user_token", samesite="lax", secure=True, httponly=False
+            )
             InternalServerErrorMessage("Token is invalid")
         except DefaultError as e:
             BadRequestMessage(e.message)
@@ -162,10 +166,14 @@ class Rate(Database):
                     raise DefaultError("Movie is not exists")
 
         except jwt.ExpiredSignatureError as e:
-            make_response().delete_cookie("user_token")
+            make_response().delete_cookie(
+                "user_token", samesite="lax", secure=True, httponly=False
+            )
             InternalServerErrorMessage("Token is expired")
         except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
-            make_response().delete_cookie("user_token")
+            make_response().delete_cookie(
+                "user_token", samesite="lax", secure=True, httponly=False
+            )
             InternalServerErrorMessage("Token is invalid")
         except DefaultError as e:
             BadRequestMessage(e.message)

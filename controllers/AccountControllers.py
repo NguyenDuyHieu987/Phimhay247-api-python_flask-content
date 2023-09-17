@@ -19,7 +19,7 @@ class Account(Database, SendiblueEmail):
         self.__db = self.ConnectMongoDB()
         self.__jwtredis = JwtRedis("user_logout")
 
-    def account_verify(self, type):
+    def account_confirm(self, type):
         try:
             formUser = request.form
 
@@ -138,10 +138,14 @@ class Account(Database, SendiblueEmail):
             # else:
             #     return {"isSended": False, "result": "Send otp email failed"}
         except jwt.ExpiredSignatureError as e:
-            response.delete_cookie("user_token")
+            response.delete_cookie(
+                "user_token", samesite="lax", secure=True, httponly=False
+            )
             InternalServerErrorMessage("Token is expired")
         except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
-            response.delete_cookie("user_token")
+            response.delete_cookie(
+                "user_token", samesite="lax", secure=True, httponly=False
+            )
             InternalServerErrorMessage("Token is invalid")
         except NotInTypeError as e:
             BadRequestMessage(e.message)

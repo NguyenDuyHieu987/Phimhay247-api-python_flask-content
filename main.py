@@ -16,12 +16,33 @@ sys.path.insert(0, "/Python/The-Movie-Flask-Api")
 sys.path.insert(0, "/mnt/d/Python/The-Movie-Flask-Api")
 
 app = Flask(__name__)
-# CORS(
-#     app,
-#     resources={
-#         r"/*": {"origins": ["http://localhost:3000"], "supports_credentials": True}
-#     },
-# )
+
+CORS(
+    app,
+    # resources={
+    #     r"/*": {
+    #         "origins": [
+    #             "http://localhost:3000",
+    #             "http://localhost:8080",
+    #             "https://phimhay247z.org",
+    #             "https://dash.phimhay247z.org",
+    #             "https://dashboard.phimhay247z.org",
+    #             # www
+    #             "https://www.phimhay247z.org",
+    #         ],
+    #     }
+    # },
+    origins=[
+        "http://localhost:3000",
+        "http://localhost:8080",
+        "https://phimhay247z.org",
+        "https://dash.phimhay247z.org",
+        "https://dashboard.phimhay247z.org",
+        # www
+        "https://www.phimhay247z.org",
+    ],
+    supports_credentials=True,
+)
 
 cache = Cache(
     app,
