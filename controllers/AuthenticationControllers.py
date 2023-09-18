@@ -895,17 +895,28 @@ class Authentication(SendiblueEmail):
             )
 
             return response
-
-        except jwt.exceptions.ExpiredSignatureError as e:
+        
+        
+        except (jwt.exceptions.ExpiredSignatureError, jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
+            response = make_response(
+                {"isLogout": True, "result": "Log out successfully"}
+            )
+            
             response.delete_cookie(
                 "user_token", samesite="lax", secure=True, httponly=False
             )
-            InternalServerErrorMessage("Token is expired")
-        except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
-            response.delete_cookie(
-                "user_token", samesite="lax", secure=True, httponly=False
-            )
-            InternalServerErrorMessage("Token is invalid")
+            
+            return response
+        # except jwt.exceptions.ExpiredSignatureError as e:
+        #     response.delete_cookie(
+        #         "user_token", samesite="lax", secure=True, httponly=False
+        #     )
+        #     InternalServerErrorMessage("Token is expired")
+        # except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
+        #     response.delete_cookie(
+        #         "user_token", samesite="lax", secure=True, httponly=False
+        #     )
+        #     InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except Exception as e:
