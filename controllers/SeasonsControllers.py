@@ -18,7 +18,7 @@ class Season(Database):
             ))
 
             if len(seasons) > 0:
-                return seasons
+                return {"results": seasons}
             else:
                 raise DefaultError("Seasons is not exist")
 
