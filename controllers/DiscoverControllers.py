@@ -16,6 +16,7 @@ class Discover(Database):
     def discover(self, type):
         try:
             page = request.args.get("page", default=1, type=int) - 1
+            limit = request.args.get("limit", default=20, type=int)
 
             sort_by = request.args.get("sort_by", default="", type=str)
 
@@ -110,7 +111,7 @@ class Discover(Database):
                             original_language,
                             page,
                             [("views", pymongo.DESCENDING)],
-                            10,
+                            limit / 2,
                         )
 
                         tv = discover_tv(
@@ -120,7 +121,7 @@ class Discover(Database):
                             original_language,
                             page,
                             [("views", pymongo.DESCENDING)],
-                            20 - len(movie),
+                            limit - len(movie),
                         )
 
                         return {"results": movie + tv}
@@ -133,7 +134,7 @@ class Discover(Database):
                             original_language,
                             page,
                             [("release_date", pymongo.DESCENDING)],
-                            10,
+                            limit / 2,
                         )
 
                         tv = discover_tv(
@@ -143,7 +144,7 @@ class Discover(Database):
                             original_language,
                             page,
                             [("first_air_date", pymongo.DESCENDING)],
-                            20 - len(movie),
+                            limit - len(movie),
                         )
 
                         return {"results": movie + tv}
@@ -156,7 +157,7 @@ class Discover(Database):
                             original_language,
                             page,
                             [("revenue", pymongo.DESCENDING)],
-                            10,
+                            limit / 2,
                         )
 
                         tv = discover_tv(
@@ -166,7 +167,7 @@ class Discover(Database):
                             original_language,
                             page,
                             [("revenue", pymongo.DESCENDING)],
-                            20 - len(movie),
+                            limit - len(movie),
                         )
 
                         return {"results": movie + tv}
@@ -181,7 +182,7 @@ class Discover(Database):
                             [
                                 ("vote_average", pymongo.DESCENDING),
                             ],
-                            10,
+                            limit / 2,
                         )
 
                         tv = discover_tv(
@@ -193,7 +194,7 @@ class Discover(Database):
                             [
                                 ("vote_average", pymongo.DESCENDING),
                             ],
-                            20 - len(movie),
+                            limit - len(movie),
                         )
 
                         return {"results": movie + tv}
@@ -208,7 +209,7 @@ class Discover(Database):
                             [
                                 ("vote_count", pymongo.DESCENDING),
                             ],
-                            10,
+                            limit / 2,
                         )
 
                         tv = discover_tv(
@@ -220,7 +221,7 @@ class Discover(Database):
                             [
                                 ("vote_count", pymongo.DESCENDING),
                             ],
-                            20 - len(movie),
+                            limit - len(movie),
                         )
 
                         return {"results": movie + tv}
@@ -232,7 +233,7 @@ class Discover(Database):
                         original_language,
                         page,
                         None,
-                        10,
+                        limit / 2,
                     )
 
                     tv = discover_tv(
@@ -242,7 +243,7 @@ class Discover(Database):
                         original_language,
                         page,
                         None,
-                        20 - len(movie),
+                        limit - len(movie),
                     )
 
                     return {
@@ -259,7 +260,7 @@ class Discover(Database):
                             original_language,
                             page,
                             [("views", pymongo.DESCENDING)],
-                            20,
+                            limit,
                         )
 
                         return {"results": movie}
@@ -271,7 +272,7 @@ class Discover(Database):
                             original_language,
                             page,
                             [("release_date", pymongo.DESCENDING)],
-                            20,
+                            limit,
                         )
 
                         return {"results": movie}
@@ -283,7 +284,7 @@ class Discover(Database):
                             original_language,
                             page,
                             [("revenue", pymongo.DESCENDING)],
-                            20,
+                            limit,
                         )
 
                         return {"results": movie}
@@ -297,7 +298,7 @@ class Discover(Database):
                             [
                                 ("vote_average", pymongo.DESCENDING),
                             ],
-                            20,
+                            limit,
                         )
 
                         return {"results": movie}
@@ -311,7 +312,7 @@ class Discover(Database):
                             [
                                 ("vote_count", pymongo.DESCENDING),
                             ],
-                            20,
+                            limit,
                         )
                         return {"results": movie}
                 else:
@@ -322,7 +323,7 @@ class Discover(Database):
                         original_language,
                         page,
                         None,
-                        20,
+                        limit,
                     )
 
                     return {
@@ -339,7 +340,7 @@ class Discover(Database):
                             original_language,
                             page,
                             [("views", pymongo.DESCENDING)],
-                            20,
+                            limit,
                         )
 
                         return {"results": tv}
@@ -351,7 +352,7 @@ class Discover(Database):
                             original_language,
                             page,
                             [("release_date", pymongo.DESCENDING)],
-                            20,
+                            limit,
                         )
 
                         return {"results": tv}
@@ -363,7 +364,7 @@ class Discover(Database):
                             original_language,
                             page,
                             [("revenue", pymongo.DESCENDING)],
-                            20,
+                            limit,
                         )
 
                         return {"results": tv}
@@ -377,7 +378,7 @@ class Discover(Database):
                             [
                                 ("vote_average", pymongo.DESCENDING),
                             ],
-                            20,
+                            limit,
                         )
 
                         return {"results": tv}
@@ -391,7 +392,7 @@ class Discover(Database):
                             [
                                 ("vote_count", pymongo.DESCENDING),
                             ],
-                            20,
+                            limit,
                         )
 
                         return {"results": tv}
@@ -403,7 +404,7 @@ class Discover(Database):
                         original_language,
                         page,
                         None,
-                        20,
+                        limit,
                     )
 
                     return {
