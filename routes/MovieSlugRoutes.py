@@ -1,4 +1,5 @@
 from flask import *
+
 # from flask_cors import cross_origin
 import configs
 from controllers.MovieSlugControllers import MovieSlug
@@ -12,3 +13,8 @@ def movie_slug_routes(app, cache):
     @cache.cached(query_string=True)
     def movie_slug_route(slug):
         return movieslug.movie_slug(slug)
+
+    @app.route("/movie/discover/<slug>", methods=["GET"])
+    @cache.cached(query_string=True)
+    def movie_slug_filter_route(slug):
+        return movieslug.filter(slug)

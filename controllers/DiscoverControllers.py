@@ -101,318 +101,503 @@ class Discover(Database):
 
             original_language = convert_original_language(with_original_language)
 
+            result = {
+                "page": page + 1,
+                "results": [],
+                "page_size": limit,
+                "total": 0,
+            }
+
             if type == "all":
                 if sort_by != "":
                     if sort_by == "views_desc":
-                        movie = discover_movie(
-                            self.__db,
-                            release_date,
-                            genres,
-                            original_language,
-                            page,
-                            [("views", pymongo.DESCENDING)],
-                            limit / 2,
+                        movie = cvtJson(
+                            self.__db["movies"]
+                            .find(
+                                {
+                                    "$and": [
+                                        release_date,
+                                        genres,
+                                        original_language,
+                                    ]
+                                }
+                            )
+                            .skip(page * (limit / 2))
+                            .limit((limit / 2))
+                            .sort([("views", pymongo.DESCENDING)])
                         )
 
-                        tv = discover_tv(
-                            self.__db,
-                            first_air_date,
-                            genres,
-                            original_language,
-                            page,
-                            [("views", pymongo.DESCENDING)],
-                            limit - len(movie),
+                        tv = cvtJson(
+                            self.__db["tvs"]
+                            .find(
+                                {
+                                    "$and": [
+                                        first_air_date,
+                                        genres,
+                                        original_language,
+                                    ]
+                                }
+                            )
+                            .skip(page * (limit / 2))
+                            .limit((limit / 2))
+                            .sort([("views", pymongo.DESCENDING)])
                         )
 
-                        return {"results": movie + tv}
+                        result["results"] = movie + tv
 
                     elif sort_by == "release_date_desc":
-                        movie = discover_movie(
-                            self.__db,
-                            release_date,
-                            genres,
-                            original_language,
-                            page,
-                            [("release_date", pymongo.DESCENDING)],
-                            limit / 2,
+                        movie = cvtJson(
+                            self.__db["movies"]
+                            .find(
+                                {
+                                    "$and": [
+                                        release_date,
+                                        genres,
+                                        original_language,
+                                    ]
+                                }
+                            )
+                            .skip(page * (limit / 2))
+                            .limit((limit / 2))
+                            .sort([("release_date", pymongo.DESCENDING)])
                         )
 
-                        tv = discover_tv(
-                            self.__db,
-                            first_air_date,
-                            genres,
-                            original_language,
-                            page,
-                            [("first_air_date", pymongo.DESCENDING)],
-                            limit - len(movie),
+                        tv = cvtJson(
+                            self.__db["tvs"]
+                            .find(
+                                {
+                                    "$and": [
+                                        first_air_date,
+                                        genres,
+                                        original_language,
+                                    ]
+                                }
+                            )
+                            .skip(page * (limit / 2))
+                            .limit((limit / 2))
+                            .sort([("first_air_date", pymongo.DESCENDING)])
                         )
 
-                        return {"results": movie + tv}
+                        result["results"] = movie + tv
 
                     elif sort_by == "revenue_desc":
-                        movie = discover_movie(
-                            self.__db,
-                            release_date,
-                            genres,
-                            original_language,
-                            page,
-                            [("revenue", pymongo.DESCENDING)],
-                            limit / 2,
+                        movie = cvtJson(
+                            self.__db["movies"]
+                            .find(
+                                {
+                                    "$and": [
+                                        release_date,
+                                        genres,
+                                        original_language,
+                                    ]
+                                }
+                            )
+                            .skip(page * (limit / 2))
+                            .limit((limit / 2))
+                            .sort([("revenue", pymongo.DESCENDING)])
                         )
 
-                        tv = discover_tv(
-                            self.__db,
-                            first_air_date,
-                            genres,
-                            original_language,
-                            page,
-                            [("revenue", pymongo.DESCENDING)],
-                            limit - len(movie),
+                        tv = cvtJson(
+                            self.__db["tvs"]
+                            .find(
+                                {
+                                    "$and": [
+                                        first_air_date,
+                                        genres,
+                                        original_language,
+                                    ]
+                                }
+                            )
+                            .skip(page * (limit / 2))
+                            .limit((limit / 2))
+                            .sort([("revenue", pymongo.DESCENDING)])
                         )
 
-                        return {"results": movie + tv}
+                        result["results"] = movie + tv
 
                     elif sort_by == "vote_average_desc":
-                        movie = discover_movie(
-                            self.__db,
-                            release_date,
-                            genres,
-                            original_language,
-                            page,
-                            [
-                                ("vote_average", pymongo.DESCENDING),
-                            ],
-                            limit / 2,
+                        movie = cvtJson(
+                            self.__db["movies"]
+                            .find(
+                                {
+                                    "$and": [
+                                        release_date,
+                                        genres,
+                                        original_language,
+                                    ]
+                                }
+                            )
+                            .skip(page * (limit / 2))
+                            .limit((limit / 2))
+                            .sort([("vote_average", pymongo.DESCENDING)])
                         )
 
-                        tv = discover_tv(
-                            self.__db,
-                            first_air_date,
-                            genres,
-                            original_language,
-                            page,
-                            [
-                                ("vote_average", pymongo.DESCENDING),
-                            ],
-                            limit - len(movie),
+                        tv = cvtJson(
+                            self.__db["tvs"]
+                            .find(
+                                {
+                                    "$and": [
+                                        first_air_date,
+                                        genres,
+                                        original_language,
+                                    ]
+                                }
+                            )
+                            .skip(page * (limit / 2))
+                            .limit((limit / 2))
+                            .sort([("vote_average", pymongo.DESCENDING)])
                         )
 
-                        return {"results": movie + tv}
+                        result["results"] = movie + tv
 
                     elif sort_by == "vote_count_desc":
-                        movie = discover_movie(
-                            self.__db,
+                        movie = cvtJson(
+                            self.__db["movies"]
+                            .find(
+                                {
+                                    "$and": [
+                                        release_date,
+                                        genres,
+                                        original_language,
+                                    ]
+                                }
+                            )
+                            .skip(page * (limit / 2))
+                            .limit((limit / 2))
+                            .sort([("vote_count", pymongo.DESCENDING)])
+                        )
+
+                        tv = cvtJson(
+                            self.__db["tvs"]
+                            .find(
+                                {
+                                    "$and": [
+                                        first_air_date,
+                                        genres,
+                                        original_language,
+                                    ]
+                                }
+                            )
+                            .skip(page * (limit / 2))
+                            .limit((limit / 2))
+                            .sort([("vote_count", pymongo.DESCENDING)])
+                        )
+
+                        result["results"] = movie + tv
+
+                else:
+                    movie = cvtJson(
+                        self.__db["movies"]
+                        .find(
+                            {
+                                "$and": [
+                                    release_date,
+                                    genres,
+                                    original_language,
+                                ]
+                            }
+                        )
+                        .skip(page * (limit / 2))
+                        .limit((limit / 2))
+                    )
+
+                    tv = cvtJson(
+                        self.__db["tvs"]
+                        .find(
+                            {
+                                "$and": [
+                                    first_air_date,
+                                    genres,
+                                    original_language,
+                                ]
+                            }
+                        )
+                        .skip(page * (limit / 2))
+                        .limit((limit / 2))
+                    )
+
+                    result["results"] = movie + tv
+
+                result["total"] = self.__db["movies"].count_documents(
+                    {
+                        "$and": [
                             release_date,
                             genres,
                             original_language,
-                            page,
-                            [
-                                ("vote_count", pymongo.DESCENDING),
-                            ],
-                            limit / 2,
-                        )
-
-                        tv = discover_tv(
-                            self.__db,
+                        ]
+                    }
+                ) + self.__db["tvs"].count_documents(
+                    {
+                        "$and": [
                             first_air_date,
                             genres,
                             original_language,
-                            page,
-                            [
-                                ("vote_count", pymongo.DESCENDING),
-                            ],
-                            limit - len(movie),
-                        )
-
-                        return {"results": movie + tv}
-                else:
-                    movie = discover_movie(
-                        self.__db,
-                        release_date,
-                        genres,
-                        original_language,
-                        page,
-                        None,
-                        limit / 2,
-                    )
-
-                    tv = discover_tv(
-                        self.__db,
-                        first_air_date,
-                        genres,
-                        original_language,
-                        page,
-                        None,
-                        limit - len(movie),
-                    )
-
-                    return {
-                        "results": movie + tv,
+                        ]
                     }
-
+                )
             elif type == "movie":
                 if sort_by != "":
                     if sort_by == "views_desc":
-                        movie = discover_movie(
-                            self.__db,
-                            release_date,
-                            genres,
-                            original_language,
-                            page,
-                            [("views", pymongo.DESCENDING)],
-                            limit,
+                        movie = cvtJson(
+                            self.__db["movies"]
+                            .find(
+                                {
+                                    "$and": [
+                                        release_date,
+                                        genres,
+                                        original_language,
+                                    ]
+                                }
+                            )
+                            .skip(page * limit)
+                            .limit(limit)
+                            .sort(
+                                [("views", pymongo.DESCENDING)],
+                            )
                         )
 
-                        return {"results": movie}
+                        result["results"] = movie
+
                     elif sort_by == "release_date_desc":
-                        movie = discover_movie(
-                            self.__db,
-                            release_date,
-                            genres,
-                            original_language,
-                            page,
-                            [("release_date", pymongo.DESCENDING)],
-                            limit,
+                        movie = cvtJson(
+                            self.__db["movies"]
+                            .find(
+                                {
+                                    "$and": [
+                                        release_date,
+                                        genres,
+                                        original_language,
+                                    ]
+                                }
+                            )
+                            .skip(page * limit)
+                            .limit(limit)
+                            .sort(
+                                [("release_date", pymongo.DESCENDING)],
+                            )
                         )
 
-                        return {"results": movie}
+                        result["results"] = movie
+
                     elif sort_by == "revenue_desc":
-                        movie = discover_movie(
-                            self.__db,
-                            release_date,
-                            genres,
-                            original_language,
-                            page,
-                            [("revenue", pymongo.DESCENDING)],
-                            limit,
+                        movie = cvtJson(
+                            self.__db["movies"]
+                            .find(
+                                {
+                                    "$and": [
+                                        release_date,
+                                        genres,
+                                        original_language,
+                                    ]
+                                }
+                            )
+                            .skip(page * limit)
+                            .limit(limit)
+                            .sort(
+                                [("revenue", pymongo.DESCENDING)],
+                            )
                         )
 
-                        return {"results": movie}
+                        result["results"] = movie
+
                     elif sort_by == "vote_average_desc":
-                        movie = discover_movie(
-                            self.__db,
-                            release_date,
-                            genres,
-                            original_language,
-                            page,
-                            [
-                                ("vote_average", pymongo.DESCENDING),
-                            ],
-                            limit,
+                        movie = cvtJson(
+                            self.__db["movies"]
+                            .find(
+                                {
+                                    "$and": [
+                                        release_date,
+                                        genres,
+                                        original_language,
+                                    ]
+                                }
+                            )
+                            .skip(page * limit)
+                            .limit(limit)
+                            .sort(
+                                [("vote_average", pymongo.DESCENDING)],
+                            )
                         )
 
-                        return {"results": movie}
+                        result["results"] = movie
+
                     elif sort_by == "vote_count_desc":
-                        movie = discover_movie(
-                            self.__db,
-                            release_date,
-                            genres,
-                            original_language,
-                            page,
-                            [
-                                ("vote_count", pymongo.DESCENDING),
-                            ],
-                            limit,
+                        movie = cvtJson(
+                            self.__db["movies"]
+                            .find(
+                                {
+                                    "$and": [
+                                        release_date,
+                                        genres,
+                                        original_language,
+                                    ]
+                                }
+                            )
+                            .skip(page * limit)
+                            .limit(limit)
+                            .sort(
+                                [("vote_count", pymongo.DESCENDING)],
+                            )
                         )
-                        return {"results": movie}
+
+                        result["results"] = movie
+
                 else:
-                    movie = discover_movie(
-                        self.__db,
-                        release_date,
-                        genres,
-                        original_language,
-                        page,
-                        None,
-                        limit,
+                    movie = cvtJson(
+                        self.__db["movies"]
+                        .find(
+                            {
+                                "$and": [
+                                    release_date,
+                                    genres,
+                                    original_language,
+                                ]
+                            }
+                        )
+                        .skip(page * limit)
+                        .limit(limit)
                     )
 
-                    return {
-                        "results": movie,
-                    }
+                    result["results"] = movie
 
+                result["total"] = self.__db["movies"].count_documents(
+                    {
+                        "$and": [
+                            release_date,
+                            genres,
+                            original_language,
+                        ]
+                    }
+                )
             elif type == "tv":
                 if sort_by != "":
                     if sort_by == "views_desc":
-                        tv = discover_tv(
-                            self.__db,
-                            first_air_date,
-                            genres,
-                            original_language,
-                            page,
-                            [("views", pymongo.DESCENDING)],
-                            limit,
+                        tv = cvtJson(
+                            self.__db["tvs"]
+                            .find(
+                                {
+                                    "$and": [
+                                        first_air_date,
+                                        genres,
+                                        original_language,
+                                    ]
+                                }
+                            )
+                            .skip(page * limit)
+                            .limit(limit)
+                            .sort([("views", pymongo.DESCENDING)])
                         )
 
-                        return {"results": tv}
+                        result["results"] = tv
+
                     elif sort_by == "release_date_desc":
-                        tv = discover_tv(
-                            self.__db,
-                            first_air_date,
-                            genres,
-                            original_language,
-                            page,
-                            [("release_date", pymongo.DESCENDING)],
-                            limit,
+                        tv = cvtJson(
+                            self.__db["tvs"]
+                            .find(
+                                {
+                                    "$and": [
+                                        first_air_date,
+                                        genres,
+                                        original_language,
+                                    ]
+                                }
+                            )
+                            .skip(page * limit)
+                            .limit(limit)
+                            .sort([("first_air_date", pymongo.DESCENDING)])
                         )
 
-                        return {"results": tv}
+                        result["results"] = tv
+
                     elif sort_by == "revenue_desc":
-                        tv = discover_tv(
-                            self.__db,
-                            first_air_date,
-                            genres,
-                            original_language,
-                            page,
-                            [("revenue", pymongo.DESCENDING)],
-                            limit,
+                        tv = cvtJson(
+                            self.__db["tvs"]
+                            .find(
+                                {
+                                    "$and": [
+                                        first_air_date,
+                                        genres,
+                                        original_language,
+                                    ]
+                                }
+                            )
+                            .skip(page * limit)
+                            .limit(limit)
+                            .sort([("revenue", pymongo.DESCENDING)])
                         )
 
-                        return {"results": tv}
+                        result["results"] = tv
+
                     elif sort_by == "vote_average_desc":
-                        tv = discover_tv(
-                            self.__db,
-                            first_air_date,
-                            genres,
-                            original_language,
-                            page,
-                            [
-                                ("vote_average", pymongo.DESCENDING),
-                            ],
-                            limit,
+                        tv = cvtJson(
+                            self.__db["tvs"]
+                            .find(
+                                {
+                                    "$and": [
+                                        first_air_date,
+                                        genres,
+                                        original_language,
+                                    ]
+                                }
+                            )
+                            .skip(page * limit)
+                            .limit(limit)
+                            .sort([("vote_average", pymongo.DESCENDING)])
                         )
 
-                        return {"results": tv}
+                        result["results"] = tv
+
                     elif sort_by == "vote_count_desc":
-                        tv = discover_tv(
-                            self.__db,
-                            first_air_date,
-                            genres,
-                            original_language,
-                            page,
-                            [
-                                ("vote_count", pymongo.DESCENDING),
-                            ],
-                            limit,
+                        tv = cvtJson(
+                            self.__db["tvs"]
+                            .find(
+                                {
+                                    "$and": [
+                                        first_air_date,
+                                        genres,
+                                        original_language,
+                                    ]
+                                }
+                            )
+                            .skip(page * limit)
+                            .limit(limit)
+                            .sort([("vote_count", pymongo.DESCENDING)])
                         )
 
-                        return {"results": tv}
+                        result["results"] = tv
+
                 else:
-                    tv = discover_tv(
-                        self.__db,
-                        first_air_date,
-                        genres,
-                        original_language,
-                        page,
-                        None,
-                        limit,
+                    tv = cvtJson(
+                        self.__db["tvs"]
+                        .find(
+                            {
+                                "$and": [
+                                    first_air_date,
+                                    genres,
+                                    original_language,
+                                ]
+                            }
+                        )
+                        .skip(page * limit)
+                        .limit(limit)
                     )
 
-                    return {
-                        "results": tv,
-                    }
+                    result["results"] = tv
 
+                result["total"] = self.__db["tvs"].count_documents(
+                    {
+                        "$and": [
+                            first_air_date,
+                            genres,
+                            original_language,
+                        ]
+                    }
+                )
             else:
                 raise NotInTypeError("discover", type)
+
+            return result
+
         except NotInTypeError as e:
             BadRequestMessage(e.message)
         except PyMongoError as e:
