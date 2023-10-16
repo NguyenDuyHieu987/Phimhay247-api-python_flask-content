@@ -15,8 +15,8 @@ class Plan(Database):
             plans = cvtJson(
                 self.__db["plans"].find().sort([("order", pymongo.ASCENDING)])
             )
-            return {"results": plans}
 
+            return {"results": plans}
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except Exception as e:
