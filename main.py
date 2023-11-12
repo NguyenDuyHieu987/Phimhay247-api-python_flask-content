@@ -69,7 +69,7 @@ from routes import route
 route(app, cache)
 
 if __name__ == "__main__":
-    # app.run(debug=True, port=5000, use_reloader=True)
+    # app.run(debug=True, port=5001, use_reloader=True)
 
-    http_server = WSGIServer(("", 5000), app)
+    http_server = WSGIServer(("", 5001), app)
     http_server.serve_forever()
