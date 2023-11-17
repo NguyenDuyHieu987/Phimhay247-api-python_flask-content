@@ -13,16 +13,18 @@ class Episode(Database):
 
     def getList(self, movieId, seasonId):
         try:
-            episodes = cvtJson(self.__db["episodes"].find(
-                {
-                    "movie_id": movieId,
-                    "season_id": seasonId,
-                    #  "season_number": seasonNumber,
-                },
-            ))
+            episodes = cvtJson(
+                self.__db["episodes"].find(
+                    {
+                        "movie_id": movieId,
+                        "season_id": seasonId,
+                        #  "season_number": seasonNumber,
+                    },
+                )
+            )
 
             if len(cvtJson(episodes)) > 0:
-                return cvtJson(episodes)
+                return cvtJson({"results": episodes})
             else:
                 raise DefaultError("Episodes is not exist")
 

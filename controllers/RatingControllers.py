@@ -96,29 +96,26 @@ class Rate(Database):
 
                     idRate = str(uuid.uuid4())
 
-                    if new_movie != None:
-                        resultInsert1 = self.__db["rates"].insert_one(
-                            {
-                                "id": idRate,
-                                "rate_value": rateValue,
-                                "user_id": jwtUser["id"],
-                                "movie_id": str(id),
-                                "movie_type": "movie",
-                                "created_at": str(datetime.now()),
-                                "updated_at": str(datetime.now()),
-                            }
-                        )
+                    resultInsert1 = self.__db["rates"].insert_one(
+                        {
+                            "id": idRate,
+                            "rate_value": rateValue,
+                            "user_id": jwtUser["id"],
+                            "movie_id": str(id),
+                            "movie_type": "movie",
+                            "created_at": str(datetime.now()),
+                            "updated_at": str(datetime.now()),
+                        }
+                    )
 
-                        if resultInsert1.acknowledged == False:
-                            raise DefaultError("Rate movie failed")
-                    else:
+                    if resultInsert1.acknowledged == False:
                         raise DefaultError("Rate movie failed")
-
-                    return {
-                        "success": True,
-                        "vote_average": new_movie["vote_average"],
-                        "vote_count": new_movie["vote_count"],
-                    }
+                    else:
+                        return {
+                            "success": True,
+                            "vote_average": new_movie["vote_average"],
+                            "vote_count": new_movie["vote_count"],
+                        }
                 else:
                     raise DefaultError("Movie is not exists")
 
@@ -143,28 +140,26 @@ class Rate(Database):
 
                     idRate = str(uuid.uuid4())
 
-                    if new_tv != None:
-                        resultInsert2 = self.__db["rates"].insert_one(
-                            {
-                                "id": idRate,
-                                "rate_value": rateValue,
-                                "user_id": jwtUser["id"],
-                                "movie_id": str(id),
-                                "movie_type": "tv",
-                                "created_at": str(datetime.now()),
-                                "updated_at": str(datetime.now()),
-                            }
-                        )
-                        if resultInsert2.acknowledged == False:
-                            raise DefaultError("Update rate movie failed")
-                    else:
-                        raise DefaultError("Update rate movie failed")
+                    resultInsert2 = self.__db["rates"].insert_one(
+                        {
+                            "id": idRate,
+                            "rate_value": rateValue,
+                            "user_id": jwtUser["id"],
+                            "movie_id": str(id),
+                            "movie_type": "tv",
+                            "created_at": str(datetime.now()),
+                            "updated_at": str(datetime.now()),
+                        }
+                    )
 
-                    return {
-                        "success": True,
-                        "vote_average": new_tv["vote_average"],
-                        "vote_count": new_tv["vote_count"],
-                    }
+                    if resultInsert2.acknowledged == False:
+                        raise DefaultError("Update rate movie failed")
+                    else:
+                        return {
+                            "success": True,
+                            "vote_average": new_tv["vote_average"],
+                            "vote_count": new_tv["vote_count"],
+                        }
                 else:
                     raise DefaultError("Movie is not exists")
 

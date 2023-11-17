@@ -234,7 +234,14 @@ class History(Database):
             )
 
             if item_history != None:
-                return {"success": True, "result": cvtJson(item_history)}
+                return {
+                    "success": True,
+                    "result": {
+                        "duration": item_history["duration"],
+                        "percent": item_history["percent"],
+                        "seconds": item_history["seconds"],
+                    },
+                }
             else:
                 return {
                     "success": False,

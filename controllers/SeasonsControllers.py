@@ -13,9 +13,11 @@ class Season(Database):
 
     def getList(self, seriesId):
         try:
-            seasons = cvtJson(self.__db["seasons"].find(
-                {"series_id": seriesId},
-            ))
+            seasons = cvtJson(
+                self.__db["seasons"].find(
+                    {"series_id": seriesId},
+                )
+            )
 
             if len(seasons) > 0:
                 return {"results": seasons}
@@ -31,23 +33,40 @@ class Season(Database):
 
     def get(self, movieId, seasonId):
         try:
-            season = cvtJson(self.__db["seasons"].aggregate(
-                [{
-                    "$match": {
-                        "id": seasonId,
-                        "movie_id": movieId,
-                        # "season_number": seasonNumber,
-                    }
-                },
-                    {
-                    "$lookup": {
-                        "from": "episodes",
-                        "localField": "id",
-                        "foreignField": "season_id",
-                        "as": "episodes",
-                    }
-                }]
-            ))
+            season = cvtJson(
+                self.__db["seasons"].aggregate(
+                    [
+                        {
+                            "$match": {
+                                "id": seasonId,
+                                "movie_id": movieId,
+                                # "season_number": seasonNumber,
+                            }
+                        },
+                        {
+                            "$lookup": {
+                                "from": "episodes",
+                                "localField": "id",
+                                "foreignField": "season_id",
+                                "as": "episodes",
+                                "let": {"id": "$id", "movieId": "$movie_id"},
+                                "pipeline": [
+                                    {
+                                        "$match": {
+                                            "$expr": {
+                                                "$and": [
+                                                    {"$eq": ["$season_id", "$$id"]},
+                                                    {"$eq": ["$movie_id", "$$movieId"]},
+                                                ],
+                                            },
+                                        },
+                                    },
+                                ],
+                            }
+                        },
+                    ]
+                )
+            )
 
             if len(season) > 0:
                 return season[0]
