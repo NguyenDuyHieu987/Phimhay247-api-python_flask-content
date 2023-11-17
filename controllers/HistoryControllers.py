@@ -236,7 +236,10 @@ class History(Database):
             if item_history != None:
                 return {"success": True, "result": cvtJson(item_history)}
             else:
-                return {"success": False, "result": "Failed to get item in history"}
+                return {
+                    "success": False,
+                    "result": "This movie is not found in your history",
+                }
 
         except jwt.ExpiredSignatureError as e:
             make_response().delete_cookie(

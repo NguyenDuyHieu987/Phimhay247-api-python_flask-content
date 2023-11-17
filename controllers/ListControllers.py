@@ -249,7 +249,10 @@ class List(Database):
             if item_list != None:
                 return {"success": True, "result": cvtJson(item_list)}
             else:
-                return {"success": False, "result": "Failed to get item in list"}
+                return {
+                    "success": False,
+                    "result": "This movie is not found in your list",
+                }
 
         except jwt.ExpiredSignatureError as e:
             make_response().delete_cookie(

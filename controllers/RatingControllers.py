@@ -28,7 +28,7 @@ class Rate(Database):
                 algorithms=["HS256"],
             )
 
-            rates = self.__db["rates"].find_one(
+            rate = self.__db["rates"].find_one(
                 {
                     "user_id": jwtUser["id"],
                     "movie_id": str(id),
@@ -36,10 +36,13 @@ class Rate(Database):
                 }
             )
 
-            if rates == None:
-                return {"success": False}
+            if rate != None:
+                return {"success": True, "result": cvtJson(rate)}
             else:
-                return {"success": True, "result": cvtJson(rates)}
+                return {
+                    "success": False,
+                    "result": "This movie is not rated",
+                }
 
         except jwt.ExpiredSignatureError as e:
             make_response().delete_cookie(
