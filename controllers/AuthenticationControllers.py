@@ -836,7 +836,7 @@ class Authentication(SendiblueEmail):
                             algorithm="HS256",
                         )
 
-                        resetPasswordLink = f"{os.getenv('APP_URL')}/ForgotPassword?/#reset&token={encoded}"
+                        resetPasswordLink = f"{os.getenv('CLIENT_URL')}/ForgotPassword?/#reset&token={encoded}"
 
                         email_response = self.Verification_ForgotPassword(
                             to=formUser["email"],
@@ -895,17 +895,18 @@ class Authentication(SendiblueEmail):
             )
 
             return response
-        
-        
-        except (jwt.exceptions.ExpiredSignatureError, jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
-            response = make_response(
-                {"isLogout": True, "result": "Log out successfully"}
-            )
-            
+
+        except (
+            jwt.exceptions.ExpiredSignatureError,
+            jwt.exceptions.DecodeError,
+            jwt.exceptions.InvalidSignatureError,
+        ) as e:
+            response = make_response({"isLogout": False, "result": "Log out failed"})
+
             response.delete_cookie(
                 "user_token", samesite="lax", secure=True, httponly=False
             )
-            
+
             return response
         # except jwt.exceptions.ExpiredSignatureError as e:
         #     response.delete_cookie(

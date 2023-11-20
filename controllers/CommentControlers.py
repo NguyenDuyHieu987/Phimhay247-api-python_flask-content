@@ -122,7 +122,6 @@ class Comment(Database):
                             "type": "parent",
                         }
                     },
-                    {"$sort": {"created_at": pymongo.DESCENDING}},
                     {"$skip": skip * limit},
                     {"$limit": limit},
                     {
@@ -169,6 +168,13 @@ class Comment(Database):
                         "$addFields": {
                             "dislike": {"$size": "$dislike"},
                         },
+                    },
+                    {
+                        "$sort": {
+                            "created_at": pymongo.DESCENDING,
+                            # "like": pymongo.DESCENDING,
+                            # "dislike": pymongo.DESCENDING
+                        }
                     },
                     *likeDislike,
                 ]
@@ -367,9 +373,11 @@ class Comment(Database):
 
                 idComment = str(uuid.uuid4())
 
+                result = None
+
                 if "parent_id" in commentForm:
                     if commentForm["parent_id"] != None:
-                        resultInsert1 = self.__db["comments"].insert_one(
+                        result = self.__db["comments"].insert_one(
                             {
                                 "id": idComment,
                                 "content": commentForm["content"],
@@ -379,6 +387,7 @@ class Comment(Database):
                                 "movie_id": str(id),
                                 "movie_type": str(movieType),
                                 "parent_id": commentForm["parent_id"],
+                                "reply_to": commentForm["reply_to"],
                                 "type": "children",
                                 # "childrens": 0,
                                 # "like": 0,
@@ -401,11 +410,11 @@ class Comment(Database):
                         #         },
                         #     )
 
-                        if resultInsert1.inserted_id == None:
+                        if result.inserted_id == None:
                             raise DefaultError("Post comment failed")
 
                 else:
-                    resultInsert2 = self.__db["comments"].insert_one(
+                    result = self.__db["comments"].insert_one(
                         {
                             "id": idComment,
                             "content": commentForm["content"],
@@ -428,32 +437,37 @@ class Comment(Database):
                         }
                     )
 
-                    if resultInsert2.inserted_id == None:
+                    if result.inserted_id == None:
                         raise DefaultError("Post comment failed")
 
-                return {
-                    "success": True,
-                    "result": {
-                        "id": idComment,
-                        "content": commentForm["content"],
-                        "user_id": str(jwtUser["id"]),
-                        "username": jwtUser["username"],
-                        "user_avatar": jwtUser["avatar"],
-                        "movie_id": str(id),
-                        "movie_type": str(movieType),
-                        "parent_id": commentForm["parent_id"]
-                        if "parent_id" in commentForm
-                        else None,
-                        "type": commentForm["type"]
-                        if "type" in commentForm
-                        else "parent",
-                        "childrens": 0,
-                        "like": 0,
-                        "dislike": 0,
-                        "created_at": str(datetime.now()),
-                        "updated_at": str(datetime.now()),
-                    },
-                }
+                if result != None:
+                    return {
+                        "success": True,
+                        "result": {
+                            "id": idComment,
+                            "content": result["content"],
+                            "user_id": str(jwtUser["id"]),
+                            "username": jwtUser["username"],
+                            "user_avatar": jwtUser["avatar"],
+                            "movie_id": str(id),
+                            "movie_type": str(movieType),
+                            "parent_id": result["parent_id"]
+                            if "parent_id" in result
+                            else None,
+                            "reply_to": result["reply_to"]
+                            if "reply_to" in result
+                            else None,
+                            "type": result["type"] if "type" in result else "parent",
+                            "childrens": 0,
+                            "like": 0,
+                            "dislike": 0,
+                            "created_at": str(datetime.now()),
+                            "updated_at": str(datetime.now()),
+                        },
+                    }
+                else:
+                    raise DefaultError("Post comment failed")
+
             else:
                 raise DefaultError("Movie is not exists")
 
