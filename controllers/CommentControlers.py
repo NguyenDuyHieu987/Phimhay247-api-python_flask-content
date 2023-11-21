@@ -423,12 +423,10 @@ class Comment(Database):
                             "user_avatar": jwtUser["avatar"],
                             "movie_id": str(id),
                             "movie_type": str(movieType),
-                            "parent_id": commentForm["parent_id"]
-                            if "parent_id" in commentForm
-                            else None,
                             "type": commentForm["type"]
                             if "type" in commentForm
                             else "parent",
+                            # "parent_id": None,
                             # "childrens": 0,
                             # "like": 0,
                             # "dislike": 0,
