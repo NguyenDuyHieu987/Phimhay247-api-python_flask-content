@@ -301,7 +301,6 @@ class Comment(Database):
                             "type": "children",
                         }
                     },
-                    {"$sort": {"created_at": pymongo.DESCENDING}},
                     {"$skip": skip * limit},
                     {"$limit": limit},
                     {
@@ -335,6 +334,13 @@ class Comment(Database):
                         "$addFields": {
                             "dislike": {"$size": "$dislike"},
                         },
+                    },
+                    {
+                        "$sort": {
+                            "created_at": pymongo.ASCENDING,
+                            # "like": pymongo.DESCENDING,
+                            # "dislike": pymongo.DESCENDING
+                        }
                     },
                     *likeDislike,
                 ]
