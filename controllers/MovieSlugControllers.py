@@ -15,58 +15,61 @@ class MovieSlug(Database):
         try:
             if slug == "all":
                 page = request.args.get("page", default=1, type=int) - 1
+                limit = request.args.get("limit", default=20, type=int)
 
-                phimle = cvtJson(self.__db["movies"].find({}).skip(page * 20).limit(20))
+                phimle = cvtJson(
+                    self.__db["movies"].find({}).skip(page * limit).limit(limit)
+                )
 
                 return {
                     "page": page + 1,
                     "results": phimle,
                     "total": self.__db["movies"].count_documents({}),
-                    "page_size": 20,
+                    "page_size": limit,
                 }
             elif slug == "nowplaying":
                 page = request.args.get("page", default=1, type=int) - 1
                 nowplaying = cvtJson(
-                    self.__db["nowplayings"].find({}).skip(page * 20).limit(20)
+                    self.__db["nowplayings"].find({}).skip(page * limit).limit(limit)
                 )
                 return {
                     "page": page + 1,
                     "results": nowplaying,
                     "total": self.__db["nowplayings"].count_documents({}),
-                    "page_size": 20,
+                    "page_size": limit,
                 }
             elif slug == "upcoming":
                 page = request.args.get("page", default=1, type=int) - 1
                 upcoming = cvtJson(
-                    self.__db["upcomings"].find({}).skip(page * 20).limit(20)
+                    self.__db["upcomings"].find({}).skip(page * limit).limit(limit)
                 )
                 return {
                     "page": page + 1,
                     "results": upcoming,
                     "total": self.__db["upcomings"].count_documents({}),
-                    "page_size": 20,
+                    "page_size": limit,
                 }
             elif slug == "popular":
                 page = request.args.get("page", default=1, type=int) - 1
                 popular = cvtJson(
-                    self.__db["populars"].find({}).skip(page * 20).limit(20)
+                    self.__db["populars"].find({}).skip(page * limit).limit(limit)
                 )
                 return {
                     "page": page + 1,
                     "results": popular,
                     "total": self.__db["populars"].count_documents({}),
-                    "page_size": 20,
+                    "page_size": limit,
                 }
             elif slug == "toprated":
                 page = request.args.get("page", default=1, type=int) - 1
                 toprated = cvtJson(
-                    self.__db["toprateds"].find({}).skip(page * 20).limit(20)
+                    self.__db["toprateds"].find({}).skip(page * limit).limit(limit)
                 )
                 return {
                     "page": page + 1,
                     "results": toprated,
                     "total": self.__db["toprateds"].count_documents({}),
-                    "page_size": 20,
+                    "page_size": limit,
                 }
             else:
                 raise NotInTypeError("movie slug", slug)

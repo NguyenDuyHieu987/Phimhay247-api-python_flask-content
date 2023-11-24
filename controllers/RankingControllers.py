@@ -13,7 +13,7 @@ class Rank(Database):
 
     def ranking(self, slug):
         try:
-            page = (request.args.get("page", default=1, type=int)) - 1
+            page = request.args.get("page", default=1, type=int) - 1
             limit = request.args.get("limit", default=20, type=int)
 
             if slug == "day":

@@ -16,8 +16,9 @@ class Trending(Database):
                 page = request.args.get("page", default=1, type=int) - 1
                 limit = request.args.get("limit", default=20, type=int)
 
-                trendings = (self.__db["trendings"].find(
-                    {}).skip(page * limit).limit(limit))
+                trendings = (
+                    self.__db["trendings"].find({}).skip(page * limit).limit(limit)
+                )
 
                 # trendings = self.__db["trendings"].aggregate([
                 #     {
@@ -52,7 +53,7 @@ class Trending(Database):
                         "page": page + 1,
                         "results": trendings,
                         "total": self.__db["trendings"].count_documents({}),
-                        "page_size": 20,
+                        "page_size": limit,
                     }
                 )
             else:
