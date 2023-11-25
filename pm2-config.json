@@ -1,0 +1,22 @@
+{
+  "apps": [
+    {
+      "name": "phimhay247-flask-api",
+      "port": "5001",
+      "exec_mode": "fork",
+      "instances": "max",
+      "script": "./main.py",
+      "interpreter": "python3",
+      "watch": ["./"],
+      "watch_delay": 1000,
+      "ignore_watch": ["__pycache__"],
+      "env": {
+        "NODE_ENV": "production"
+      },
+      "env_production": {
+        "NODE_ENV": "production"
+      },
+      "update_env": true
+    }
+  ]
+}
