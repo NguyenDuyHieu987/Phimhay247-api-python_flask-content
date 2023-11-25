@@ -28,9 +28,7 @@ jobs:
 
       - name: Deploy to Server
         run: |
-          rsync -ru --ignore-existing $GITHUB_WORKSPACE/ ${{ secrets.PHIMHAY247_USERNAME }}@${{ secrets.PHIMHAY247_IP }}:/home/phimhay247z-apiv1/htdocs/apiv1.phimhay247z.org
-
-          rsync -ru --ignore-existing ./pm2-config.json ${{ secrets.PHIMHAY247_USERNAME }}@${{ secrets.PHIMHAY247_IP }}:/home/phimhay247z-apiv1/htdocs/apiv1.phimhay247z.org
+          rsync -ru --ignore-existing --exclude-from=$GITHUB_WORKSPACE/.rsyncignore $GITHUB_WORKSPACE/ ${{ secrets.PHIMHAY247_USERNAME }}@${{ secrets.PHIMHAY247_IP }}:/home/phimhay247z-apiv1/htdocs/apiv1.phimhay247z.org
 
       - name: Start app on Server
         uses: appleboy/ssh-action@master
