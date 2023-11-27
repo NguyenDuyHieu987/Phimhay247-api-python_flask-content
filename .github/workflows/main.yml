@@ -38,4 +38,4 @@ jobs:
           key: ${{ secrets.PHIMHAY247_PK }}
           script: |
             cd /home/phimhay247z-apiv1/htdocs/apiv1.phimhay247z.org
-            /home/azure/.nvm/versions/node/v19.9.0/bin/pm2 restart pm2-config.json
+            /home/azure/.nvm/versions/node/v19.9.0/bin/pm2 reload pm2-config.json
