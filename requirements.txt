@@ -11,3 +11,4 @@ sib_api_v3_sdk
 flask_caching
 redis
 stripe
+argon2-cffi

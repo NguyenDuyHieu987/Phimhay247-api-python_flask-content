@@ -3,21 +3,24 @@ from pymongo.errors import PyMongoError
 from utils.JsonResponse import ConvertJsonResponse as cvtJson
 from utils.ErrorMessage import BadRequestMessage, InternalServerErrorMessage
 from flask import *
-from configs.database import Database
-from utils.exceptions import NotInTypeError
 import jwt
 import os
-from utils.OTPGeneration import generateOTP
+from argon2 import verify_password, PasswordHasher, Type
 from datetime import datetime, timezone, timedelta
 import configs
 from utils.SendinblueEmail import SendiblueEmail
 from utils.JwtRedis import JwtRedis
+from utils.OTPGeneration import generateOTP
+from configs.database import Database
+from utils.exceptions import NotInTypeError
+from utils.exceptions import DefaultError
+from utils.encryptPassword import encryptPassword
 
 
 class Account(Database, SendiblueEmail):
     def __init__(self):
         self.__db = self.ConnectMongoDB()
-        self.__jwtredis = JwtRedis("user_logout")
+        self.__jwtredis = JwtRedis()
 
     def account_confirm(self, type):
         try:
@@ -31,9 +34,9 @@ class Account(Database, SendiblueEmail):
                 algorithms=["HS256"],
             )
 
-            isAlive = self.__jwtredis.verify(user_token)
+            is_alive = self.__jwtredis.set_prefix("user_logout").verify(user_token)
 
-            if isAlive == False:
+            if is_alive == False:
                 return {"isTokenAlive": False, "result": "Token is no longer active"}
 
             OTP = generateOTP(length=6)
@@ -46,7 +49,7 @@ class Account(Database, SendiblueEmail):
                         "auth_type": "email",
                         "description": "Verify your Email",
                         "exp": datetime.now(tz=timezone.utc)
-                        + timedelta(seconds=configs.OTP_EXP_OFFSET),
+                        + timedelta(seconds=configs.OTP_EXP_OFFSET * 60),
                     },
                     str(OTP),
                     algorithm="HS256",
@@ -55,7 +58,25 @@ class Account(Database, SendiblueEmail):
                 email_response = self.Verification_OTP(
                     to=jwtUser["email"],
                     otp=OTP,
+                    title="Xác nhận Email của bạn",
                     noteExp=os.getenv("OTP_EXP_OFFSET"),
+                )
+
+                response = make_response(
+                    {
+                        "isSended": True,
+                        "exp_offset": configs.OTP_EXP_OFFSET * 60,
+                        "result": "Send otp email successfully",
+                    }
+                )
+
+                response.set_cookie(
+                    key="verify_your_email",
+                    value=encoded,
+                    max_age=configs.OTP_EXP_OFFSET * 60,
+                    samesite="lax",
+                    secure=True,
+                    httponly=False,
                 )
 
             elif type == "change-password":
@@ -63,38 +84,65 @@ class Account(Database, SendiblueEmail):
                     {
                         "email": jwtUser["email"],
                         "auth_type": "email",
-                        "password": formUser["old_password"],
                     }
                 )
 
                 if account != None:
-                    encoded = jwt.encode(
-                        {
-                            "id": jwtUser["id"],
-                            "email": jwtUser["email"],
-                            "auth_type": "email",
-                            "old_password": formUser["old_password"],
-                            "new_password": formUser["new_password"],
-                            "description": "Change your password",
-                            "exp": datetime.now(tz=timezone.utc)
-                            + timedelta(seconds=configs.OTP_EXP_OFFSET),
-                        },
-                        str(OTP),
-                        algorithm="HS256",
+                    is_correct_password = verify_password(
+                        account["password"], formUser["old_password"], type=Type.ID
                     )
 
-                    email_response = self.Verification_OTP(
-                        to=jwtUser["email"],
-                        otp=OTP,
-                        title="Xác nhận thay đổi mật khẩu của bạn",
-                        noteExp=os.getenv("OTP_EXP_OFFSET"),
-                    )
+                    if is_correct_password == True:
+                        new_password_encrypted = encryptPassword(
+                            formUser["new_password"]
+                        )
 
+                        encoded = jwt.encode(
+                            {
+                                "id": jwtUser["id"],
+                                "email": jwtUser["email"],
+                                "auth_type": "email",
+                                "new_password": new_password_encrypted,
+                                "logout_all_device": formUser["logout_all_device"],
+                                "description": "Change your password",
+                                "exp": datetime.now(tz=timezone.utc)
+                                + timedelta(seconds=configs.OTP_EXP_OFFSET * 60),
+                            },
+                            str(OTP),
+                            algorithm="HS256",
+                        )
+
+                        email_response = self.Verification_OTP(
+                            to=jwtUser["email"],
+                            otp=OTP,
+                            title="Xác nhận thay đổi mật khẩu của bạn",
+                            noteExp=os.getenv("OTP_EXP_OFFSET"),
+                        )
+
+                        response = make_response(
+                            {
+                                "isSended": True,
+                                "exp_offset": configs.OTP_EXP_OFFSET * 60,
+                                "result": "Send otp email successfully",
+                            }
+                        )
+
+                        response.set_cookie(
+                            key="verify_change_password_token",
+                            value=encoded,
+                            max_age=configs.OTP_EXP_OFFSET * 60,
+                            samesite="lax",
+                            secure=True,
+                            httponly=False,
+                        )
+
+                    else:
+                        return {
+                            "isWrongPassword": True,
+                            "result": "Wrong password",
+                        }
                 else:
-                    return {
-                        "isWrongPassword": True,
-                        "result": "Wrong password",
-                    }
+                    raise DefaultError("Account is not found")
 
             elif type == "change-email":
                 encoded = jwt.encode(
@@ -104,7 +152,7 @@ class Account(Database, SendiblueEmail):
                         "auth_type": "email",
                         "description": "Change your Email",
                         "exp": datetime.now(tz=timezone.utc)
-                        + timedelta(seconds=configs.OTP_EXP_OFFSET),
+                        + timedelta(seconds=configs.OTP_EXP_OFFSET * 60),
                     },
                     str(OTP),
                     algorithm="HS256",
@@ -120,23 +168,15 @@ class Account(Database, SendiblueEmail):
             else:
                 raise NotInTypeError("account service", type)
 
-            response = make_response(
-                {
-                    "isSended": True,
-                    "exp_offset": configs.OTP_EXP_OFFSET,
-                    "result": "Send otp email successfully",
-                }
-            )
-
             response.headers.set("Access-Control-Expose-Headers", "Authorization")
 
             response.headers.set("Authorization", encoded)
 
-            # print(email_response)
-            # if "message_id" in dict(email_response):
-            return response
-            # else:
-            #     return {"isSended": False, "result": "Send otp email failed"}
+            if len(encoded) == 0:
+                return {"isSended": False, "result": "Send otp email failed"}
+            else:
+                return response
+
         except jwt.ExpiredSignatureError as e:
             response.delete_cookie(
                 "user_token", samesite="lax", secure=True, httponly=False
@@ -151,6 +191,8 @@ class Account(Database, SendiblueEmail):
             BadRequestMessage(e.message)
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
+        except DefaultError as e:
+            BadRequestMessage(e.message)
         except Exception as e:
             InternalServerErrorMessage(e)
 
@@ -158,37 +200,134 @@ class Account(Database, SendiblueEmail):
         try:
             formUser = request.form
 
-            verify_token = request.headers["Authorization"].replace("Bearer ", "")
+            user_token = request.headers["Authorization"].replace(
+                "Bearer ", ""
+            ) or request.cookies.get("user_token")
 
             jwtUser = jwt.decode(
-                verify_token,
-                str(formUser["otp"]),
+                user_token,
+                str(os.getenv("JWT_SIGNATURE_SECRET")),
                 algorithms=["HS256"],
             )
+
+            # verify_token = request.headers["Authorization"].replace("Bearer ", "")
+            verify_token = request.cookies.get("verify_change_password_token")
+
+            try:
+                decodeChangePassword = jwt.decode(
+                    verify_token,
+                    str(formUser["otp"]),
+                    algorithms=["HS256"],
+                )
+            except jwt.ExpiredSignatureError as e:
+                return {"isOTPExpired": True, "result": "OTP is expired"}
+            except (
+                jwt.exceptions.DecodeError,
+                jwt.exceptions.InvalidSignatureError,
+            ) as e:
+                return {"isInvalidOTP": True, "result": "OTP is invalid"}
+
+            is_alive = self.__jwtredis.set_prefix(
+                "verify_change_password_token"
+            ).verify(verify_token)
+
+            if is_alive == False:
+                return {"success": False, "result": "Token is no longer active"}
 
             resultUpdate = self.__db["accounts"].update_one(
                 {
                     "id": jwtUser["id"],
                     "email": jwtUser["email"],
                     "auth_type": "email",
-                    "password": jwtUser["old_password"],
+                    "password": decodeChangePassword["old_password"],
                 },
                 {
                     "$set": {
-                        "password": jwtUser["new_password"],
+                        "password": decodeChangePassword["new_password"],
                     }
                 },
             )
 
             if resultUpdate.modified_count == 1:
-                return {"success": True, "result": "Change password successfully"}
+                response = make_response(
+                    {
+                        "success": True,
+                        "logout_all_device": log_out_all_device,
+                        "result": "Change password successfully",
+                    }
+                )
+
+                response.delete_cookie(
+                    "verify_change_password_token",
+                    samesite="lax",
+                    secure=True,
+                    httponly=False,
+                )
+
+                log_out_all_device = decodeChangePassword["logout_all_device"] == "true"
+
+                if log_out_all_device == True:
+                    self.__jwtredis.set_prefix("user_logout")
+
+                    self.__jwtredis.sign(
+                        user_token,
+                        option={"exp": configs.JWT_EXP_OFFSET * 60 * 60},
+                    )
+
+                    self.__jwtredis.set_prefix("verify_change_password_token")
+
+                    self.__jwtredis.sign(
+                        verify_token,
+                        exp=configs.OTP_EXP_OFFSET * 60,
+                    )
+
+                    encoded = jwt.encode(
+                        {
+                            "id": jwtUser["id"],
+                            "username": jwtUser["username"],
+                            "full_name": jwtUser["full_name"],
+                            "avatar": jwtUser["avatar"],
+                            "role": jwtUser["role"],
+                            "email": jwtUser["email"],
+                            "auth_type": jwtUser["auth_type"],
+                            "created_at": jwtUser["created_at"],
+                            "exp": datetime.now(tz=timezone.utc)
+                            + timedelta(seconds=configs.JWT_EXP_OFFSET * 60 * 60),
+                        },
+                        str(os.getenv("JWT_SIGNATURE_SECRET")),
+                        algorithm="HS256",
+                    )
+
+                    response.headers.set(
+                        "Access-Control-Expose-Headers", "Authorization"
+                    )
+
+                    response.set_cookie(
+                        key="user_token",
+                        value=encoded,
+                        max_age=configs.JWT_EXP_OFFSET * 60 * 60,
+                        samesite="lax",
+                        secure=True,
+                        httponly=False,
+                    )
+
+                    response.headers.set("Authorization", encoded)
+
+                return response
+
             else:
                 return {"success": False, "result": "Change password failed"}
 
         except jwt.ExpiredSignatureError as e:
-            return {"isOTPExpired": True, "result": "OTP is expired"}
+            response.delete_cookie(
+                "user_token", samesite="lax", secure=True, httponly=False
+            )
+            InternalServerErrorMessage("Token is expired")
         except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
-            return {"isInvalidOTP": True, "result": "OTP is invalid"}
+            response.delete_cookie(
+                "user_token", samesite="lax", secure=True, httponly=False
+            )
+            InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except Exception as e:

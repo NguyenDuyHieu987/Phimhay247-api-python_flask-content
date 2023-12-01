@@ -1,28 +1,30 @@
 import pymongo
 from pymongo.errors import PyMongoError
-from utils.JsonResponse import ConvertJsonResponse as cvtJson
-from utils.ErrorMessage import BadRequestMessage, InternalServerErrorMessage
-from utils.exceptions import NotInTypeError
-from utils.exceptions import DefaultError
 from flask import *
 from pymongo import ReturnDocument
 import jwt
 import os
 from datetime import datetime, timezone, timedelta
 import requests
+from argon2 import verify_password, PasswordHasher, Type
 import configs
+from configs.database import Database
 from utils.SendinblueEmail import SendiblueEmail
 from utils.OTPGeneration import generateOTP
-from configs.database import Database
 from utils.JwtRedis import JwtRedis
 from utils.EmalValidation import Validate_Email
+from utils.encryptPassword import encryptPassword
+from utils.JsonResponse import ConvertJsonResponse as cvtJson
+from utils.ErrorMessage import BadRequestMessage, InternalServerErrorMessage
+from utils.exceptions import NotInTypeError
+from utils.exceptions import DefaultError
 
 
 class Authentication(SendiblueEmail):
     def __init__(self):
         database = Database()
         self.__db = database.ConnectMongoDB()
-        self.__jwtredis = JwtRedis("user_logout")
+        self.__jwtredis = JwtRedis()
 
     def login(self):
         try:
@@ -31,7 +33,11 @@ class Authentication(SendiblueEmail):
                 {"email": formUser["email"], "auth_type": "email"}
             )
             if account != None:
-                if account["password"] == formUser["password"]:
+                is_correct_password = verify_password(
+                    account["password"], formUser["password"], type=Type.ID
+                )
+
+                if is_correct_password == True:
                     # get_account = db["accounts"].find_one_and_update(
                     get_account = self.__db["accounts"].find_one(
                         {"email": formUser["email"], "password": formUser["password"]},
@@ -47,7 +53,6 @@ class Authentication(SendiblueEmail):
                         {
                             "id": get_account["id"],
                             "username": get_account["username"],
-                            "password": get_account["password"],
                             "full_name": get_account["full_name"],
                             "avatar": get_account["avatar"],
                             "role": get_account["role"],
@@ -55,7 +60,7 @@ class Authentication(SendiblueEmail):
                             "auth_type": get_account["auth_type"],
                             "created_at": get_account["created_at"],
                             "exp": datetime.now(tz=timezone.utc)
-                            + timedelta(seconds=configs.JWT_EXP_OFFSET),
+                            + timedelta(seconds=configs.JWT_EXP_OFFSET * 60 * 60),
                         },
                         str(os.getenv("JWT_SIGNATURE_SECRET")),
                         algorithm="HS256",
@@ -85,7 +90,7 @@ class Authentication(SendiblueEmail):
                     response.set_cookie(
                         key="user_token",
                         value=encoded,
-                        max_age=configs.JWT_EXP_OFFSET,
+                        max_age=configs.JWT_EXP_OFFSET * 60 * 60,
                         samesite="lax",
                         secure=True,
                         httponly=False,
@@ -147,7 +152,7 @@ class Authentication(SendiblueEmail):
                         "role": "normal",
                         "created_at": get_account["created_at"],
                         "exp": datetime.now(tz=timezone.utc)
-                        + timedelta(seconds=configs.JWT_EXP_OFFSET),
+                        + timedelta(seconds=configs.JWT_EXP_OFFSET * 60 * 60),
                     },
                     str(os.getenv("JWT_SIGNATURE_SECRET")),
                     algorithm="HS256",
@@ -175,7 +180,7 @@ class Authentication(SendiblueEmail):
                 response.set_cookie(
                     key="user_token",
                     value=encoded,
-                    max_age=configs.JWT_EXP_OFFSET,
+                    max_age=configs.JWT_EXP_OFFSET * 60 * 60,
                     samesite="lax",
                     secure=True,
                     httponly=False,
@@ -207,7 +212,7 @@ class Authentication(SendiblueEmail):
                         "role": "normal",
                         "created_at": account_modified["created_at"],
                         "exp": datetime.now(tz=timezone.utc)
-                        + timedelta(seconds=configs.JWT_EXP_OFFSET),
+                        + timedelta(seconds=configs.JWT_EXP_OFFSET * 60 * 60),
                     },
                     str(os.getenv("JWT_SIGNATURE_SECRET")),
                     algorithm="HS256",
@@ -247,7 +252,7 @@ class Authentication(SendiblueEmail):
                 response.set_cookie(
                     key="user_token",
                     value=encoded,
-                    max_age=configs.JWT_EXP_OFFSET,
+                    max_age=configs.JWT_EXP_OFFSET * 60 * 60,
                     samesite="lax",
                     secure=True,
                     httponly=False,
@@ -307,7 +312,7 @@ class Authentication(SendiblueEmail):
                         "role": "normal",
                         "created_at": get_account["created_at"],
                         "exp": datetime.now(tz=timezone.utc)
-                        + timedelta(seconds=configs.JWT_EXP_OFFSET),
+                        + timedelta(seconds=configs.JWT_EXP_OFFSET * 60 * 60),
                     },
                     str(os.getenv("JWT_SIGNATURE_SECRET")),
                     algorithm="HS256",
@@ -335,7 +340,7 @@ class Authentication(SendiblueEmail):
                 response.set_cookie(
                     key="user_token",
                     value=encoded,
-                    max_age=configs.JWT_EXP_OFFSET,
+                    max_age=configs.JWT_EXP_OFFSET * 60 * 60,
                     samesite="lax",
                     secure=True,
                     httponly=False,
@@ -357,7 +362,7 @@ class Authentication(SendiblueEmail):
                         "role": "normal",
                         "created_at": account["created_at"],
                         "exp": datetime.now(tz=timezone.utc)
-                        + timedelta(seconds=configs.JWT_EXP_OFFSET),
+                        + timedelta(seconds=configs.JWT_EXP_OFFSET * 60 * 60),
                     },
                     str(os.getenv("JWT_SIGNATURE_SECRET")),
                     algorithm="HS256",
@@ -395,7 +400,7 @@ class Authentication(SendiblueEmail):
                 response.set_cookie(
                     key="user_token",
                     value=encoded,
-                    max_age=configs.JWT_EXP_OFFSET,
+                    max_age=configs.JWT_EXP_OFFSET * 60 * 60,
                     samesite="lax",
                     secure=True,
                     httponly=False,
@@ -425,9 +430,9 @@ class Authentication(SendiblueEmail):
                 algorithms=["HS256"],
             )
 
-            isAlive = self.__jwtredis.verify(jwtUser)
+            is_alive = self.__jwtredis.set_prefix("user_logout").verify(jwtUser)
 
-            if isAlive:
+            if is_alive:
                 # if jwtUser["auth_type"] == "facebook":
                 # facebook_account = self.__db["accounts"].find_one(
                 #     {"id": jwtUser["id"], "auth_type": "facebook"}
@@ -505,10 +510,9 @@ class Authentication(SendiblueEmail):
                 #         # encoded = jwt.encode(
                 #         #     {
                 #         #         "email": jwtUser["email"],
-                #         #         "password": jwtUser["password"],
                 #         #         "exp": datetime.now(tz=timezone.utc)
                 #         #         + timedelta(
-                #         #             seconds=configs.JWT_EXP_OFFSET
+                #         #             seconds=configs.JWT_EXP_OFFSET * 60 * 60
                 #         #         ),
                 #         #     },
                 #         #     str(os.getenv("JWT_SIGNATURE_SECRET")),
@@ -693,6 +697,11 @@ class Authentication(SendiblueEmail):
                 algorithms=["HS256"],
             )
 
+            is_alive = self.__jwtredis.set_prefix("verify_signup").verify(signup_token)
+
+            if is_alive == False:
+                return {"success": False, "result": "Token is no longer active"}
+
             account = self.__db["accounts"].find_one(
                 {"id": jwtUser["id"], "auth_type": "email"}
             )
@@ -720,6 +729,13 @@ class Authentication(SendiblueEmail):
                         "created_at": str(datetime.now()),
                         "updated_at": str(datetime.now()),
                     }
+                )
+
+                self.__jwtredis.set_prefix("verify_signup")
+
+                self.__jwtredis.sign(
+                    signup_token,
+                    option={"exp": configs.OTP_EXP_OFFSET * 60},
                 )
 
                 return {
@@ -751,11 +767,13 @@ class Authentication(SendiblueEmail):
                         # if True:
                         OTP = generateOTP(length=6)
 
+                        password_encrypted = encryptPassword(formUser["password"])
+
                         encoded = jwt.encode(
                             {
                                 "id": formUser["id"],
                                 "username": formUser["username"],
-                                "password": formUser["password"],
+                                "password": password_encrypted,
                                 "full_name": formUser["full_name"],
                                 "avatar": formUser["avatar"],
                                 "role": "normal",
@@ -763,7 +781,7 @@ class Authentication(SendiblueEmail):
                                 "auth_type": "email",
                                 "description": "Register new account",
                                 "exp": datetime.now(tz=timezone.utc)
-                                + timedelta(seconds=configs.OTP_EXP_OFFSET),
+                                + timedelta(seconds=configs.OTP_EXP_OFFSET * 60),
                             },
                             str(OTP),
                             algorithm="HS256",
@@ -772,7 +790,7 @@ class Authentication(SendiblueEmail):
                         response = make_response(
                             {
                                 "isSended": True,
-                                "exp_offset": configs.OTP_EXP_OFFSET,
+                                "exp_offset": configs.OTP_EXP_OFFSET * 60,
                                 "result": "Send otp email successfully",
                             }
                         )
@@ -830,7 +848,9 @@ class Authentication(SendiblueEmail):
                                 "auth_type": "email",
                                 "description": "Forgot your password",
                                 "exp": datetime.now(tz=timezone.utc)
-                                + timedelta(seconds=configs.FORGOT_PASSWORD_EXP_OFFSET),
+                                + timedelta(
+                                    seconds=configs.FORGOT_PASSWORD_EXP_OFFSET * 60
+                                ),
                             },
                             str(os.getenv("JWT_SIGNATURE_SECRET")),
                             algorithm="HS256",
@@ -881,9 +901,11 @@ class Authentication(SendiblueEmail):
                 algorithms=["HS256"],
             )
 
+            self.__jwtredis.set_prefix("user_logout")
+
             self.__jwtredis.sign(
                 user_token,
-                option={"exp": configs.JWT_EXP_OFFSET},
+                option={"exp": configs.JWT_EXP_OFFSET * 60 * 60},
             )
 
             response = make_response(
