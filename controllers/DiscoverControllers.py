@@ -3,7 +3,6 @@ from pymongo.errors import PyMongoError
 from utils.JsonResponse import ConvertJsonResponse as cvtJson
 from utils.ErrorMessage import BadRequestMessage, InternalServerErrorMessage
 from utils.exceptions import NotInTypeError
-from utils.Discover import discover_movie, discover_tv
 from flask import *
 from configs.database import Database
 
