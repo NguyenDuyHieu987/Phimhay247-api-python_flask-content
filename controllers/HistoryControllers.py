@@ -342,7 +342,6 @@ class History(Database):
                                 },
                                 {
                                     "$set": {
-                                        "duration": float(duration),
                                         "percent": float(percent),
                                         "seconds": float(seconds),
                                         "updated_at": str(datetime.now()),
@@ -359,7 +358,6 @@ class History(Database):
                                 },
                                 {
                                     "$set": {
-                                        "duration": float(duration),
                                         "percent": float(percent),
                                         "seconds": float(seconds),
                                         "updated_at": str(datetime.now()),
@@ -434,7 +432,6 @@ class History(Database):
                                 },
                                 {
                                     "$set": {
-                                        "duration": float(duration),
                                         "percent": float(percent),
                                         "seconds": float(seconds),
                                         "updated_at": str(datetime.now()),
@@ -451,7 +448,6 @@ class History(Database):
                                 },
                                 {
                                     "$set": {
-                                        "duration": float(duration),
                                         "percent": float(percent),
                                         "seconds": float(seconds),
                                         "updated_at": str(datetime.now()),
