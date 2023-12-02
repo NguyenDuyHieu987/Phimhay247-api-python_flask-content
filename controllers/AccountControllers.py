@@ -333,6 +333,45 @@ class Account(Database, SendiblueEmail):
         except Exception as e:
             InternalServerErrorMessage(e)
 
+    def verify_email(self):
+        try:
+            verify_token = request.headers["Authorization"].replace("Bearer ", "")
+
+            formUser = request.form
+
+            jwtUser = jwt.decode(
+                verify_token,
+                str(formUser["otp"]),
+                algorithms=["HS256"],
+            )
+
+            resultUpdate = self.__db["accounts"].update_one(
+                {
+                    "id": jwtUser["id"],
+                    "email": jwtUser["email"],
+                    "auth_type": "email",
+                },
+                {
+                    "$set": {
+                        "email": formUser["new_email"],
+                    }
+                },
+            )
+
+            if resultUpdate.modified_count == 1:
+                return {"success": True}
+            else:
+                return {"success": False}
+
+        except jwt.ExpiredSignatureError as e:
+            return {"isOTPExpired": True, "result": "OTP is expired"}
+        except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
+            return {"isInvalidOTP": True, "result": "OTP is invalid"}
+        except PyMongoError as e:
+            InternalServerErrorMessage(e._message)
+        except Exception as e:
+            InternalServerErrorMessage(e)
+
     def change_email(self):
         try:
             verify_token = request.headers["Authorization"].replace("Bearer ", "")
