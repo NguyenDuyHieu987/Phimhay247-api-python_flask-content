@@ -248,7 +248,6 @@ class Account(Database, SendiblueEmail):
                     "id": jwtUser["id"],
                     "email": jwtUser["email"],
                     "auth_type": "email",
-                    "password": decodeChangePassword["old_password"],
                 },
                 {
                     "$set": {
