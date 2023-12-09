@@ -41,7 +41,7 @@ class Comment(Database):
 
             likeDislike = []
 
-            if "Authorization" not in headers:
+            if "Authorization" in headers or request.cookies.get("user_token") != None:
                 user_token = request.headers["Authorization"].replace(
                     "Bearer ", ""
                 ) or request.cookies.get("user_token")

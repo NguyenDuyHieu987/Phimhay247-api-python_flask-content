@@ -5,7 +5,6 @@ from utils.ErrorMessage import BadRequestMessage, InternalServerErrorMessage
 from flask import *
 import jwt
 import os
-from argon2 import verify_password, PasswordHasher, Type
 from datetime import datetime, timezone, timedelta
 import configs
 from utils.SendinblueEmail import SendiblueEmail
@@ -14,7 +13,7 @@ from utils.OTPGeneration import generateOTP
 from configs.database import Database
 from utils.exceptions import NotInTypeError
 from utils.exceptions import DefaultError
-from utils.encryptPassword import encryptPassword
+from utils.encryptPassword import encryptPassword, verifyPassword
 
 
 class Account(Database, SendiblueEmail):
@@ -26,7 +25,9 @@ class Account(Database, SendiblueEmail):
         try:
             formUser = request.form
 
-            user_token = request.headers["Authorization"].replace("Bearer ", "")
+            user_token = request.headers["Authorization"].replace(
+                "Bearer ", ""
+            ) or request.cookies.get("user_token")
 
             jwtUser = jwt.decode(
                 user_token,
@@ -48,8 +49,10 @@ class Account(Database, SendiblueEmail):
                         "email": jwtUser["email"],
                         "auth_type": "email",
                         "description": "Verify your Email",
-                        "exp": datetime.now(tz=timezone.utc)
-                        + timedelta(seconds=configs.OTP_EXP_OFFSET * 60),
+                        "exp": (
+                            datetime.now(tz=timezone.utc)
+                            + timedelta(seconds=configs.OTP_EXP_OFFSET * 60)
+                        ).timestamp(),
                     },
                     str(OTP),
                     algorithm="HS256",
@@ -88,8 +91,8 @@ class Account(Database, SendiblueEmail):
                 )
 
                 if account != None:
-                    is_correct_password = verify_password(
-                        account["password"], formUser["old_password"], type=Type.ID
+                    is_correct_password = verifyPassword(
+                        account["password"], formUser["old_password"]
                     )
 
                     if is_correct_password == True:
@@ -105,8 +108,10 @@ class Account(Database, SendiblueEmail):
                                 "new_password": new_password_encrypted,
                                 "logout_all_device": formUser["logout_all_device"],
                                 "description": "Change your password",
-                                "exp": datetime.now(tz=timezone.utc)
-                                + timedelta(seconds=configs.OTP_EXP_OFFSET * 60),
+                                "exp": (
+                                    datetime.now(tz=timezone.utc)
+                                    + timedelta(seconds=configs.OTP_EXP_OFFSET * 60)
+                                ).timestamp(),
                             },
                             str(OTP),
                             algorithm="HS256",
@@ -151,8 +156,10 @@ class Account(Database, SendiblueEmail):
                         "email": jwtUser["email"],
                         "auth_type": "email",
                         "description": "Change your Email",
-                        "exp": datetime.now(tz=timezone.utc)
-                        + timedelta(seconds=configs.OTP_EXP_OFFSET * 60),
+                        "exp": (
+                            datetime.now(tz=timezone.utc)
+                            + timedelta(seconds=configs.OTP_EXP_OFFSET * 60)
+                        ).timestamp(),
                     },
                     str(OTP),
                     algorithm="HS256",
@@ -290,9 +297,11 @@ class Account(Database, SendiblueEmail):
                             "role": jwtUser["role"],
                             "email": jwtUser["email"],
                             "auth_type": jwtUser["auth_type"],
-                            "created_at": jwtUser["created_at"],
-                            "exp": datetime.now(tz=timezone.utc)
-                            + timedelta(seconds=configs.JWT_EXP_OFFSET * 60 * 60),
+                            "created_at": str(jwtUser["created_at"]),
+                            "exp": (
+                                datetime.now(tz=timezone.utc)
+                                + timedelta(seconds=configs.JWT_EXP_OFFSET * 60 * 60)
+                            ).timestamp(),
                         },
                         str(os.getenv("JWT_SIGNATURE_SECRET")),
                         algorithm="HS256",

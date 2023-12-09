@@ -5,15 +5,16 @@ from pymongo import ReturnDocument
 import jwt
 import os
 from datetime import datetime, timezone, timedelta
+import time
 import requests
-from argon2 import verify_password, PasswordHasher, Type
+from argon2 import exceptions
 import configs
 from configs.database import Database
 from utils.SendinblueEmail import SendiblueEmail
 from utils.OTPGeneration import generateOTP
 from utils.JwtRedis import JwtRedis
 from utils.EmalValidation import Validate_Email
-from utils.encryptPassword import encryptPassword
+from utils.encryptPassword import encryptPassword, verifyPassword
 from utils.JsonResponse import ConvertJsonResponse as cvtJson
 from utils.ErrorMessage import BadRequestMessage, InternalServerErrorMessage
 from utils.exceptions import NotInTypeError
@@ -33,34 +34,25 @@ class Authentication(SendiblueEmail):
                 {"email": formUser["email"], "auth_type": "email"}
             )
             if account != None:
-                is_correct_password = verify_password(
-                    account["password"], formUser["password"], type=Type.ID
+                is_correct_password = verifyPassword(
+                    account["password"], formUser["password"]
                 )
 
                 if is_correct_password == True:
-                    # get_account = db["accounts"].find_one_and_update(
-                    get_account = self.__db["accounts"].find_one(
-                        {"email": formUser["email"], "password": formUser["password"]},
-                        # {
-                        #     "$set": {
-                        #         "user_token": formUser["user_token"],
-                        #     }
-                        # },
-                        # return_document=ReturnDocument.AFTER,
-                    )
-
                     encoded = jwt.encode(
                         {
-                            "id": get_account["id"],
-                            "username": get_account["username"],
-                            "full_name": get_account["full_name"],
-                            "avatar": get_account["avatar"],
-                            "role": get_account["role"],
-                            "email": get_account["email"],
-                            "auth_type": get_account["auth_type"],
-                            "created_at": get_account["created_at"],
-                            "exp": datetime.now(tz=timezone.utc)
-                            + timedelta(seconds=configs.JWT_EXP_OFFSET * 60 * 60),
+                            "id": account["id"],
+                            "username": account["username"],
+                            "full_name": account["full_name"],
+                            "avatar": account["avatar"],
+                            "role": account["role"],
+                            "email": account["email"],
+                            "auth_type": account["auth_type"],
+                            "created_at": str(account["created_at"]),
+                            "exp": (
+                                datetime.now(tz=timezone.utc)
+                                + timedelta(seconds=configs.JWT_EXP_OFFSET * 60 * 60)
+                            ).timestamp(),
                         },
                         str(os.getenv("JWT_SIGNATURE_SECRET")),
                         algorithm="HS256",
@@ -71,14 +63,14 @@ class Authentication(SendiblueEmail):
                             "isLogin": True,
                             "exp_token_hours": int(os.getenv("JWT_EXP_OFFSET")),
                             "result": {
-                                "id": get_account["id"],
-                                "username": get_account["username"],
-                                "full_name": get_account["full_name"],
-                                "avatar": get_account["avatar"],
-                                "email": get_account["email"],
-                                "auth_type": get_account["auth_type"],
-                                "role": get_account["role"],
-                                "created_at": get_account["created_at"],
+                                "id": account["id"],
+                                "username": account["username"],
+                                "full_name": account["full_name"],
+                                "avatar": account["avatar"],
+                                "email": account["email"],
+                                "auth_type": account["auth_type"],
+                                "role": account["role"],
+                                "created_at": account["created_at"],
                             },
                         }
                     )
@@ -103,6 +95,8 @@ class Authentication(SendiblueEmail):
                     return {"isWrongPassword": True, "result": "Wrong Password"}
             else:
                 return {"isNotExist": True, "result": "Account does not exists"}
+        except (exceptions.InvalidHashError, exceptions.VerifyMismatchError) as e:
+            return {"isWrongPassword": True, "result": "Wrong Password"}
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except Exception as e:
@@ -150,9 +144,11 @@ class Authentication(SendiblueEmail):
                         "email": get_account["email"],
                         "auth_type": get_account["auth_type"],
                         "role": "normal",
-                        "created_at": get_account["created_at"],
-                        "exp": datetime.now(tz=timezone.utc)
-                        + timedelta(seconds=configs.JWT_EXP_OFFSET * 60 * 60),
+                        "created_at": str(get_account["created_at"]),
+                        "exp": (
+                            datetime.now(tz=timezone.utc)
+                            + timedelta(seconds=configs.JWT_EXP_OFFSET * 60 * 60)
+                        ).timestamp(),
                     },
                     str(os.getenv("JWT_SIGNATURE_SECRET")),
                     algorithm="HS256",
@@ -210,9 +206,11 @@ class Authentication(SendiblueEmail):
                         "email": account_modified["email"],
                         "auth_type": account_modified["auth_type"],
                         "role": "normal",
-                        "created_at": account_modified["created_at"],
-                        "exp": datetime.now(tz=timezone.utc)
-                        + timedelta(seconds=configs.JWT_EXP_OFFSET * 60 * 60),
+                        "created_at": str(account_modified["created_at"]),
+                        "exp": (
+                            datetime.now(tz=timezone.utc)
+                            + timedelta(seconds=configs.JWT_EXP_OFFSET * 60 * 60)
+                        ).timestamp(),
                     },
                     str(os.getenv("JWT_SIGNATURE_SECRET")),
                     algorithm="HS256",
@@ -310,9 +308,11 @@ class Authentication(SendiblueEmail):
                         "email": get_account["email"],
                         "auth_type": get_account["auth_type"],
                         "role": "normal",
-                        "created_at": get_account["created_at"],
-                        "exp": datetime.now(tz=timezone.utc)
-                        + timedelta(seconds=configs.JWT_EXP_OFFSET * 60 * 60),
+                        "created_at": str(get_account["created_at"]),
+                        "exp": (
+                            datetime.now(tz=timezone.utc)
+                            + timedelta(seconds=configs.JWT_EXP_OFFSET * 60 * 60)
+                        ).timestamp(),
                     },
                     str(os.getenv("JWT_SIGNATURE_SECRET")),
                     algorithm="HS256",
@@ -360,9 +360,11 @@ class Authentication(SendiblueEmail):
                         "email": account["email"],
                         "auth_type": account["auth_type"],
                         "role": "normal",
-                        "created_at": account["created_at"],
-                        "exp": datetime.now(tz=timezone.utc)
-                        + timedelta(seconds=configs.JWT_EXP_OFFSET * 60 * 60),
+                        "created_at": str(account["created_at"]),
+                        "exp": (
+                            datetime.now(tz=timezone.utc)
+                            + timedelta(seconds=configs.JWT_EXP_OFFSET * 60 * 60)
+                        ).timestamp(),
                     },
                     str(os.getenv("JWT_SIGNATURE_SECRET")),
                     algorithm="HS256",
@@ -433,119 +435,6 @@ class Authentication(SendiblueEmail):
             is_alive = self.__jwtredis.set_prefix("user_logout").verify(jwtUser)
 
             if is_alive:
-                # if jwtUser["auth_type"] == "facebook":
-                # facebook_account = self.__db["accounts"].find_one(
-                #     {"id": jwtUser["id"], "auth_type": "facebook"}
-                # )
-
-                # if facebook_account == None:
-                #     return {"isNotExist": True, "result": "Account does not exists"}
-                # else:
-                #     response = make_response(
-                #         {
-                #             "isLogin": True,
-                #             "result": {
-                #                 "id": facebook_account["id"],
-                #                 "username": facebook_account["username"],
-                #                 "full_name": facebook_account["full_name"],
-                #                 "avatar": facebook_account["avatar"],
-                #                 "email": facebook_account["email"],
-                #                 "auth_type": facebook_account["auth_type"],
-                #                 "role": facebook_account["role"],
-                #                 "created_at": facebook_account["created_at"],
-                #             },
-                #         }
-                #     )
-                #     response.headers.set(
-                #         "Access-Control-Expose-Headers", "Authorization"
-                #     )
-                #     response.headers.set("Authorization", user_token)
-
-                #     return response
-
-                # elif jwtUser["auth_type"] == "google":
-                # google_account = self.__db["accounts"].find_one(
-                #     {"id": jwtUser["id"], "auth_type": "google"}
-                # )
-
-                # if google_account == None:
-                #     return {"isNotExist": True, "result": "Account does not exists"}
-                # else:
-                #     response = make_response(
-                #         {
-                #             "isLogin": True,
-                #             "result": {
-                #                 "id": google_account["id"],
-                #                 "username": google_account["username"],
-                #                 "full_name": google_account["full_name"],
-                #                 "avatar": google_account["avatar"],
-                #                 "email": google_account["email"],
-                #                 "auth_type": google_account["auth_type"],
-                #                 "role": google_account["role"],
-                #                 "created_at": google_account["created_at"],
-                #             },
-                #         }
-                #     )
-                #     response.headers.set(
-                #         "Access-Control-Expose-Headers", "Authorization"
-                #     )
-                #     response.headers.set("Authorization", user_token)
-
-                #     return response
-
-                # elif jwtUser["auth_type"] == "email":
-                # account = self.__db["accounts"].find_one(
-                #     {"email": jwtUser["email"], "auth_type": "email"}
-                # )
-
-                # if account != None:
-                #     if account["password"] == jwtUser["password"]:
-                #         get_account = self.__db["accounts"].find_one(
-                #             {
-                #                 "email": jwtUser["email"],
-                #                 "password": jwtUser["password"],
-                #             },
-                #         )
-
-                #         # encoded = jwt.encode(
-                #         #     {
-                #         #         "email": jwtUser["email"],
-                #         #         "exp": datetime.now(tz=timezone.utc)
-                #         #         + timedelta(
-                #         #             seconds=configs.JWT_EXP_OFFSET * 60 * 60
-                #         #         ),
-                #         #     },
-                #         #     str(os.getenv("JWT_SIGNATURE_SECRET")),
-                #         #     algorithm="HS256",
-                #         # )
-
-                #         response = make_response(
-                #             {
-                #                 "isLogin": True,
-                #                 "result": {
-                #                     "id": get_account["id"],
-                #                     "username": get_account["username"],
-                #                     "full_name": get_account["full_name"],
-                #                     "avatar": get_account["avatar"],
-                #                     "email": get_account["email"],
-                #                     "auth_type": get_account["auth_type"],
-                #                     "role": get_account["role"],
-                #                     "created_at": get_account["created_at"],
-                #                 },
-                #             }
-                #         )
-
-                #         response.headers.set(
-                #             "Access-Control-Expose-Headers", "Authorization"
-                #         )
-                #         response.headers.set("Authorization", user_token)
-
-                #         return response
-                #     else:
-                #         return {"isWrongPassword": True, "result": "Wrong Password"}
-                # else:
-                #     return {"isNotExist": True, "result": "Account does not exists"}
-
                 response = make_response(
                     {
                         "isLogin": True,
@@ -780,8 +669,10 @@ class Authentication(SendiblueEmail):
                                 "email": formUser["email"],
                                 "auth_type": "email",
                                 "description": "Register new account",
-                                "exp": datetime.now(tz=timezone.utc)
-                                + timedelta(seconds=configs.OTP_EXP_OFFSET * 60),
+                                "exp": (
+                                    datetime.now(tz=timezone.utc)
+                                    + timedelta(seconds=configs.OTP_EXP_OFFSET * 60)
+                                ).timestamp(),
                             },
                             str(OTP),
                             algorithm="HS256",
@@ -847,10 +738,12 @@ class Authentication(SendiblueEmail):
                                 "email": account["email"],
                                 "auth_type": "email",
                                 "description": "Forgot your password",
-                                "exp": datetime.now(tz=timezone.utc)
-                                + timedelta(
-                                    seconds=configs.FORGOT_PASSWORD_EXP_OFFSET * 60
-                                ),
+                                "exp": (
+                                    datetime.now(tz=timezone.utc)
+                                    + timedelta(
+                                        seconds=configs.FORGOT_PASSWORD_EXP_OFFSET * 60
+                                    )
+                                ).timestamp(),
                             },
                             str(os.getenv("JWT_SIGNATURE_SECRET")),
                             algorithm="HS256",

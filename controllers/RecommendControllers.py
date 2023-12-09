@@ -27,138 +27,91 @@ class Recommend(Database):
             )
 
             page = request.args.get("page", default=1, type=int) - 1
-            limit = request.args.get("limit", default=6, type=int)
+            limit = request.args.get("limit", default=20, type=int)
 
-            list = self.__db["lists"].find({"user_id": jwtUser["id"]}).skip(0).limit(20)
+            list = cvtJson(
+                self.__db["lists"]
+                .find({"user_id": jwtUser["id"]})
+                .skip(0)
+                .limit(20)
+                .sort([("created_at", pymongo.DESCENDING)])
+            )
 
-            history = (
+            history = cvtJson(
                 self.__db["histories"]
                 .find({"user_id": jwtUser["id"]})
                 .skip(0)
                 .limit(20)
+                .sort([("created_at", pymongo.DESCENDING)])
             )
+
+            if len(list) == 0 and len(history) == 0:
+                return {
+                    "results": [],
+                }
 
             genres = []
             countries = []
 
             for x in list:
-                genres.append([x1["id"] for x1 in x["genres"]])
-                countries.append([x["original_language"]])
+                for x1 in x["genres"]:
+                    if "id" in x1:
+                        if x1["id"] not in [x2["id"] for x2 in genres]:
+                            genres.append({"id": x1["id"]})
+
+                if x["original_language"] not in countries:
+                    countries.append(x["original_language"])
 
             for x in history:
-                genres.append([x1["id"] for x1 in x["genres"]])
-                countries.append([x["original_language"]])
+                for x1 in x["genres"]:
+                    if "id" in x1:
+                        if x1["id"] not in [x2["id"] for x2 in genres]:
+                            genres.append({"id": x1["id"]})
 
-            if len(genres) == 0 and len(countries) == 0:
-                return {"results": []}
-            else:
-                minSup_Genres = 5
-                minSup_Countries = 5
-                patterns_genres = pyfpgrowth.find_frequent_patterns(
-                    genres, minSup_Genres
+                if x["original_language"] not in countries:
+                    countries.append(x["original_language"])
+
+            movie = cvtJson(
+                self.__db["movies"]
+                .find(
+                    {
+                        "$or": [
+                            {"original_language": {"$in": countries}},
+                            {"genres": {"$elemMatch": {"$or": genres}}},
+                        ]
+                    },
                 )
+                .skip(page * int(limit / 2))
+                .limit(int(limit / 2))
+                .sort([("views", pymongo.DESCENDING)])
+            )
 
-                while len(patterns_genres) == 0:
-                    minSup_Genres -= 1
-                    patterns_genres = pyfpgrowth.find_frequent_patterns(
-                        genres, minSup_Genres
-                    )
-
-                patterns_genres_single = [
-                    (item[0], item1)
-                    for item, item1 in patterns_genres.items()
-                    if len(item) == 1
-                ]
-
-                patterns_countries = pyfpgrowth.find_frequent_patterns(
-                    countries, minSup_Countries
+            tv = cvtJson(
+                self.__db["tvs"]
+                .find(
+                    {
+                        "$or": [
+                            {"original_language": {"$in": countries}},
+                            {"genres": {"$elemMatch": {"$or": genres}}},
+                        ]
+                    },
                 )
+                .skip(page * int(limit / 2))
+                .limit(int(limit / 2))
+                .sort([("views", pymongo.DESCENDING)])
+            )
 
-                while len(patterns_countries) == 0:
-                    minSup_Countries -= 1
-                    patterns_countries = pyfpgrowth.find_frequent_patterns(
-                        countries, minSup_Countries
-                    )
+            result = movie + tv
 
-                patterns_genres_desc = sorted(
-                    patterns_genres_single,
-                    key=lambda item: item[1],
-                    reverse=True,
-                )
+            response = {
+                "page": page + 1,
+                "results": result,
+                "movie": movie,
+                "tv": tv,
+                "page_size": limit,
+            }
 
-                patterns_countries_desc = sorted(
-                    patterns_countries.items(),
-                    key=lambda item: item[1],
-                    reverse=True,
-                )
-
-                frequency_genres_dict = []
-
-                for pattern in patterns_genres_desc:
-                    frequency_genres_dict.append(({"id": pattern[0]}))
-
-                frequency_countries_list = [x for x in patterns_countries_desc[0][0]]
-
-                movie = cvtJson(
-                    self.__db["movies"]
-                    .find(
-                        {
-                            "$or": [
-                                {
-                                    "original_language": {
-                                        "$in": frequency_countries_list
-                                    }
-                                },
-                                {
-                                    "genres": {
-                                        "$elemMatch": {
-                                            "$or": [ChainMap(*frequency_genres_dict)]
-                                        }
-                                    }
-                                },
-                            ]
-                        },
-                    )
-                    .skip(page * limit)
-                    .limit(limit)
-                    .sort([("views", pymongo.DESCENDING)])
-                )
-
-                tv = cvtJson(
-                    self.__db["tvs"]
-                    .find(
-                        {
-                            "$or": [
-                                {
-                                    "original_language": {
-                                        "$in": frequency_countries_list
-                                    }
-                                },
-                                {
-                                    "genres": {
-                                        "$elemMatch": {
-                                            "$or": [ChainMap(*frequency_genres_dict)]
-                                        }
-                                    }
-                                },
-                            ]
-                        },
-                    )
-                    .skip(page * limit)
-                    .limit(limit)
-                    .sort([("views", pymongo.DESCENDING)])
-                )
-
-                result = movie + tv
-
-                return {
-                    "results": result,
-                    "movie": movie,
-                    "tv": tv,
-                    # "total": ,
-                    # "totalMovie": ,
-                    # "totalTv": ,
-                }
+            return response
 
         except jwt.ExpiredSignatureError as e:
             make_response().delete_cookie(

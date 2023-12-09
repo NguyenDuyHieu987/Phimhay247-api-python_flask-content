@@ -14,7 +14,14 @@ load_dotenv()
 sys.path.insert(0, "/Python/The-Movie-Flask-Api")
 sys.path.insert(0, "/mnt/d/Python/The-Movie-Flask-Api")
 
+
 app = Flask(__name__)
+
+import logging
+
+log = logging.getLogger("werkzeug")
+log.setLevel(logging.ERROR)
+
 
 CORS(
     app,
@@ -56,7 +63,7 @@ cache = Cache(
         "CACHE_REDIS_HOST": os.getenv("REDIS_HOST"),
         "CACHE_REDIS_PORT": os.getenv("REDIS_PORT"),
         "CACHE_REDIS_PASSWORD": os.getenv("REDIS_PASSWORD"),
-        "CACHE_DEFAULT_TIMEOUT": 300,
+        "CACHE_DEFAULT_TIMEOUT": int(os.getenv("REDIS_CACHE_TIME")),
     },
 )
 
@@ -70,5 +77,5 @@ route(app, cache)
 if __name__ == "__main__":
     # app.run(debug=True, port=5001, use_reloader=True)
 
-    http_server = WSGIServer(("", 5001), app)
+    http_server = WSGIServer(("0.0.0.0", 5001), app, log=None)
     http_server.serve_forever()

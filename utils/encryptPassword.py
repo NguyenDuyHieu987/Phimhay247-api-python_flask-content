@@ -1,8 +1,9 @@
 import os
-from argon2 import PasswordHasher, hash_password, Type
+from argon2 import PasswordHasher, hash_password, verify_password, Type
 
 # from Crypto.Hash import SHA512
 
+ph = PasswordHasher(type=Type.ID, memory_cost=2**16, hash_len=50)
 
 # def encryptPasswordOld(password):
 #     encryptedHex = SHA512(password).toString()
@@ -11,18 +12,23 @@ from argon2 import PasswordHasher, hash_password, Type
 
 
 def encryptPassword(password):
-    # ph = PasswordHasher(
+    # password_encrypted = hash_password(
+    #     password,
     #     type=Type.ID,
     #     memory_cost=2**16,
     #     hash_len=50,
+    #     # salt=bytes.fromhex(str(os.getenv("APP_TOKEN_SECRET"))),
     # )
 
-    password_encrypted = hash_password(
+    password_encrypted = ph.hash(
         password,
-        type=Type.ID,
-        memory_cost=2**16,
-        hash_len=50,
-        salt=bytes.fromhex(str(os.getenv("APP_TOKEN_SECRET"))),
+        # salt=bytes.fromhex(str(os.getenv("APP_TOKEN_SECRET"))),
     )
 
     return password_encrypted
+
+
+def verifyPassword(password, userEnter):
+    # salt = {str(os.getenv("APP_TOKEN_SECRET")).encode("utf-8")}
+
+    return ph.verify(password, f"{userEnter}")

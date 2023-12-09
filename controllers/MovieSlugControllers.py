@@ -13,10 +13,10 @@ class MovieSlug(Database):
 
     def movie_slug(self, slug):
         try:
-            if slug == "all":
-                page = request.args.get("page", default=1, type=int) - 1
-                limit = request.args.get("limit", default=20, type=int)
+            page = request.args.get("page", default=1, type=int) - 1
+            limit = request.args.get("limit", default=20, type=int)
 
+            if slug == "all":
                 phimle = cvtJson(
                     self.__db["movies"].find({}).skip(page * limit).limit(limit)
                 )

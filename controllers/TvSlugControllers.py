@@ -13,10 +13,10 @@ class TVSlug(Database):
 
     def tv_slug(self, slug):
         try:
-            if slug == "all":
-                page = (request.args.get("page", default=1, type=int)) - 1
-                limit = request.args.get("limit", default=20, type=int)
+            page = (request.args.get("page", default=1, type=int)) - 1
+            limit = request.args.get("limit", default=20, type=int)
 
+            if slug == "all":
                 phimbo = cvtJson(
                     self.__db["tvs"].find({}).skip(page * limit).limit(limit)
                 )

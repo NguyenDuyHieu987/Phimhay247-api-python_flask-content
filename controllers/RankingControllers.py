@@ -20,16 +20,16 @@ class Rank(Database):
                 movie = (
                     self.__db["movies"]
                     .find({})
-                    .skip(0 * limit / 2)
-                    .limit(limit / 2)
+                    .skip(0 * int(limit / 2))
+                    .limit(int(limit / 2))
                     .sort([("views", pymongo.DESCENDING)])
                 )
 
                 tv = (
                     self.__db["tvs"]
                     .find({})
-                    .skip(0 * limit / 2)
-                    .limit(limit / 2)
+                    .skip(0 * int(limit / 2))
+                    .limit(int(limit / 2))
                     .sort([("views", pymongo.DESCENDING)])
                 )
 
@@ -42,16 +42,16 @@ class Rank(Database):
                 movie = (
                     self.__db["movies"]
                     .find({})
-                    .skip(1 * limit / 2)
-                    .limit(limit / 2)
+                    .skip(1 * int(limit / 2))
+                    .limit(int(limit / 2))
                     .sort([("views", pymongo.DESCENDING)])
                 )
 
                 tv = (
                     self.__db["tvs"]
                     .find({})
-                    .skip(1 * limit / 2)
-                    .limit(limit / 2)
+                    .skip(1 * int(limit / 2))
+                    .limit(int(limit / 2))
                     .sort([("views", pymongo.DESCENDING)])
                 )
 
@@ -64,16 +64,16 @@ class Rank(Database):
                 movie = (
                     self.__db["movies"]
                     .find({})
-                    .skip(2 * limit / 2)
-                    .limit(limit / 2)
+                    .skip(2 * int(limit / 2))
+                    .limit(int(limit / 2))
                     .sort([("views", pymongo.DESCENDING)])
                 )
 
                 tv = (
                     self.__db["tvs"]
                     .find({})
-                    .skip(2 * limit / 2)
-                    .limit(limit / 2)
+                    .skip(2 * int(limit / 2))
+                    .limit(int(limit / 2))
                     .sort([("views", pymongo.DESCENDING)])
                 )
 
@@ -86,16 +86,16 @@ class Rank(Database):
                 movie = (
                     self.__db["movies"]
                     .find({})
-                    .skip(3 * limit / 2)
-                    .limit(limit / 2)
+                    .skip(3 * int(limit / 2))
+                    .limit(int(limit / 2))
                     .sort([("views", pymongo.DESCENDING)])
                 )
 
                 tv = (
                     self.__db["tvs"]
                     .find({})
-                    .skip(3 * limit / 2)
-                    .limit(limit / 2)
+                    .skip(3 * int(limit / 2))
+                    .limit(int(limit / 2))
                     .sort([("views", pymongo.DESCENDING)])
                 )
 

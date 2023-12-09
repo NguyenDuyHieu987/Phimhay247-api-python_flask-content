@@ -29,8 +29,8 @@ class Search(Database):
                             ]
                         }
                     )
-                    .skip(page * (limit / 2))
-                    .limit((limit / 2))
+                    .skip(page * int(limit / 2))
+                    .limit(int(limit / 2))
                     .sort([("views", pymongo.DESCENDING)])
                 )
 
@@ -44,8 +44,8 @@ class Search(Database):
                             ]
                         }
                     )
-                    .skip(page * (limit / 2))
-                    .limit((limit / 2))
+                    .skip(page * int(limit / 2))
+                    .limit(int(limit / 2))
                     .sort([("views", pymongo.DESCENDING)])
                 )
 

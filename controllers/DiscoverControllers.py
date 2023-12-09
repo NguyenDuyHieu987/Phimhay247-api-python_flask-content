@@ -121,8 +121,8 @@ class Discover(Database):
                                     ]
                                 }
                             )
-                            .skip(page * (limit / 2))
-                            .limit((limit / 2))
+                            .skip(page * int(limit / 2))
+                            .limit(int(limit / 2))
                             .sort([("views", pymongo.DESCENDING)])
                         )
 
@@ -137,8 +137,8 @@ class Discover(Database):
                                     ]
                                 }
                             )
-                            .skip(page * (limit / 2))
-                            .limit((limit / 2))
+                            .skip(page * int(limit / 2))
+                            .limit(int(limit / 2))
                             .sort([("views", pymongo.DESCENDING)])
                         )
 
@@ -156,8 +156,8 @@ class Discover(Database):
                                     ]
                                 }
                             )
-                            .skip(page * (limit / 2))
-                            .limit((limit / 2))
+                            .skip(page * int(limit / 2))
+                            .limit(int(limit / 2))
                             .sort([("release_date", pymongo.DESCENDING)])
                         )
 
@@ -172,8 +172,8 @@ class Discover(Database):
                                     ]
                                 }
                             )
-                            .skip(page * (limit / 2))
-                            .limit((limit / 2))
+                            .skip(page * int(limit / 2))
+                            .limit(int(limit / 2))
                             .sort([("first_air_date", pymongo.DESCENDING)])
                         )
 
@@ -191,8 +191,8 @@ class Discover(Database):
                                     ]
                                 }
                             )
-                            .skip(page * (limit / 2))
-                            .limit((limit / 2))
+                            .skip(page * int(limit / 2))
+                            .limit(int(limit / 2))
                             .sort([("revenue", pymongo.DESCENDING)])
                         )
 
@@ -207,8 +207,8 @@ class Discover(Database):
                                     ]
                                 }
                             )
-                            .skip(page * (limit / 2))
-                            .limit((limit / 2))
+                            .skip(page * int(limit / 2))
+                            .limit(int(limit / 2))
                             .sort([("revenue", pymongo.DESCENDING)])
                         )
 
@@ -226,8 +226,8 @@ class Discover(Database):
                                     ]
                                 }
                             )
-                            .skip(page * (limit / 2))
-                            .limit((limit / 2))
+                            .skip(page * int(limit / 2))
+                            .limit(int(limit / 2))
                             .sort([("vote_average", pymongo.DESCENDING)])
                         )
 
@@ -242,8 +242,8 @@ class Discover(Database):
                                     ]
                                 }
                             )
-                            .skip(page * (limit / 2))
-                            .limit((limit / 2))
+                            .skip(page * int(limit / 2))
+                            .limit(int(limit / 2))
                             .sort([("vote_average", pymongo.DESCENDING)])
                         )
 
@@ -261,8 +261,8 @@ class Discover(Database):
                                     ]
                                 }
                             )
-                            .skip(page * (limit / 2))
-                            .limit((limit / 2))
+                            .skip(page * int(limit / 2))
+                            .limit(int(limit / 2))
                             .sort([("vote_count", pymongo.DESCENDING)])
                         )
 
@@ -277,8 +277,8 @@ class Discover(Database):
                                     ]
                                 }
                             )
-                            .skip(page * (limit / 2))
-                            .limit((limit / 2))
+                            .skip(page * int(limit / 2))
+                            .limit(int(limit / 2))
                             .sort([("vote_count", pymongo.DESCENDING)])
                         )
 
@@ -296,8 +296,8 @@ class Discover(Database):
                                 ]
                             }
                         )
-                        .skip(page * (limit / 2))
-                        .limit((limit / 2))
+                        .skip(page * int(limit / 2))
+                        .limit(int(limit / 2))
                     )
 
                     tv = cvtJson(
@@ -311,8 +311,8 @@ class Discover(Database):
                                 ]
                             }
                         )
-                        .skip(page * (limit / 2))
-                        .limit((limit / 2))
+                        .skip(page * int(limit / 2))
+                        .limit(int(limit / 2))
                     )
 
                     result["results"] = movie + tv
