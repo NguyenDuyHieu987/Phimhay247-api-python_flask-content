@@ -4,8 +4,9 @@ from flask_caching import Cache
 import os
 
 # from flask_restful import Api
-# from waitress import serve
+from waitress import serve
 from gevent.pywsgi import WSGIServer
+import wsgiserver
 import sys
 from dotenv import load_dotenv
 
@@ -78,5 +79,13 @@ route(app, cache)
 if __name__ == "__main__":
     # app.run(host="0.0.0.0", debug=True, port=5000, use_reloader=True)
 
-    http_server = WSGIServer(("0.0.0.0", 5001), app, log="default")
+    ## waitress
+    # serve(app, host="0.0.0.0", port=5001)
+
+    ## gevent
+    # http_server = WSGIServer(("0.0.0.0", 5001), app, log=None)
+
+    ## wsgiserver
+    http_server = wsgiserver.WSGIServer(wsgi_app=app, host="0.0.0.0", port=5001)
+
     http_server.serve_forever()
