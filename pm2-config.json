@@ -3,7 +3,7 @@
     {
       "name": "phimhay247-flask-api",
       "port": "5001",
-      "exec_mode": "fork",
+      "exec_mode": "cluster",
       "instances": "max",
       "script": "./main.py",
       "interpreter": "python3",
