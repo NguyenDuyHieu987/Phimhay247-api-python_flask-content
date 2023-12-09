@@ -10,7 +10,7 @@ def authentication_routes(app):
     ## Log in
 
     @app.route("/auth/login", methods=["POST"])
-    @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
+    # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def login_route():
         return authentication.login()
 
