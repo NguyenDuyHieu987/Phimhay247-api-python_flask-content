@@ -38,8 +38,8 @@ CORS(
     #     }
     # },
     origins=[
-        # "http://localhost:3000",
-        # "http://localhost:8080",
+        "http://localhost:3000",
+        "http://localhost:8080",
         "https://phimhay247z.org",
         "https://dash.phimhay247z.org",
         "https://dashboard.phimhay247z.org",
@@ -78,5 +78,5 @@ route(app, cache)
 if __name__ == "__main__":
     # app.run(host="0.0.0.0", debug=True, port=5000, use_reloader=True)
 
-    http_server = WSGIServer(("0.0.0.0", 5001), app, log=None)
+    http_server = WSGIServer(("0.0.0.0", 5001), app, log="default")
     http_server.serve_forever()
