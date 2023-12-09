@@ -48,9 +48,9 @@ CORS(
         "https://www.phimhay247z.org",
     ],
     supports_credentials=True,
-    expose_headers="*",
-    allow_headers="*",
 )
+
+app.config["CORS_SUPPORTS_CREDENTIALS"] = True
 
 cache = Cache(
     app,
