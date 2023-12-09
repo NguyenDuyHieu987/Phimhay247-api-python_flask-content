@@ -25,29 +25,31 @@ log.setLevel(logging.ERROR)
 
 CORS(
     app,
-    resources={
-        r"/*": {
-            "origins": [
-                "http://localhost:3000",
-                "http://localhost:8080",
-                "https://phimhay247z.org",
-                "https://dash.phimhay247z.org",
-                "https://dashboard.phimhay247z.org",
-                # www
-                "https://www.phimhay247z.org",
-            ],
-        }
-    },
-    # origins=[
-    #     "http://localhost:3000",
-    #     "http://localhost:8080",
-    #     "https://phimhay247z.org",
-    #     "https://dash.phimhay247z.org",
-    #     "https://dashboard.phimhay247z.org",
-    #     # www
-    #     "https://www.phimhay247z.org",
-    # ],
+    # resources={
+    #     r"/*": {
+    #         "origins": [
+    #             "http://localhost:3000",
+    #             "http://localhost:8080",
+    #             "https://phimhay247z.org",
+    #             "https://dash.phimhay247z.org",
+    #             "https://dashboard.phimhay247z.org",
+    #             # www
+    #             "https://www.phimhay247z.org",
+    #         ],
+    #     }
+    # },
+    origins=[
+        "http://localhost:3000",
+        "http://localhost:8080",
+        "https://phimhay247z.org",
+        "https://dash.phimhay247z.org",
+        "https://dashboard.phimhay247z.org",
+        # www
+        "https://www.phimhay247z.org",
+    ],
     supports_credentials=True,
+    expose_headers="*",
+    allow_headers="*",
 )
 
 cache = Cache(
@@ -73,6 +75,7 @@ cache.init_app(app)
 from routes import route
 
 route(app, cache)
+
 
 if __name__ == "__main__":
     # app.run(host="0.0.0.0", debug=True, port=5000, use_reloader=True)
