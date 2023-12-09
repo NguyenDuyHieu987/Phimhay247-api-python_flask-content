@@ -1,6 +1,7 @@
 flask
-gevent
 waitress
+gevent
+wsgiserver
 pymongo
 flask_cors
 pyfpgrowth

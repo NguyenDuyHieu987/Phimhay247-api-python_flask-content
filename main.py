@@ -83,9 +83,8 @@ if __name__ == "__main__":
     # serve(app, host="0.0.0.0", port=5001)
 
     ## gevent
-    # http_server = WSGIServer(("0.0.0.0", 5001), app, log=None)
+    # http_server = WSGIServer(listener=("0.0.0.0", 5001), application=app, log=None)
+    # http_server.serve_forever()
 
     ## wsgiserver
     http_server = wsgiserver.WSGIServer(wsgi_app=app, host="0.0.0.0", port=5001)
-
-    http_server.serve_forever()
