@@ -25,19 +25,19 @@ log.setLevel(logging.ERROR)
 
 CORS(
     app,
-    resources={
-        r"/*": {
-            "origins": [
-                "http://localhost:3000",
-                "http://localhost:8080",
-                "https://phimhay247z.org",
-                "https://dash.phimhay247z.org",
-                "https://dashboard.phimhay247z.org",
-                # www
-                "https://www.phimhay247z.org",
-            ],
-        }
-    },
+    # resources={
+    #     r"/*": {
+    #         "origins": [
+    #             "http://localhost:3000",
+    #             "http://localhost:8080",
+    #             "https://phimhay247z.org",
+    #             "https://dash.phimhay247z.org",
+    #             "https://dashboard.phimhay247z.org",
+    #             # www
+    #             "https://www.phimhay247z.org",
+    #         ],
+    #     }
+    # },
     origins=[
         "http://localhost:3000",
         "http://localhost:8080",
@@ -48,6 +48,7 @@ CORS(
         "https://www.phimhay247z.org",
     ],
     supports_credentials=True,
+    methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
 )
 
 cache = Cache(
