@@ -7,6 +7,7 @@ import os
 from waitress import serve
 from gevent.pywsgi import WSGIServer
 import wsgiserver
+import logging
 import sys
 from dotenv import load_dotenv
 
@@ -18,7 +19,6 @@ sys.path.insert(0, "/mnt/d/Python/The-Movie-Flask-Api")
 
 app = Flask(__name__)
 
-import logging
 
 log = logging.getLogger("werkzeug")
 log.setLevel(logging.ERROR)
