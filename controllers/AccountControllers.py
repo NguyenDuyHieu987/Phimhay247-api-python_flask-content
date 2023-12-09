@@ -5,6 +5,7 @@ from utils.ErrorMessage import BadRequestMessage, InternalServerErrorMessage
 from flask import *
 import jwt
 import os
+from argon2 import exceptions
 from datetime import datetime, timezone, timedelta
 import configs
 from utils.SendinblueEmail import SendiblueEmail
@@ -144,10 +145,7 @@ class Account(Database, SendiblueEmail):
                         )
 
                     else:
-                        return {
-                            "isWrongPassword": True,
-                            "result": "Wrong password",
-                        }
+                        return {"isWrongPassword": True, "result": "Wrong password"}
                 else:
                     raise DefaultError("Account is not found")
 
@@ -186,6 +184,8 @@ class Account(Database, SendiblueEmail):
             else:
                 return response
 
+        except (exceptions.InvalidHashError, exceptions.VerifyMismatchError) as e:
+            return {"isWrongPassword": True, "result": "Wrong password"}
         except jwt.ExpiredSignatureError as e:
             response.delete_cookie(
                 "user_token", samesite="lax", secure=True, httponly=False
