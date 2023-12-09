@@ -1,4 +1,5 @@
 from flask import *
+
 from flask_cors import cross_origin
 import configs
 from controllers.AuthenticationControllers import Authentication
@@ -9,7 +10,7 @@ def authentication_routes(app):
     ## Log in
 
     @app.route("/auth/login", methods=["POST"])
-    @cross_origin(supports_credentials=True)
+    @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def login_route():
         return authentication.login()
 
