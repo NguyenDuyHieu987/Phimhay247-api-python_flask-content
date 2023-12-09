@@ -16,12 +16,12 @@ class Similar(Database):
     def get_similar(self, type, movieid):
         try:
             page = request.args.get("page", default=1, type=int) - 1
-            limit = request.args.get("limit", default=12, type=int)
+            limit = request.args.get("limit", default=20, type=int)
 
             if type == "movie":
                 movie = self.__db["movies"].find_one({"id": str(movieid)})
 
-                if tv != None:
+                if movie != None:
                     genres = movie["genres"]
                     country = movie["original_language"]
 
@@ -36,13 +36,7 @@ class Similar(Database):
                                 },
                                 "$or": [
                                     {"original_language": {"$regex": country}},
-                                    {
-                                        "genres": {
-                                            "$elemMatch": {
-                                                "$or": [ChainMap(*new_genres)]
-                                            }
-                                        }
-                                    },
+                                    {"genres": {"$elemMatch": {"$or": new_genres}}},
                                 ],
                             },
                         )
@@ -76,13 +70,7 @@ class Similar(Database):
                                 },
                                 "$or": [
                                     {"original_language": {"$regex": country}},
-                                    {
-                                        "genres": {
-                                            "$elemMatch": {
-                                                "$or": [ChainMap(*new_genres)]
-                                            }
-                                        }
-                                    },
+                                    {"genres": {"$elemMatch": {"$or": new_genres}}},
                                 ],
                             },
                         )

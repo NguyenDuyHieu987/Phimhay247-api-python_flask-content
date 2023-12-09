@@ -1,4 +1,5 @@
 from flask import *
+
 # from flask_cors import cross_origin
 import configs
 from controllers.CommentControlers import Comment
@@ -9,13 +10,13 @@ def comment_routes(app):
 
     @app.route("/comment/get-all/<movieType>/<movieId>", methods=["GET"])
     # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    def get_comment_by_movieid_route(movieType, movieId):
-        return comment.get_commemt_by_movieid(movieType, movieId)
+    def get_comment_parent_route(movieType, movieId):
+        return comment.get_parent(movieType, movieId)
 
     @app.route("/comment/get/<movieType>/<movieId>/<parentId>", methods=["GET"])
     # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    def get_comment_by_movieid_parentid_route(movieType, movieId, parentId):
-        return comment.get_commemt_by_movieid_parentid(movieType, movieId, parentId)
+    def get_comment_child_route(movieType, movieId, parentId):
+        return comment.get_child(movieType, movieId, parentId)
 
     @app.route("/comment/post/<movieType>/<id>", methods=["POST"])
     # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)

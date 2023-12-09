@@ -16,7 +16,7 @@ class Comment(Database):
     def __init__(self):
         self.__db = self.ConnectMongoDB()
 
-    def get_commemt_by_movieid(self, movieType, movieId):
+    def get_parent(self, movieType, movieId):
         try:
             skip = request.args.get("skip", default=1, type=int) - 1
             limit = request.args.get("limit", default=20, type=int)
@@ -193,7 +193,7 @@ class Comment(Database):
         except Exception as e:
             InternalServerErrorMessage(e)
 
-    def get_commemt_by_movieid_parentid(self, movieType, movieId, parentId):
+    def get_child(self, movieType, movieId, parentId):
         try:
             skip = request.args.get("skip", default=1, type=int) - 1
             limit = request.args.get("limit", default=10, type=int)
@@ -219,7 +219,7 @@ class Comment(Database):
 
             likeDislike = []
 
-            if "Authorization" not in headers:
+            if "Authorization" in headers or request.cookies.get("user_token") != None:
                 user_token = request.headers["Authorization"].replace(
                     "Bearer ", ""
                 ) or request.cookies.get("user_token")
@@ -381,27 +381,29 @@ class Comment(Database):
 
                 result = None
 
-                if "parent_id" in commentForm:
+                if commentForm["type"] == "children" and "parent_id" in commentForm:
                     if commentForm["parent_id"] != None:
-                        result = self.__db["comments"].insert_one(
-                            {
-                                "id": idComment,
-                                "content": commentForm["content"],
-                                "user_id": str(jwtUser["id"]),
-                                "username": jwtUser["username"],
-                                "user_avatar": jwtUser["avatar"],
-                                "movie_id": str(id),
-                                "movie_type": str(movieType),
-                                "parent_id": commentForm["parent_id"],
-                                "reply_to": commentForm["reply_to"],
-                                "type": "children",
-                                # "childrens": 0,
-                                # "like": 0,
-                                # "dislike": 0,
-                                "created_at": str(datetime.now()),
-                                "updated_at": str(datetime.now()),
-                            }
-                        )
+                        comment_document = {
+                            "id": idComment,
+                            "content": commentForm["content"],
+                            "user_id": str(jwtUser["id"]),
+                            "username": jwtUser["username"],
+                            "user_avatar": jwtUser["avatar"],
+                            "movie_id": str(id),
+                            "movie_type": str(movieType),
+                            "parent_id": commentForm["parent_id"],
+                            "type": "children",
+                            # "childrens": 0,
+                            # "like": 0,
+                            # "dislike": 0,
+                            "created_at": str(datetime.now()),
+                            "updated_at": str(datetime.now()),
+                        }
+
+                        if "reply_to" in commentForm:
+                            comment_document["reply_to"] = commentForm["reply_to"]
+
+                        result = self.__db["comments"].insert_one(comment_document)
 
                         # if resultInsert1.inserted_id != None:
                         #     self.__db["comments"].update_one(
@@ -445,23 +447,27 @@ class Comment(Database):
                         raise DefaultError("Post comment failed")
 
                 if result != None:
+                    comment_inserted = self.__db["comments"].find_one({"id": idComment})
+
                     return {
                         "success": True,
                         "result": {
                             "id": idComment,
-                            "content": result["content"],
+                            "content": comment_inserted["content"],
                             "user_id": str(jwtUser["id"]),
                             "username": jwtUser["username"],
                             "user_avatar": jwtUser["avatar"],
                             "movie_id": str(id),
                             "movie_type": str(movieType),
-                            "parent_id": result["parent_id"]
-                            if "parent_id" in result
+                            "parent_id": comment_inserted["parent_id"]
+                            if "parent_id" in comment_inserted
                             else None,
-                            "reply_to": result["reply_to"]
-                            if "reply_to" in result
+                            "reply_to": comment_inserted["reply_to"]
+                            if "reply_to" in comment_inserted
                             else None,
-                            "type": result["type"] if "type" in result else "parent",
+                            "type": comment_inserted["type"]
+                            if "type" in comment_inserted
+                            else "parent",
                             "childrens": 0,
                             "like": 0,
                             "dislike": 0,
@@ -598,7 +604,7 @@ class Comment(Database):
                         }
                     )
 
-                    if len(childrens) > 0:
+                    if len(cvtJson(childrens)) > 0:
                         result2 = self.__db["comments"].delete_many(
                             {
                                 "movie_id": str(id),
@@ -614,7 +620,7 @@ class Comment(Database):
                             }
                         else:
                             raise DefaultError("Delete comment failed")
-                    elif len(childrens) == 0:
+                    elif len(cvtJson(childrens)) == 0:
                         if result1.deleted_count == 1:
                             return {
                                 "success": True,

@@ -42,6 +42,8 @@ class Account(Database, SendiblueEmail):
 
             OTP = generateOTP(length=6)
 
+            print(OTP)
+
             if type == "email":
                 encoded = jwt.encode(
                     {
