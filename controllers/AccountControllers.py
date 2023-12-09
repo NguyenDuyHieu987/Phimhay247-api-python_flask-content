@@ -256,9 +256,9 @@ class Account(Database, SendiblueEmail):
                 },
             )
 
-            print(result.modified_count)
-
             if result.modified_count == 1:
+                log_out_all_device = decodeChangePassword["logout_all_device"] == "true"
+
                 response = make_response(
                     {
                         "success": True,
@@ -273,8 +273,6 @@ class Account(Database, SendiblueEmail):
                     secure=True,
                     httponly=False,
                 )
-
-                log_out_all_device = decodeChangePassword["logout_all_device"] == "true"
 
                 if log_out_all_device == True:
                     self.__jwtredis.set_prefix("user_logout")
