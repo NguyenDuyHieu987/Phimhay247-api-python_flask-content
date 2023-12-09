@@ -80,11 +80,11 @@ if __name__ == "__main__":
     # app.run(host="0.0.0.0", debug=True, port=5000, use_reloader=True)
 
     ## waitress
-    # serve(app, host="0.0.0.0", port=5001)
+    serve(app, host="0.0.0.0", port=5001)
 
     ## gevent
     # http_server = WSGIServer(listener=("0.0.0.0", 5001), application=app, log=None)
     # http_server.serve_forever()
 
     ## wsgiserver
-    http_server = wsgiserver.WSGIServer(wsgi_app=app, host="0.0.0.0", port=5001)
+    # http_server = wsgiserver.WSGIServer(wsgi_app=app, host="0.0.0.0", port=5001)
