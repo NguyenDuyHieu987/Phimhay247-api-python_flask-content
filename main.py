@@ -48,7 +48,6 @@ CORS(
         "https://www.phimhay247z.org",
     ],
     supports_credentials=True,
-    methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
 )
 
 cache = Cache(
