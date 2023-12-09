@@ -243,7 +243,7 @@ class Account(Database, SendiblueEmail):
             if is_alive == False:
                 return {"success": False, "result": "Token is no longer active"}
 
-            resultUpdate = self.__db["accounts"].update_one(
+            result = self.__db["accounts"].update_one(
                 {
                     "id": jwtUser["id"],
                     "email": jwtUser["email"],
@@ -256,7 +256,9 @@ class Account(Database, SendiblueEmail):
                 },
             )
 
-            if resultUpdate.modified_count == 1:
+            print(result.modified_count)
+
+            if result.modified_count == 1:
                 response = make_response(
                     {
                         "success": True,
