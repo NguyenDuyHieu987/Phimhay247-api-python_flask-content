@@ -38,8 +38,8 @@ CORS(
     #     }
     # },
     origins=[
-        "http://localhost:3000",
-        "http://localhost:8080",
+        # "http://localhost:3000",
+        # "http://localhost:8080",
         "https://phimhay247z.org",
         "https://dash.phimhay247z.org",
         "https://dashboard.phimhay247z.org",
@@ -47,7 +47,7 @@ CORS(
         "https://www.phimhay247z.org",
     ],
     supports_credentials=True,
-    methods=["GET", "OPTIONS", "POST", "PUT", "PATCH", "DELETE"],
+    methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
 )
 
 cache = Cache(
