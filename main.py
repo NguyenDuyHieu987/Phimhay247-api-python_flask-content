@@ -22,7 +22,6 @@ import logging
 log = logging.getLogger("werkzeug")
 log.setLevel(logging.ERROR)
 
-
 CORS(
     app,
     # resources={
@@ -49,8 +48,6 @@ CORS(
     ],
     supports_credentials=True,
 )
-
-app.config["CORS_SUPPORTS_CREDENTIALS"] = True
 
 cache = Cache(
     app,
@@ -80,5 +77,5 @@ route(app, cache)
 if __name__ == "__main__":
     # app.run(host="0.0.0.0", debug=True, port=5000, use_reloader=True)
 
-    http_server = WSGIServer(("0.0.0.0", 5001), app, log=None)
+    http_server = WSGIServer(("", 5001), app, log=None)
     http_server.serve_forever()
