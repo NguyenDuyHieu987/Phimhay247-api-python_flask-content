@@ -1,5 +1,6 @@
 import pymongo
 from pymongo.errors import PyMongoError
+from pymongo import ReturnDocument
 from utils.JsonResponse import ConvertJsonResponse as cvtJson
 from utils.ErrorMessage import BadRequestMessage, InternalServerErrorMessage
 from flask import *
@@ -395,38 +396,91 @@ class Account(Database, SendiblueEmail):
 
     def verify_email(self):
         try:
-            verify_token = request.headers["Authorization"].replace("Bearer ", "")
+            formUser = request.form
+
+            user_token = request.headers["Authorization"].replace(
+                "Bearer ", ""
+            ) or request.cookies.get("user_token")
+
+            verify_token = request.cookies.get("vrf_email_token") or formUser["token"]
 
             formUser = request.form
 
-            jwtUser = jwt.decode(
-                verify_token,
-                str(formUser["otp"]),
+            try:
+                decoded = jwt.decode(
+                    verify_token,
+                    str(formUser["otp"]),
+                    algorithms=["HS256"],
+                )
+
+                return {"success": True}
+
+            except jwt.ExpiredSignatureError as e:
+                return {"isOTPExpired": True, "result": "OTP is expired"}
+            except (
+                jwt.exceptions.DecodeError,
+                jwt.exceptions.InvalidSignatureError,
+            ) as e:
+                return {"isInvalidOTP": True, "result": "OTP is invalid"}
+
+        except jwt.ExpiredSignatureError as e:
+            InternalServerErrorMessage("Token is expired")
+        except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
+            InternalServerErrorMessage("Token is invalid")
+        except PyMongoError as e:
+            InternalServerErrorMessage(e._message)
+        except Exception as e:
+            InternalServerErrorMessage(e)
+
+    def change_email_retrieve_token(self):
+        try:
+            token = request.args.get("token", type=str) or request.cookies.get(
+                "chg_email_token"
+            )
+
+            if token == None:
+                return {"isInvalidToken": True, "result": "Token is invalid"}
+
+            is_alive = self.__jwtredis.set_prefix("chg_email_token").verify(token)
+
+            if is_alive == False:
+                return {
+                    "success": False,
+                    "result": "Token is no longer active",
+                }
+
+            change_email_info = jwt.decode(
+                token,
+                str(os.getenv("JWT_SIGNATURE_SECRET")),
                 algorithms=["HS256"],
             )
 
-            resultUpdate = self.__db["accounts"].update_one(
+            account = self.__db["accounts"].find_one(
                 {
-                    "id": jwtUser["id"],
-                    "email": jwtUser["email"],
-                    "auth_type": "email",
-                },
-                {
-                    "$set": {
-                        "email": formUser["new_email"],
-                    }
-                },
+                    "id": change_email_info["id"],
+                    "email": change_email_info["email"],
+                    "auth_type": change_email_info["auth_type"],
+                }
             )
 
-            if resultUpdate.modified_count == 1:
-                return {"success": True}
+            if account != None:
+                return {
+                    "success": True,
+                    "result": {
+                        "old_email": change_email_info["email"],
+                        "new_email": change_email_info["new_email"],
+                    },
+                }
             else:
-                return {"success": False}
+                return {
+                    "success": False,
+                    "result": "Cant not find information",
+                }
 
         except jwt.ExpiredSignatureError as e:
-            return {"isOTPExpired": True, "result": "OTP is expired"}
+            return {"isTokenExpired": True, "result": "Token is expired"}
         except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
-            return {"isInvalidOTP": True, "result": "OTP is invalid"}
+            return {"isInvalidToken": True, "result": "Token is invalid"}
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except Exception as e:
@@ -434,38 +488,61 @@ class Account(Database, SendiblueEmail):
 
     def change_email(self):
         try:
-            verify_token = request.headers["Authorization"].replace("Bearer ", "")
+            token = request.cookies.get("chg_email_token") or request.form["token"]
 
-            formUser = request.form
+            if token == None:
+                return {"isInvalidToken": True, "result": "Token is invalid"}
 
-            jwtUser = jwt.decode(
-                verify_token,
-                str(formUser["otp"]),
+            is_alive = self.__jwtredis.set_prefix("chg_email_token").verify(token)
+
+            if is_alive == False:
+                return {
+                    "success": False,
+                    "result": "Token is no longer active",
+                }
+
+            change_email_info = jwt.decode(
+                token,
+                str(os.getenv("JWT_SIGNATURE_SECRET")),
                 algorithms=["HS256"],
             )
 
-            resultUpdate = self.__db["accounts"].update_one(
+            account = self.__db["accounts"].find_one_and_update(
                 {
-                    "id": jwtUser["id"],
-                    "email": jwtUser["email"],
-                    "auth_type": "email",
+                    "id": change_email_info["id"],
+                    "email": change_email_info["email"],
+                    "auth_type": change_email_info["auth_type"],
                 },
                 {
                     "$set": {
-                        "email": formUser["new_email"],
-                    }
+                        "email": change_email_info["new_email"],
+                    },
                 },
+                return_document=ReturnDocument.AFTER,
             )
 
-            if resultUpdate.modified_count == 1:
-                return {"success": True}
+            if account != None:
+                self.__jwtredis.set_prefix("chg_email_token")
+
+                self.__jwtredis.sign(
+                    token,
+                    exp=configs.CHANGE_EMAIL_EXP_OFFSET * 60,
+                )
+
+                return {
+                    "success": True,
+                    "result": "Change email successfully",
+                }
             else:
-                return {"success": False}
+                return {
+                    "success": False,
+                    "result": "Cant not find information",
+                }
 
         except jwt.ExpiredSignatureError as e:
-            return {"isOTPExpired": True, "result": "OTP is expired"}
+            return {"isTokenExpired": True, "result": "Token is expired"}
         except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
-            return {"isInvalidOTP": True, "result": "OTP is invalid"}
+            return {"isInvalidToken": True, "result": "Token is invalid"}
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except Exception as e:
@@ -473,20 +550,55 @@ class Account(Database, SendiblueEmail):
 
     def reset_password_retrieve_token(self):
         try:
-            verify_token = request.headers["Authorization"].replace("Bearer ", "")
+            token = request.args.get("token", type=str) or request.cookies.get(
+                "rst_pwd_token"
+            )
 
-            formUser = request.form
+            if token == None:
+                return {"isInvalidToken": True, "result": "Token is invalid"}
 
-            jwtUser = jwt.decode(
-                verify_token,
-                str(formUser["otp"]),
+            is_alive = self.__jwtredis.set_prefix("rst_pwd_token").verify(token)
+
+            if is_alive == False:
+                return {
+                    "success": False,
+                    "result": "Token is no longer active",
+                }
+
+            reset_password_info = jwt.decode(
+                token,
+                str(os.getenv("JWT_SIGNATURE_SECRET")),
                 algorithms=["HS256"],
             )
 
+            account = self.__db["accounts"].find_one(
+                {
+                    "id": reset_password_info["id"],
+                    "email": reset_password_info["email"],
+                    "auth_type": reset_password_info["auth_type"],
+                }
+            )
+
+            if account != None:
+                return {
+                    "success": True,
+                    "result": {
+                        "username": account["username"],
+                        "email": reset_password_info["email"],
+                        "auth_type": reset_password_info["auth_type"],
+                        "created_at": account["created_at"],
+                    },
+                }
+            else:
+                return {
+                    "success": False,
+                    "result": "Cant not find information",
+                }
+
         except jwt.ExpiredSignatureError as e:
-            return {"isOTPExpired": True, "result": "OTP is expired"}
+            return {"isTokenExpired": True, "result": "Token is expired"}
         except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
-            return {"isInvalidOTP": True, "result": "OTP is invalid"}
+            return {"isInvalidToken": True, "result": "Token is invalid"}
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except Exception as e:
@@ -494,20 +606,65 @@ class Account(Database, SendiblueEmail):
 
     def reset_password(self):
         try:
-            verify_token = request.headers["Authorization"].replace("Bearer ", "")
+            token = request.cookies.get("rst_pwd_token") or request.form["token"]
 
-            formUser = request.form
+            if token == None:
+                return {"isInvalidToken": True, "result": "Token is invalid"}
 
-            jwtUser = jwt.decode(
-                verify_token,
-                str(formUser["otp"]),
+            is_alive = self.__jwtredis.set_prefix("rst_pwd_token").verify(token)
+
+            if is_alive == False:
+                return {
+                    "success": False,
+                    "result": "Token is no longer active",
+                }
+
+            reset_password_info = jwt.decode(
+                token,
+                str(os.getenv("JWT_SIGNATURE_SECRET")),
                 algorithms=["HS256"],
             )
 
+            new_password_encrypted = encryptPassword(
+                reset_password_info["new_password"]
+            )
+
+            account = self.__db["accounts"].find_one_and_update(
+                {
+                    "id": reset_password_info["id"],
+                    "email": reset_password_info["email"],
+                    "auth_type": reset_password_info["auth_type"],
+                },
+                {
+                    "$set": {
+                        "password": new_password_encrypted,
+                    },
+                },
+                return_document=ReturnDocument.AFTER,
+            )
+
+            if account != None:
+                self.__jwtredis.set_prefix("rst_pwd_token")
+
+                self.__jwtredis.sign(
+                    token,
+                    exp=configs.FORGOT_PASSWORD_EXP_OFFSET * 60,
+                )
+
+                return {
+                    "success": True,
+                    "result": "Reset password successfully",
+                }
+            else:
+                return {
+                    "success": False,
+                    "result": "Cant not find information",
+                }
+
         except jwt.ExpiredSignatureError as e:
-            return {"isOTPExpired": True, "result": "OTP is expired"}
+            return {"isTokenExpired": True, "result": "Token is expired"}
         except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
-            return {"isInvalidOTP": True, "result": "OTP is invalid"}
+            return {"isInvalidToken": True, "result": "Token is invalid"}
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except Exception as e:

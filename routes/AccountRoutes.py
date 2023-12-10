@@ -18,6 +18,11 @@ def account_routes(app):
     def change_password_route():
         return account.change_password()
 
+    @app.route("/account/change-email", methods=["GET"])
+    # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
+    def change_email_retrieve_token_route():
+        return account.change_email_retrieve_token()
+
     @app.route("/account/change-email", methods=["POST"])
     # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def change_email_route():
