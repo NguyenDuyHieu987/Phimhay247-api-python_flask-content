@@ -653,6 +653,7 @@ class Account(Database, SendiblueEmail):
     def reset_password(self):
         try:
             token = request.cookies.get("rst_pwd_token") or request.form["token"]
+            formUser = request.form
 
             if token == None:
                 return {"isInvalidToken": True, "result": "Token is invalid"}
@@ -671,7 +672,7 @@ class Account(Database, SendiblueEmail):
                 algorithms=["HS256"],
             )
 
-            new_password_encrypted = encryptPassword(request.form["new_password"])
+            new_password_encrypted = encryptPassword(formUser["new_password"])
 
             account = self.__db["accounts"].find_one_and_update(
                 {
