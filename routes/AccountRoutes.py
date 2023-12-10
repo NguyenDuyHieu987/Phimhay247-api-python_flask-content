@@ -27,3 +27,13 @@ def account_routes(app):
     # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def verify_email_route():
         return account.verify_email()
+
+    @app.route("/account/reset-password", methods=["GET"])
+    # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
+    def reset_password_retrieve_token_route():
+        return account.reset_password_retrieve_token()
+
+    @app.route("/account/reset-password", methods=["POST"])
+    # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
+    def reset_password_route():
+        return account.reset_password()

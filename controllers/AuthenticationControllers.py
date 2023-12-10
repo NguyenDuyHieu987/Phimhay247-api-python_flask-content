@@ -694,10 +694,8 @@ class Authentication(SendiblueEmail):
                         }
 
                 else:
-                    return {
-                        "isEmailExist": True,
-                        "result": "Email is already exists",
-                    }
+                    return {"isEmailExist": False, "result": "Email is not registered"}
+
             else:
                 raise DefaultError(
                     f"Forgot password with method: {type} is not support!"
