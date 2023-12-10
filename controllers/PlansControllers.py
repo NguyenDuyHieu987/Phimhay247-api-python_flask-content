@@ -21,3 +21,27 @@ class Plan(Database):
             InternalServerErrorMessage(e._message)
         except Exception as e:
             InternalServerErrorMessage(e)
+
+    def register(self, id):
+        try:
+            plans = cvtJson(
+                self.__db["plans"].find().sort([("order", pymongo.ASCENDING)])
+            )
+
+            return {"results": plans}
+        except PyMongoError as e:
+            InternalServerErrorMessage(e._message)
+        except Exception as e:
+            InternalServerErrorMessage(e)
+
+    def retrieve(self, method, id):
+        try:
+            plans = cvtJson(
+                self.__db["plans"].find().sort([("order", pymongo.ASCENDING)])
+            )
+
+            return {"results": plans}
+        except PyMongoError as e:
+            InternalServerErrorMessage(e._message)
+        except Exception as e:
+            InternalServerErrorMessage(e)
