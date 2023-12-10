@@ -700,7 +700,7 @@ class Authentication(SendiblueEmail):
                         response = make_response(
                             {
                                 "isSended": True,
-                                "exp_offset": configs.FORGOT_PASSWORD_EXP_OFFSET,
+                                "exp_offset": configs.FORGOT_PASSWORD_EXP_OFFSET * 60,
                                 "result": "Send email successfully",
                             }
                         )
