@@ -176,7 +176,7 @@ class Account(Database, SendiblueEmail):
                                     )
                                 ).timestamp(),
                             },
-                            str(OTP),
+                            str(os.getenv("JWT_SIGNATURE_SECRET")),
                             algorithm="HS256",
                         )
 
