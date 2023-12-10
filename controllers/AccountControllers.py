@@ -516,10 +516,10 @@ class Account(Database, SendiblueEmail):
             print("start")
             print(request.form)
 
-            print(request.form["new_password"])
-            print(encryptPassword(request.form["new_password"]))
+            print(request.form["new_email"])
+            print(encryptPassword(request.form["new_email"]))
 
-            new_password_encrypted = encryptPassword(request.form["new_password"])
+            new_email_encrypted = encryptPassword(request.form["new_email"])
 
             print("end")
 
