@@ -673,7 +673,7 @@ class Account(Database, SendiblueEmail):
                 algorithms=["HS256"],
             )
 
-            new_password_encrypted = encryptPassword("123")
+            new_password_encrypted = encryptPassword(request.form["new_password"])
 
             account = self.__db["accounts"].find_one_and_update(
                 {
