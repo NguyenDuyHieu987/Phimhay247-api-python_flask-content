@@ -413,7 +413,13 @@ class Account(Database, SendiblueEmail):
                     algorithms=["HS256"],
                 )
 
-                return {"success": True}
+                response = make_response({"success": True})
+
+                response.delete_cookie(
+                    "vrf_email_token", samesite="lax", secure=True, httponly=False
+                )
+
+                return response
 
             except jwt.ExpiredSignatureError as e:
                 return {"isOTPExpired": True, "result": "OTP is expired"}

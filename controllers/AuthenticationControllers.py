@@ -488,9 +488,7 @@ class Authentication(SendiblueEmail):
         try:
             formUser = request.form
             # signup_token = request.headers["Authorization"].replace("Bearer ", "")
-            signup_token = (
-                request.cookies.get("vrf_signup_token") or formUser["vrf_signup_token"]
-            )
+            signup_token = request.cookies.get("vrf_signup_token") or formUser["token"]
 
             jwtUser = jwt.decode(
                 signup_token,
@@ -498,7 +496,9 @@ class Authentication(SendiblueEmail):
                 algorithms=["HS256"],
             )
 
-            is_alive = self.__jwtredis.set_prefix("verify_signup").verify(signup_token)
+            is_alive = self.__jwtredis.set_prefix("vrf_signup_token").verify(
+                signup_token
+            )
 
             if is_alive == False:
                 return {"success": False, "result": "Token is no longer active"}
@@ -532,17 +532,25 @@ class Authentication(SendiblueEmail):
                     }
                 )
 
-                self.__jwtredis.set_prefix("verify_signup")
+                self.__jwtredis.set_prefix("vrf_signup_token")
 
                 self.__jwtredis.sign(
                     signup_token,
                     option={"exp": configs.OTP_EXP_OFFSET * 60},
                 )
 
-                return {
-                    "isSignUp": True,
-                    "result": "Sign up account successfully",
-                }
+                response = make_response(
+                    {
+                        "isSignUp": True,
+                        "result": "Sign up account successfully",
+                    }
+                )
+
+                response.delete_cookie(
+                    "vrf_signup_token", samesite="lax", secure=True, httponly=False
+                )
+
+                return response
             else:
                 return {"isAccountExist": True, "result": "Account is already exists"}
         except jwt.ExpiredSignatureError as e:
