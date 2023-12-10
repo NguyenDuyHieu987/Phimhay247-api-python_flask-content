@@ -675,8 +675,10 @@ class Authentication(SendiblueEmail):
                             f"{os.getenv('CLIENT_URL')}/ResetPassword?token={encoded}"
                         )
 
-                        email_response = self.Verification_ForgotPassword(
+                        email_response = self.Verification_Link(
                             to=formUser["email"],
+                            title="Đặt lại mật khẩu của bạn",
+                            subject="Hoàn thành yêu cầu đặt lại mật khẩu",
                             resetPasswordLink=resetPasswordLink,
                             noteExp=int(os.getenv("FORGOT_PASSWORD_EXP_OFFSET")),
                         )

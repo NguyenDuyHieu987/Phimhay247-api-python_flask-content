@@ -1,6 +1,7 @@
 import os
 import sib_api_v3_sdk
 from sib_api_v3_sdk.rest import ApiException
+
 # import codecs
 # from string import Template
 
@@ -15,7 +16,7 @@ class SendiblueEmail:
     __api_instance = sib_api_v3_sdk.TransactionalEmailsApi(
         sib_api_v3_sdk.ApiClient(configuration)
     )
-    
+
     def Verification_OTP(
         self,
         to,
@@ -34,49 +35,56 @@ class SendiblueEmail:
                 #     noteExp=f"Mã xác nhận của bạn sẽ hết hạn sau {noteExp} phút.",
                 # ),
                 template_id=4,
-                params= {
+                params={
                     "title": title,
                     "PIN": otp,
-                    "noteExp": f'Mã xác nhận của bạn sẽ hết hạn sau {noteExp} phút.',
+                    "noteExp": f"Mã xác nhận của bạn sẽ hết hạn sau {noteExp} phút.",
                 },
                 headers={
                     "accept": "application/json",
                     "content-type": "application/json",
                 },
             )
-            api_response = self.__api_instance.send_transac_email(send_smtp_email=email_campaigns)
+            api_response = self.__api_instance.send_transac_email(
+                send_smtp_email=email_campaigns
+            )
             return api_response
         except ApiException as e:
             print(
-                "Exception when calling EmailCampaignsApi->create_email_campaign: %s\n" % e
+                "Exception when calling EmailCampaignsApi->create_email_campaign: %s\n"
+                % e
             )
 
-    def Verification_ForgotPassword(
-            self,
-            to,
-            resetPasswordLink,
-            title = 'Đặt lại mật khẩu của bạn',
-            noteExp=10,
-        ):
-            try:
-                email_campaigns = sib_api_v3_sdk.SendSmtpEmail(
-                    subject="Hoàn thành yêu cầu đặt lại mật khẩu",
-                    sender={"name": "Phimhay247", "email": "account@phimhay247z.org"},
-                    to=[{"email": to}],
-                    template_id=5,
-                    params= {
-                        "title": title,
-                        "resetPasswordLink": resetPasswordLink,
-                        "noteExp": f"Yêu cầu này của bạn sẽ hết hiệu lực sau ${noteExp} phút.",
-                    },
-                    headers={
-                        "accept": "application/json",
-                        "content-type": "application/json",
-                    },
-                )
-                api_response = self.__api_instance.send_transac_email(send_smtp_email=email_campaigns)
-                return api_response
-            except ApiException as e:
-                print(
-                    "Exception when calling EmailCampaignsApi->create_email_campaign: %s\n" % e
-                )
+    def Verification_Link(
+        self,
+        to,
+        resetPasswordLink,
+        title,
+        subject,
+        noteExp=10,
+    ):
+        try:
+            email_campaigns = sib_api_v3_sdk.SendSmtpEmail(
+                subject=subject,
+                sender={"name": "Phimhay247", "email": "account@phimhay247z.org"},
+                to=[{"email": to}],
+                template_id=5,
+                params={
+                    "title": title,
+                    "resetPasswordLink": resetPasswordLink,
+                    "noteExp": f"Yêu cầu này của bạn sẽ hết hiệu lực sau ${noteExp} phút.",
+                },
+                headers={
+                    "accept": "application/json",
+                    "content-type": "application/json",
+                },
+            )
+            api_response = self.__api_instance.send_transac_email(
+                send_smtp_email=email_campaigns
+            )
+            return api_response
+        except ApiException as e:
+            print(
+                "Exception when calling EmailCampaignsApi->create_email_campaign: %s\n"
+                % e
+            )
