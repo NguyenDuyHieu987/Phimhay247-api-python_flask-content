@@ -501,6 +501,8 @@ class Account(Database, SendiblueEmail):
 
             new_password_encrypted = encryptPassword(request.form["new_email"])
 
+            print(new_password_encrypted)
+
             is_alive = self.__jwtredis.set_prefix("chg_email_token").verify(token)
 
             if is_alive == False:
