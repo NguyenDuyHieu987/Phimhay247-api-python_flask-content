@@ -576,6 +576,8 @@ class Authentication(SendiblueEmail):
                         # if True:
                         OTP = generateOTP(length=6)
 
+                        print(OTP)
+
                         password_encrypted = encryptPassword(formUser["password"])
 
                         encoded = jwt.encode(
