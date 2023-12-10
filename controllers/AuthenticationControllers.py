@@ -679,7 +679,9 @@ class Authentication(SendiblueEmail):
                             to=formUser["email"],
                             title="Đặt lại mật khẩu của bạn",
                             subject="Hoàn thành yêu cầu đặt lại mật khẩu",
+                            nameLink="Đặt lại mật khẩu",
                             resetPasswordLink=resetPasswordLink,
+                            note1="Truy cập dường liên kết sau đây để đặt lại mật khẩu của bạn:",
                             noteExp=int(os.getenv("FORGOT_PASSWORD_EXP_OFFSET")),
                         )
 

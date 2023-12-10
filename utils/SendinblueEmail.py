@@ -58,9 +58,11 @@ class SendiblueEmail:
     def Verification_Link(
         self,
         to,
-        resetPasswordLink,
         title,
         subject,
+        nameLink,
+        resetPasswordLink,
+        note1,
         noteExp=10,
     ):
         try:
@@ -72,7 +74,9 @@ class SendiblueEmail:
                 params={
                     "title": title,
                     "resetPasswordLink": resetPasswordLink,
-                    "noteExp": f"Yêu cầu này của bạn sẽ hết hiệu lực sau ${noteExp} phút.",
+                    "nameLink": nameLink,
+                    "note1": note1,
+                    "noteExp": f"Yêu cầu này của bạn sẽ hết hiệu lực sau {noteExp} phút.",
                 },
                 headers={
                     "accept": "application/json",
