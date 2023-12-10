@@ -494,12 +494,12 @@ class Account(Database, SendiblueEmail):
 
     def change_email(self):
         try:
-            print(request.form["new_email"])
-
             token = request.cookies.get("chg_email_token") or request.form["token"]
 
             if token == None:
                 return {"isInvalidToken": True, "result": "Token is invalid"}
+
+            new_password_encrypted = encryptPassword(request.form["new_email"])
 
             is_alive = self.__jwtredis.set_prefix("chg_email_token").verify(token)
 
