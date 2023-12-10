@@ -674,6 +674,7 @@ class Account(Database, SendiblueEmail):
             )
 
             print("start")
+            print(request.form)
 
             print(request.form["new_password"])
             print(encryptPassword(request.form["new_password"]))
