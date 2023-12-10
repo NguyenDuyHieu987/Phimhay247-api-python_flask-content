@@ -499,10 +499,6 @@ class Account(Database, SendiblueEmail):
             if token == None:
                 return {"isInvalidToken": True, "result": "Token is invalid"}
 
-            new_password_encrypted = encryptPassword(request.form["new_email"])
-
-            print(new_password_encrypted)
-
             is_alive = self.__jwtredis.set_prefix("chg_email_token").verify(token)
 
             if is_alive == False:
@@ -677,10 +673,7 @@ class Account(Database, SendiblueEmail):
                 algorithms=["HS256"],
             )
 
-            print(request.form["new_password"])
-
-            # new_password_encrypted = encryptPassword(request.form["new_password"])
-            new_password_encrypted = encryptPassword("123")
+            new_password_encrypted = encryptPassword(request.form["new_password"])
 
             account = self.__db["accounts"].find_one_and_update(
                 {
