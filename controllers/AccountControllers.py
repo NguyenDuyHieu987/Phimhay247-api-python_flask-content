@@ -494,96 +494,101 @@ class Account(Database, SendiblueEmail):
 
     def change_email(self):
         try:
-            token = request.cookies.get("chg_email_token") or request.form["token"]
+            if request.method == "POST":
+                token = request.cookies.get("chg_email_token") or request.form["token"]
 
-            if token == None:
-                return {"isInvalidToken": True, "result": "Token is invalid"}
+                if token == None:
+                    return {"isInvalidToken": True, "result": "Token is invalid"}
 
-            is_alive = self.__jwtredis.set_prefix("chg_email_token").verify(token)
+                is_alive = self.__jwtredis.set_prefix("chg_email_token").verify(token)
 
-            if is_alive == False:
-                return {
-                    "success": False,
-                    "result": "Token is no longer active",
-                }
-
-            change_email_info = jwt.decode(
-                token,
-                str(os.getenv("JWT_SIGNATURE_SECRET")),
-                algorithms=["HS256"],
-            )
-
-            account = self.__db["accounts"].find_one_and_update(
-                {
-                    "id": change_email_info["id"],
-                    "email": change_email_info["email"],
-                    "auth_type": change_email_info["auth_type"],
-                },
-                {
-                    "$set": {
-                        "email": change_email_info["new_email"],
-                    },
-                },
-                return_document=ReturnDocument.AFTER,
-            )
-
-            if account != None:
-                self.__jwtredis.set_prefix("chg_email_token")
-
-                self.__jwtredis.sign(
-                    token,
-                    option={"exp": configs.CHANGE_EMAIL_EXP_OFFSET * 60},
-                )
-
-                encoded = jwt.encode(
-                    {
-                        "id": account["id"],
-                        "username": account["username"],
-                        "full_name": account["full_name"],
-                        "avatar": account["avatar"],
-                        "role": account["role"],
-                        "email": account["email"],
-                        "auth_type": account["auth_type"],
-                        "created_at": str(account["created_at"]),
-                        "exp": (
-                            datetime.now(tz=timezone.utc)
-                            + timedelta(seconds=configs.JWT_EXP_OFFSET * 60 * 60)
-                        ).timestamp(),
-                    },
-                    str(os.getenv("JWT_SIGNATURE_SECRET")),
-                    algorithm="HS256",
-                )
-
-                response = make_response(
-                    {
-                        "success": True,
-                        "result": "Change email successfully",
+                if is_alive == False:
+                    return {
+                        "success": False,
+                        "result": "Token is no longer active",
                     }
+
+                change_email_info = jwt.decode(
+                    token,
+                    str(os.getenv("JWT_SIGNATURE_SECRET")),
+                    algorithms=["HS256"],
                 )
 
-                response.headers.set("Access-Control-Expose-Headers", "Authorization")
-
-                response.set_cookie(
-                    key="user_token",
-                    value=encoded,
-                    max_age=configs.JWT_EXP_OFFSET * 60 * 60,
-                    samesite="lax",
-                    secure=True,
-                    httponly=False,
+                account = self.__db["accounts"].find_one_and_update(
+                    {
+                        "id": change_email_info["id"],
+                        "email": change_email_info["email"],
+                        "auth_type": change_email_info["auth_type"],
+                    },
+                    {
+                        "$set": {
+                            "email": change_email_info["new_email"],
+                        },
+                    },
+                    return_document=ReturnDocument.AFTER,
                 )
 
-                response.delete_cookie(
-                    "chg_email_token", samesite="lax", secure=True, httponly=False
-                )
+                if account != None:
+                    self.__jwtredis.set_prefix("chg_email_token")
 
-                response.headers.set("Authorization", encoded)
+                    self.__jwtredis.sign(
+                        token,
+                        option={"exp": configs.CHANGE_EMAIL_EXP_OFFSET * 60},
+                    )
 
-                return response
+                    encoded = jwt.encode(
+                        {
+                            "id": account["id"],
+                            "username": account["username"],
+                            "full_name": account["full_name"],
+                            "avatar": account["avatar"],
+                            "role": account["role"],
+                            "email": account["email"],
+                            "auth_type": account["auth_type"],
+                            "created_at": str(account["created_at"]),
+                            "exp": (
+                                datetime.now(tz=timezone.utc)
+                                + timedelta(seconds=configs.JWT_EXP_OFFSET * 60 * 60)
+                            ).timestamp(),
+                        },
+                        str(os.getenv("JWT_SIGNATURE_SECRET")),
+                        algorithm="HS256",
+                    )
+
+                    response = make_response(
+                        {
+                            "success": True,
+                            "result": "Change email successfully",
+                        }
+                    )
+
+                    response.headers.set(
+                        "Access-Control-Expose-Headers", "Authorization"
+                    )
+
+                    response.set_cookie(
+                        key="user_token",
+                        value=encoded,
+                        max_age=configs.JWT_EXP_OFFSET * 60 * 60,
+                        samesite="lax",
+                        secure=True,
+                        httponly=False,
+                    )
+
+                    response.delete_cookie(
+                        "chg_email_token", samesite="lax", secure=True, httponly=False
+                    )
+
+                    response.headers.set("Authorization", encoded)
+
+                    return response
+                else:
+                    return {
+                        "success": False,
+                        "result": "Cant not find information",
+                    }
             else:
-                return {
-                    "success": False,
-                    "result": "Cant not find information",
-                }
+                raise DefaultError(f"Method {request.method} is not accpeted")
 
         except jwt.ExpiredSignatureError as e:
             return {"isTokenExpired": True, "result": "Token is expired"}
@@ -652,72 +657,76 @@ class Account(Database, SendiblueEmail):
 
     def reset_password(self):
         try:
-            token = request.cookies.get("rst_pwd_token") or request.form["token"]
-            formUser = request.form
+            if request.method == "POST":
+                token = request.cookies.get("rst_pwd_token") or request.form["token"]
 
-            if token == None:
-                return {"isInvalidToken": True, "result": "Token is invalid"}
+                if token == None:
+                    return {"isInvalidToken": True, "result": "Token is invalid"}
 
-            is_alive = self.__jwtredis.set_prefix("rst_pwd_token").verify(token)
+                is_alive = self.__jwtredis.set_prefix("rst_pwd_token").verify(token)
 
-            if is_alive == False:
-                return {
-                    "success": False,
-                    "result": "Token is no longer active",
-                }
-
-            reset_password_info = jwt.decode(
-                token,
-                str(os.getenv("JWT_SIGNATURE_SECRET")),
-                algorithms=["HS256"],
-            )
-
-            new_password_encrypted = encryptPassword(formUser["new_password"])
-
-            account = self.__db["accounts"].find_one_and_update(
-                {
-                    "id": reset_password_info["id"],
-                    "email": reset_password_info["email"],
-                    "auth_type": reset_password_info["auth_type"],
-                },
-                {
-                    "$set": {
-                        "password": new_password_encrypted,
-                    },
-                },
-                return_document=ReturnDocument.AFTER,
-            )
-
-            if account != None:
-                self.__jwtredis.set_prefix("rst_pwd_token")
-
-                self.__jwtredis.sign(
-                    token,
-                    option={"exp": configs.FORGOT_PASSWORD_EXP_OFFSET * 60},
-                )
-
-                response = make_response(
-                    {
-                        "success": True,
-                        "result": "Reset password successfully",
+                if is_alive == False:
+                    return {
+                        "success": False,
+                        "result": "Token is no longer active",
                     }
+
+                reset_password_info = jwt.decode(
+                    token,
+                    str(os.getenv("JWT_SIGNATURE_SECRET")),
+                    algorithms=["HS256"],
                 )
 
-                response.delete_cookie(
-                    "rst_pwd_token", samesite="lax", secure=True, httponly=False
+                new_password_encrypted = encryptPassword(request.form["new_password"])
+
+                account = self.__db["accounts"].find_one_and_update(
+                    {
+                        "id": reset_password_info["id"],
+                        "email": reset_password_info["email"],
+                        "auth_type": reset_password_info["auth_type"],
+                    },
+                    {
+                        "$set": {
+                            "password": new_password_encrypted,
+                        },
+                    },
+                    return_document=ReturnDocument.AFTER,
                 )
 
-                return response
+                if account != None:
+                    self.__jwtredis.set_prefix("rst_pwd_token")
+
+                    self.__jwtredis.sign(
+                        token,
+                        option={"exp": configs.FORGOT_PASSWORD_EXP_OFFSET * 60},
+                    )
+
+                    response = make_response(
+                        {
+                            "success": True,
+                            "result": "Reset password successfully",
+                        }
+                    )
+
+                    response.delete_cookie(
+                        "rst_pwd_token", samesite="lax", secure=True, httponly=False
+                    )
+
+                    return response
+                else:
+                    return {
+                        "success": False,
+                        "result": "Cant not find information",
+                    }
             else:
-                return {
-                    "success": False,
-                    "result": "Cant not find information",
-                }
+                raise DefaultError(f"Method {request.method} is not accpeted")
 
         except jwt.ExpiredSignatureError as e:
             return {"isTokenExpired": True, "result": "Token is expired"}
         except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
             return {"isInvalidToken": True, "result": "Token is invalid"}
+        except DefaultError as e:
+            BadRequestMessage(e.message)
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except Exception as e:
