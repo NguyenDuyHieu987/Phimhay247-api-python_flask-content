@@ -697,11 +697,24 @@ class Authentication(SendiblueEmail):
                             noteExp=int(os.getenv("FORGOT_PASSWORD_EXP_OFFSET")),
                         )
 
-                        return {
-                            "isSended": True,
-                            "exp_offset": configs.FORGOT_PASSWORD_EXP_OFFSET,
-                            "result": "Send email successfully",
-                        }
+                        response = make_response(
+                            {
+                                "isSended": True,
+                                "exp_offset": configs.FORGOT_PASSWORD_EXP_OFFSET,
+                                "result": "Send email successfully",
+                            }
+                        )
+
+                        response.set_cookie(
+                            key="rst_pwd_token",
+                            value=encoded,
+                            max_age=configs.FORGOT_PASSWORD_EXP_OFFSET * 60,
+                            samesite="lax",
+                            secure=True,
+                            httponly=False,
+                        )
+
+                        return response
 
                     else:
                         return {
