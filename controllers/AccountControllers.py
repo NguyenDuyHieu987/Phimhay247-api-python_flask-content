@@ -513,6 +513,21 @@ class Account(Database, SendiblueEmail):
                 algorithms=["HS256"],
             )
 
+            print("start")
+            print(request.form)
+
+            print(request.form["new_password"])
+            print(encryptPassword(request.form["new_password"]))
+
+            new_password_encrypted = encryptPassword(request.form["new_password"])
+
+            print("end")
+
+            return {
+                "success": True,
+                "result": "Change email successfully",
+            }
+
             account = self.__db["accounts"].find_one_and_update(
                 {
                     "id": change_email_info["id"],
