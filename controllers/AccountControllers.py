@@ -192,7 +192,7 @@ class Account(Database, SendiblueEmail):
                             subject="Hoàn thành yêu cầu đặt thay đổi email",
                             nameLink="Thay đổi email",
                             linkVerify=change_email_link,
-                            note1="Truy cập dường liên kết sau đây để đặt lại email của bạn:",
+                            note1="Truy cập dường liên kết sau đây để thay đổi email của bạn:",
                             noteExp=configs.CHANGE_EMAIL_EXP_OFFSET,
                         )
 
@@ -529,10 +529,50 @@ class Account(Database, SendiblueEmail):
                     exp=configs.CHANGE_EMAIL_EXP_OFFSET * 60,
                 )
 
-                return {
-                    "success": True,
-                    "result": "Change email successfully",
-                }
+                encoded = jwt.encode(
+                    {
+                        "id": account["id"],
+                        "username": account["username"],
+                        "full_name": account["full_name"],
+                        "avatar": account["avatar"],
+                        "role": account["role"],
+                        "email": account["email"],
+                        "auth_type": account["auth_type"],
+                        "created_at": str(account["created_at"]),
+                        "exp": (
+                            datetime.now(tz=timezone.utc)
+                            + timedelta(seconds=configs.JWT_EXP_OFFSET * 60 * 60)
+                        ).timestamp(),
+                    },
+                    str(os.getenv("JWT_SIGNATURE_SECRET")),
+                    algorithm="HS256",
+                )
+
+                response = make_response(
+                    {
+                        "success": True,
+                        "result": "Change email successfully",
+                    }
+                )
+
+                response.headers.set("Access-Control-Expose-Headers", "Authorization")
+
+                response.set_cookie(
+                    key="user_token",
+                    value=encoded,
+                    max_age=configs.JWT_EXP_OFFSET * 60 * 60,
+                    samesite="lax",
+                    secure=True,
+                    httponly=False,
+                )
+
+                response.delete_cookie(
+                    "chg_email_token", samesite="lax", secure=True, httponly=False
+                )
+
+                response.headers.set("Authorization", encoded)
+
+                return response
             else:
                 return {
                     "success": False,
@@ -651,10 +691,18 @@ class Account(Database, SendiblueEmail):
                     exp=configs.FORGOT_PASSWORD_EXP_OFFSET * 60,
                 )
 
-                return {
-                    "success": True,
-                    "result": "Reset password successfully",
-                }
+                response = make_response(
+                    {
+                        "success": True,
+                        "result": "Reset password successfully",
+                    }
+                )
+
+                response.delete_cookie(
+                    "rst_pwd_token", samesite="lax", secure=True, httponly=False
+                )
+
+                return response
             else:
                 return {
                     "success": False,
