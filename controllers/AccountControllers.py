@@ -654,8 +654,6 @@ class Account(Database, SendiblueEmail):
 
     def reset_password(self):
         try:
-            print(request.environ)
-
             token = request.cookies.get("rst_pwd_token") or request.form["token"]
 
             if token == None:
