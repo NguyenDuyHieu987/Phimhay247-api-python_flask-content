@@ -337,7 +337,7 @@ class Account(Database, SendiblueEmail):
 
                     self.__jwtredis.sign(
                         verify_token,
-                        exp=configs.OTP_EXP_OFFSET * 60,
+                        option={"exp": configs.OTP_EXP_OFFSET * 60},
                     )
 
                     encoded = jwt.encode(
@@ -532,7 +532,7 @@ class Account(Database, SendiblueEmail):
 
                 self.__jwtredis.sign(
                     token,
-                    exp=configs.CHANGE_EMAIL_EXP_OFFSET * 60,
+                    option={"exp": configs.CHANGE_EMAIL_EXP_OFFSET * 60},
                 )
 
                 encoded = jwt.encode(
@@ -694,7 +694,7 @@ class Account(Database, SendiblueEmail):
 
                 self.__jwtredis.sign(
                     token,
-                    exp=configs.FORGOT_PASSWORD_EXP_OFFSET * 60,
+                    option={"exp": configs.FORGOT_PASSWORD_EXP_OFFSET * 60},
                 )
 
                 response = make_response(
