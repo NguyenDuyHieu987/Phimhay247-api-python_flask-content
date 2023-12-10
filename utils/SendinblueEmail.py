@@ -61,7 +61,7 @@ class SendiblueEmail:
         title,
         subject,
         nameLink,
-        resetPasswordLink,
+        linkVerify,
         note1,
         noteExp=10,
     ):
@@ -73,7 +73,7 @@ class SendiblueEmail:
                 template_id=5,
                 params={
                     "title": title,
-                    "resetPasswordLink": resetPasswordLink,
+                    "linkVerify": linkVerify,
                     "nameLink": nameLink,
                     "note1": note1,
                     "noteExp": f"Yêu cầu này của bạn sẽ hết hiệu lực sau {noteExp} phút.",

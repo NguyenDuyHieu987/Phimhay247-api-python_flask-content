@@ -78,7 +78,7 @@ class Account(Database, SendiblueEmail):
                 )
 
                 response.set_cookie(
-                    key="verify_your_email",
+                    key="vrf_email_token",
                     value=encoded,
                     max_age=configs.OTP_EXP_OFFSET * 60,
                     samesite="lax",
@@ -151,27 +151,79 @@ class Account(Database, SendiblueEmail):
                     raise DefaultError("Account is not found")
 
             elif type == "change-email":
-                encoded = jwt.encode(
+                account1 = self.__db["accounts"].find_one(
                     {
-                        "id": jwtUser["id"],
-                        "email": jwtUser["email"],
+                        "email": formUser["new_email"],
                         "auth_type": "email",
-                        "description": "Change your Email",
-                        "exp": (
-                            datetime.now(tz=timezone.utc)
-                            + timedelta(seconds=configs.OTP_EXP_OFFSET * 60)
-                        ).timestamp(),
-                    },
-                    str(OTP),
-                    algorithm="HS256",
+                    }
                 )
 
-                email_response = self.Verification_OTP(
-                    to=jwtUser["email"],
-                    otp=OTP,
-                    title="Xác nhận thay đổi Email của bạn",
-                    noteExp=os.getenv("OTP_EXP_OFFSET"),
-                )
+                if account1 == None:
+                    # if SendiblueEmail(formUser.email):
+                    if True:
+                        encoded = jwt.encode(
+                            {
+                                "id": jwtUser["id"],
+                                "email": jwtUser["email"],
+                                "auth_type": "email",
+                                "new_email": formUser["new_email"],
+                                "description": "Change your email",
+                                "exp": (
+                                    datetime.now(tz=timezone.utc)
+                                    + timedelta(
+                                        seconds=configs.CHANGE_EMAIL_EXP_OFFSET * 60
+                                    )
+                                ).timestamp(),
+                            },
+                            str(OTP),
+                            algorithm="HS256",
+                        )
+
+                        change_email_link = (
+                            f"{os.getenv('CLIENT_URL')}/ChangeEmail?token={encoded}"
+                        )
+
+                        print(change_email_link)
+
+                        emailResponse = self.Verification_Link(
+                            to=formUser["new_email"],
+                            title="Thay đổi email của bạn",
+                            subject="Hoàn thành yêu cầu đặt thay đổi email",
+                            nameLink="Thay đổi email",
+                            linkVerify=change_email_link,
+                            note1="Truy cập dường liên kết sau đây để đặt lại email của bạn:",
+                            noteExp=configs.CHANGE_EMAIL_EXP_OFFSET,
+                        )
+
+                        response = make_response(
+                            {
+                                "isSended": True,
+                                "exp_offset": configs.CHANGE_EMAIL_EXP_OFFSET * 60,
+                                "result": "Send email successfully",
+                            }
+                        )
+
+                        response.set_cookie(
+                            key="chg_email_token",
+                            value=encoded,
+                            max_age=configs.CHANGE_EMAIL_EXP_OFFSET * 60,
+                            samesite="lax",
+                            secure=True,
+                            httponly=False,
+                        )
+
+                        return response
+                    else:
+                        return {
+                            "isInValidEmail": True,
+                            "result": "Email is Invalid",
+                        }
+
+                else:
+                    return {
+                        "isEmailExist": True,
+                        "result": "Email is already exists",
+                    }
 
             else:
                 raise NotInTypeError("account service", type)

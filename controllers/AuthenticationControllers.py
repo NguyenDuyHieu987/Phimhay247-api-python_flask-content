@@ -652,8 +652,8 @@ class Authentication(SendiblueEmail):
                 )
 
                 if account != None:
-                    if Validate_Email(formUser["email"]):
-                        # if True:
+                    # if Validate_Email(formUser["email"]):
+                    if True:
                         encoded = jwt.encode(
                             {
                                 "id": account["id"],
@@ -671,16 +671,18 @@ class Authentication(SendiblueEmail):
                             algorithm="HS256",
                         )
 
-                        resetPasswordLink = (
+                        reset_password_link = (
                             f"{os.getenv('CLIENT_URL')}/ResetPassword?token={encoded}"
                         )
+
+                        print(reset_password_link)
 
                         email_response = self.Verification_Link(
                             to=formUser["email"],
                             title="Đặt lại mật khẩu của bạn",
                             subject="Hoàn thành yêu cầu đặt lại mật khẩu",
                             nameLink="Đặt lại mật khẩu",
-                            resetPasswordLink=resetPasswordLink,
+                            linkVerify=reset_password_link,
                             note1="Truy cập dường liên kết sau đây để đặt lại mật khẩu của bạn:",
                             noteExp=int(os.getenv("FORGOT_PASSWORD_EXP_OFFSET")),
                         )
