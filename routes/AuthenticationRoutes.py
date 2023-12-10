@@ -49,16 +49,16 @@ def authentication_routes(app):
     def verify_signup_route(type):
         return authentication.signup_verify(type)
 
-    ## Forgot Password
-
-    @app.route("/auth/forgot-password/<type>", methods=["POST"])
-    # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    def forgot_password_route(type):
-        return authentication.forgot_password(type)
-
     ## Log out
 
     @app.route("/auth/logout", methods=["POST"])
     # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def logout_route():
         return authentication.logout()
+
+    ## Forgot Password
+
+    @app.route("/auth/forgot-password/<type>", methods=["POST"])
+    # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
+    def forgot_password_route(type):
+        return authentication.forgot_password(type)

@@ -484,101 +484,13 @@ class Authentication(SendiblueEmail):
         except Exception as e:
             InternalServerErrorMessage(e)
 
-    # def signup():
-    #     try:
-    #         emailValidate = requests.get(
-    #             f"https://emailvalidation.abstractapi.com/v1/?api_key=e23c5b9c07dc432796eea058c9d99e82&email={formUser['email']}"
-    #         )
-    #         emailValidateResponse = emailValidate.json()
-    #         formUser = request.form
-
-    #         if emailValidateResponse["is_smtp_valid"]["value"] == True:
-    #             account = self.__db["accounts"].find_one(
-    #                 {"$and": [{"email": formUser["email"]}, {"auth_type": "email"}]}
-    #             )
-    #             if account == None:
-    #                 list = self.__db["lists"].find_one(
-    #                     {
-    #                         "id": formUser["id"],
-    #                     },
-    #                 )
-
-    #                 newList = {
-    #                     "full_name": formUser["full_name"],
-    #                     "description": "List movie which users are added",
-    #                     "favorite_count": 0,
-    #                     "id": formUser["id"],
-    #                     "name": "List",
-    #                     "items": [],
-    #                 }
-
-    #                 if list == None:
-    #                     self.__db["lists"].insert_one(newList)
-
-    #                 watchlist = self.__db["watchlists"].find_one(
-    #                     {
-    #                         "id": formUser["id"],
-    #                     },
-    #                 )
-
-    #                 newWatchList = {
-    #                     "full_name": formUser["full_name"],
-    #                     "description": "Videos which users watched",
-    #                     "favorite_count": 0,
-    #                     "id": formUser["id"],
-    #                     "item_count": 0,
-    #                     "name": "WatchList",
-    #                     "items": [],
-    #                 }
-
-    #                 if watchlist == None:
-    #                     self.__db["watchlists"].insert_one(newWatchList)
-
-    #                     # if "role" in formUser.to_dict():
-    #                     #     self.__db["accounts"].insert_one(
-    #                     #         formUser.to_dict()
-    #                     #         | {
-    #                     #             "auth_type": "email",
-    #                     #         }
-    #                     #     )
-    #                     # else:
-
-    #                 self.__db["accounts"].insert_one(
-    #                     formUser.to_dict()
-    #                     | {
-    #                         "role": "normal",
-    #                         "auth_type": "email",
-    #                     },
-    #                 )
-
-    #                 # get_account = self.__db["accounts"].find_one(
-    #                 #     {"id": formUser["id"]},
-    #                 # )
-
-    #                 return {
-    #                     "isSignUp": True,
-    #                     "result": "Sign up account successfully"
-    #                     # {
-    #                     # "id": get_account["id"],
-    #                     # "username": get_account["username"],
-    #                     # "full_name": get_account["full_name"],
-    #                     # "avatar": get_account["avatar"],
-    #                     # "email": get_account["email"],
-    #                     # "auth_type": get_account["auth_type"],
-    #                     # "role": get_account["role"],
-    #                     # },
-    #                 }
-    #             else:
-    #                 return {"isEmailExist": True, "result": "Email is already exists"}
-    #         else:
-    #             return {"isInValidEmail": True, "result": "Email is Invalid"}
-    #     except:
-    #         return {"isSignUp": False, "result": "Sign Up Failed"}
-
     def signup(self):
         try:
             formUser = request.form
-            signup_token = request.headers["Authorization"].replace("Bearer ", "")
+            # signup_token = request.headers["Authorization"].replace("Bearer ", "")
+            signup_token = (
+                request.cookies.get("vrf_signup_token") or formUser["vrf_signup_token"]
+            )
 
             jwtUser = jwt.decode(
                 signup_token,
@@ -686,11 +598,21 @@ class Authentication(SendiblueEmail):
                             }
                         )
 
-                        response.headers.set(
-                            "Access-Control-Expose-Headers", "Authorization"
+                        # response.headers.set(
+                        #     "Access-Control-Expose-Headers", "Authorization"
+                        # )
+
+                        # response.headers.set("Authorization", encoded)
+
+                        response.set_cookie(
+                            key="vrf_signup_token",
+                            value=encoded,
+                            max_age=configs.OTP_EXP_OFFSET * 60,
+                            samesite="lax",
+                            secure=True,
+                            httponly=False,
                         )
 
-                        response.headers.set("Authorization", encoded)
                         email_response = self.Verification_OTP(
                             to=formUser["email"],
                             otp=OTP,
@@ -737,7 +659,7 @@ class Authentication(SendiblueEmail):
                                 "id": account["id"],
                                 "email": account["email"],
                                 "auth_type": "email",
-                                "description": "Forgot your password",
+                                "description": "Reset your password",
                                 "exp": (
                                     datetime.now(tz=timezone.utc)
                                     + timedelta(
@@ -749,7 +671,9 @@ class Authentication(SendiblueEmail):
                             algorithm="HS256",
                         )
 
-                        resetPasswordLink = f"{os.getenv('CLIENT_URL')}/ForgotPassword?/#reset&token={encoded}"
+                        resetPasswordLink = (
+                            f"{os.getenv('CLIENT_URL')}/ResetPassword?token={encoded}"
+                        )
 
                         email_response = self.Verification_ForgotPassword(
                             to=formUser["email"],
@@ -764,10 +688,16 @@ class Authentication(SendiblueEmail):
                         }
 
                     else:
-                        return {"isInValidEmail": True, "result": "Email is Invalid"}
+                        return {
+                            "isInValidEmail": True,
+                            "result": "Email is Invalid",
+                        }
 
                 else:
-                    return {"isEmailExist": True, "result": "Email is already exists"}
+                    return {
+                        "isEmailExist": True,
+                        "result": "Email is already exists",
+                    }
             else:
                 raise DefaultError(
                     f"Forgot password with method: {type} is not support!"

@@ -15,6 +15,7 @@ from configs.database import Database
 from utils.exceptions import NotInTypeError
 from utils.exceptions import DefaultError
 from utils.encryptPassword import encryptPassword, verifyPassword
+from utils.EmalValidation import Validate_Email
 
 
 class Account(Database, SendiblueEmail):
@@ -136,7 +137,7 @@ class Account(Database, SendiblueEmail):
                         )
 
                         response.set_cookie(
-                            key="verify_change_password_token",
+                            key="chg_pwd_token",
                             value=encoded,
                             max_age=configs.OTP_EXP_OFFSET * 60,
                             samesite="lax",
@@ -219,8 +220,7 @@ class Account(Database, SendiblueEmail):
                 algorithms=["HS256"],
             )
 
-            # verify_token = request.headers["Authorization"].replace("Bearer ", "")
-            verify_token = request.cookies.get("verify_change_password_token")
+            verify_token = request.cookies.get("chg_pwd_token") or formUser["token"]
 
             try:
                 decodeChangePassword = jwt.decode(
@@ -236,9 +236,7 @@ class Account(Database, SendiblueEmail):
             ) as e:
                 return {"isInvalidOTP": True, "result": "OTP is invalid"}
 
-            is_alive = self.__jwtredis.set_prefix(
-                "verify_change_password_token"
-            ).verify(verify_token)
+            is_alive = self.__jwtredis.set_prefix("chg_pwd_token").verify(verify_token)
 
             if is_alive == False:
                 return {"success": False, "result": "Token is no longer active"}
@@ -268,7 +266,7 @@ class Account(Database, SendiblueEmail):
                 )
 
                 response.delete_cookie(
-                    "verify_change_password_token",
+                    "chg_pwd_token",
                     samesite="lax",
                     secure=True,
                     httponly=False,
@@ -282,7 +280,7 @@ class Account(Database, SendiblueEmail):
                         option={"exp": configs.JWT_EXP_OFFSET * 60 * 60},
                     )
 
-                    self.__jwtredis.set_prefix("verify_change_password_token")
+                    self.__jwtredis.set_prefix("chg_pwd_token")
 
                     self.__jwtredis.sign(
                         verify_token,
