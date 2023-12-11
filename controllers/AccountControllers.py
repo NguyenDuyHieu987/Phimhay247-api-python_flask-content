@@ -394,6 +394,101 @@ class Account(Database, SendiblueEmail):
         except Exception as e:
             InternalServerErrorMessage(e)
 
+    def change_full_name(self):
+        try:
+            formUser = request.form
+
+            user_token = request.headers["Authorization"].replace(
+                "Bearer ", ""
+            ) or request.cookies.get("user_token")
+
+            jwtUser = jwt.decode(
+                user_token,
+                str(os.getenv("JWT_SIGNATURE_SECRET")),
+                algorithms=["HS256"],
+            )
+
+            if (
+                formUser["new_full_name"] == None
+                or len(formUser["new_full_name"]) == 0
+            ):
+                return {
+                    "success": False,
+                    "result": "Full name is required",
+                }
+
+            account = self.__db["accounts"].find_one_and_update(
+                {
+                    "id": jwtUser["id"],
+                    "email": jwtUser["email"],
+                    "username": jwtUser["username"],
+                    "full_name": jwtUser["full_name"],
+                    "auth_type": jwtUser["auth_type"],
+                },
+                {
+                    "$set": {
+                        "full_name": formUser["new_full_name"],
+                    },
+                },
+                return_document=ReturnDocument.AFTER,
+            )
+
+            if account != None:
+                encoded = jwt.encode(
+                    {
+                        "id": account["id"],
+                        "username": account["username"],
+                        "full_name": account["full_name"],
+                        "avatar": account["avatar"],
+                        "role": account["role"],
+                        "email": account["email"],
+                        "auth_type": account["auth_type"],
+                        "created_at": str(account["created_at"]),
+                        "exp": (
+                            datetime.now(tz=timezone.utc)
+                            + timedelta(seconds=configs.JWT_EXP_OFFSET * 60 * 60)
+                        ).timestamp(),
+                    },
+                    str(os.getenv("JWT_SIGNATURE_SECRET")),
+                    algorithm="HS256",
+                )
+
+                response = make_response(
+                    {
+                        "success": True,
+                        "result": "Change full name successfully",
+                    }
+                )
+
+                response.headers.set("Access-Control-Expose-Headers", "Authorization")
+
+                response.set_cookie(
+                    key="user_token",
+                    value=encoded,
+                    max_age=configs.JWT_EXP_OFFSET * 60 * 60,
+                    samesite="lax",
+                    secure=True,
+                    httponly=False,
+                )
+
+                response.headers.set("Authorization", encoded)
+
+                return response
+            else:
+                return {
+                    "success": False,
+                    "result": "Cant not find information of account",
+                }
+
+        except jwt.ExpiredSignatureError as e:
+            InternalServerErrorMessage("Token is expired")
+        except (jwt.exceptions.DecodeError, jwt.exceptions.InvalidSignatureError) as e:
+            InternalServerErrorMessage("Token is invalid")
+        except PyMongoError as e:
+            InternalServerErrorMessage(e._message)
+        except Exception as e:
+            InternalServerErrorMessage(e)
+
     def verify_email(self):
         try:
             formUser = request.form
@@ -401,6 +496,12 @@ class Account(Database, SendiblueEmail):
             user_token = request.headers["Authorization"].replace(
                 "Bearer ", ""
             ) or request.cookies.get("user_token")
+
+            jwtUser = jwt.decode(
+                user_token,
+                str(os.getenv("JWT_SIGNATURE_SECRET")),
+                algorithms=["HS256"],
+            )
 
             verify_token = request.cookies.get("vrf_email_token") or formUser["token"]
 
@@ -480,7 +581,7 @@ class Account(Database, SendiblueEmail):
             else:
                 return {
                     "success": False,
-                    "result": "Cant not find information",
+                    "result": "Cant not find information of account",
                 }
 
         except jwt.ExpiredSignatureError as e:
@@ -582,7 +683,7 @@ class Account(Database, SendiblueEmail):
             else:
                 return {
                     "success": False,
-                    "result": "Cant not find information",
+                    "result": "Cant not find information of account",
                 }
 
         except jwt.ExpiredSignatureError as e:
@@ -640,7 +741,7 @@ class Account(Database, SendiblueEmail):
             else:
                 return {
                     "success": False,
-                    "result": "Cant not find information",
+                    "result": "Cant not find information of account",
                 }
 
         except jwt.ExpiredSignatureError as e:
@@ -712,7 +813,7 @@ class Account(Database, SendiblueEmail):
             else:
                 return {
                     "success": False,
-                    "result": "Cant not find information",
+                    "result": "Cant not find information of account",
                 }
 
         except jwt.ExpiredSignatureError as e:
