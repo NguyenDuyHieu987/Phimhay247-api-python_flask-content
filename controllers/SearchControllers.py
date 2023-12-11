@@ -18,13 +18,13 @@ class Search(Database):
             page = request.args.get("page", default=1, type=int) - 1
             limit = request.args.get("limit", default=20, type=int)
 
-            if len(query) == 0:
-                return {
-                    "page": page + 1,
-                    "page_size": limit,
-                    "results": [],
-                    "total": 0,
-                }
+            # if len(query) == 0:
+            #     return {
+            #         "page": page + 1,
+            #         "page_size": limit,
+            #         "results": [],
+            #         "total": 0,
+            #     }
 
             if type == "all":
                 movie = cvtJson(
