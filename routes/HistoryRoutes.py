@@ -1,4 +1,5 @@
 from flask import *
+
 # from flask_cors import cross_origin
 import configs
 from controllers.HistoryControllers import History
@@ -8,10 +9,10 @@ def history_routes(app, cache):
     history = History()
     ## Get history
 
-    @app.route("/history/get/<type>", methods=["GET"])
+    @app.route("/history/get-all/<type>", methods=["GET"])
     # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    def gethistory_route(type):
-        return history.gethistory(type)
+    def getall_history_route(type):
+        return history.getall_history(type)
 
     ## Search history
 
@@ -22,28 +23,28 @@ def history_routes(app, cache):
 
     ## Get item history
 
-    @app.route("/history/getitem/<type>/<movieId>", methods=["GET"])
+    @app.route("/history/get/<type>/<movieId>", methods=["GET"])
     # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    def getitem_history_route(type, movieId):
-        return history.getitem_history(type, movieId)
+    def get_history_route(type, movieId):
+        return history.get_history(type, movieId)
 
     ## Add item to history
 
-    @app.route("/history/additem", methods=["POST"])
+    @app.route("/history/add", methods=["POST"])
     # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    def additem_history_route():
-        return history.additem_history()
+    def add_history_route():
+        return history.add_history()
 
     ## Remove item from history
 
-    @app.route("/history/removeitem", methods=["DELETE"])
+    @app.route("/history/remove", methods=["DELETE"])
     # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    def remove_item_history_route():
-        return history.remove_item_history()
+    def remove_history_route():
+        return history.remove_history()
 
     ## Remove all item from history
 
-    @app.route("/history/removeallitem", methods=["DELETE"])
+    @app.route("/history/clear", methods=["DELETE"])
     # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    def removeall_item_history_route():
-        return history.removeall_item_history()
+    def clear_history_route():
+        return history.clear_history()

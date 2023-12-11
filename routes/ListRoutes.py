@@ -1,4 +1,5 @@
 from flask import *
+
 # from flask_cors import cross_origin
 import configs
 from controllers.ListControllers import List
@@ -8,10 +9,10 @@ def list_routes(app, cache):
     list = List()
     ## Get list
 
-    @app.route("/list/get/<type>", methods=["GET"])
+    @app.route("/list/get-all/<type>", methods=["GET"])
     # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    def getlist_route(type):
-        return list.getlist(type)
+    def getall_list_route(type):
+        return list.getall_list(type)
 
     ## Search list
 
@@ -22,28 +23,28 @@ def list_routes(app, cache):
 
     ## Get item list
 
-    @app.route("/list/getitem/<type>/<movieId>", methods=["GET"])
+    @app.route("/list/get/<type>/<movieId>", methods=["GET"])
     # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    def getitem_list_route(type, movieId):
-        return list.getitem_list(type, movieId)
+    def get_list_route(type, movieId):
+        return list.get_list(type, movieId)
 
     ## Add item to list
 
-    @app.route("/list/additem", methods=["POST"])
+    @app.route("/list/add", methods=["POST"])
     # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    def additem_list_route():
-        return list.additem_list()
+    def add_list_route():
+        return list.add_list()
 
     ## Remove item from list
 
-    @app.route("/list/removeitem", methods=["DELETE"])
+    @app.route("/list/remove", methods=["DELETE"])
     # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    def remove_item_list_route():
-        return list.remove_item_list()
+    def remove_list_route():
+        return list.remove_list()
 
     ## Remove all item from list
 
-    @app.route("/list/removeallitem", methods=["DELETE"])
+    @app.route("/list/clear", methods=["DELETE"])
     # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    def removeall_item_list_route():
-        return list.removeall_item_list()
+    def clear_list_route():
+        return list.clear_list()

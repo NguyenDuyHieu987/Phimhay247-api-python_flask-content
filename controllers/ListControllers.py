@@ -16,7 +16,7 @@ class List(Database):
     def __init__(self):
         self.__db = self.ConnectMongoDB()
 
-    def getlist(self, type):
+    def getall_list(self, type):
         try:
             user_token = request.headers["Authorization"].replace(
                 "Bearer ", ""
@@ -226,7 +226,7 @@ class List(Database):
         except Exception as e:
             InternalServerErrorMessage(e)
 
-    def getitem_list(self, type, movieId):
+    def get_list(self, type, movieId):
         try:
             user_token = request.headers["Authorization"].replace(
                 "Bearer ", ""
@@ -269,7 +269,7 @@ class List(Database):
         except Exception as e:
             InternalServerErrorMessage(e)
 
-    def additem_list(self):
+    def add_list(self):
         try:
             user_token = request.headers["Authorization"].replace(
                 "Bearer ", ""
@@ -393,7 +393,7 @@ class List(Database):
         except Exception as e:
             InternalServerErrorMessage(e)
 
-    def remove_item_list(self):
+    def remove_list(self):
         try:
             user_token = request.headers["Authorization"].replace(
                 "Bearer ", ""
@@ -442,7 +442,7 @@ class List(Database):
         except Exception as e:
             InternalServerErrorMessage(e)
 
-    def removeall_item_list(self):
+    def clear_list(self):
         try:
             user_token = request.headers["Authorization"].replace(
                 "Bearer ", ""
