@@ -277,9 +277,10 @@ class History(Database):
 
             movie_id = request.form["movie_id"]
             media_type = request.form["media_type"]
-            duration = request.form["duration"]
-            percent = request.form["percent"]
-            seconds = request.form["seconds"]
+            duration = float(request.form["duration"])
+            percent = float(request.form["percent"])
+            seconds = float(request.form["seconds"])
+
             idItemHistory = str(uuid.uuid4())
 
             if media_type == "movie":
