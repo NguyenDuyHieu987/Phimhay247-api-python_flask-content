@@ -387,10 +387,8 @@ class Search(Database):
 
     def add_search(self):
         try:
-            movie_id = request.form["movie_id"] if "movie_id" in request.form else None
-            media_type = (
-                request.form["media_type"] if "media_type" in request.form else None
-            )
+            movie_id = request.form.get("movie_id")
+            media_type = request.form.get("media_type")
             search_query = request.args.get("query", default="", type=str)
 
             if movie_id != None and media_type != None:
@@ -509,7 +507,6 @@ class Search(Database):
                     raise DefaultError("Movie is not exists")
 
             else:
-                print("Grhh")
                 item_search = self.__db["searchs"].find_one(
                     {
                         "type": "search",

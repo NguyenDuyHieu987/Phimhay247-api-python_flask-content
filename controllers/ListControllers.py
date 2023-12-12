@@ -405,9 +405,9 @@ class List(Database):
                 algorithms=["HS256"],
             )
 
-            id = request.form["id"] if "id" in request.form else None
-            movie_id = request.form["movie_id"]
-            media_type = request.form["media_type"]
+            id = request.form.get("id")
+            movie_id = request.form.get("movie_id")
+            media_type = request.form.get("media_type")
 
             resultDelete1 = self.__db["lists"].delete_one(
                 {
