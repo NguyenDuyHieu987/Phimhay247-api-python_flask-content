@@ -339,7 +339,7 @@ class Search(Database):
             page = request.args.get("page", default=1, type=int) - 1
             limit = request.args.get("limit", default=10, type=int)
 
-            search_history = (
+            search_history = cvtJson(
                 self.__db["searchs"]
                 .find(
                     {
