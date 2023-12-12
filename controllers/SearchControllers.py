@@ -629,47 +629,47 @@ class Search(Database):
 
                         result_inserted = None
 
-                        if movie1["media_type"] == "movie":
+                        if movie1[0]["media_type"] == "movie":
                             result_inserted = self.__db["searchs"].insert_one(
                                 {
                                     "id": id_search,
                                     "type": "search",
-                                    "query": movie1["name"],
+                                    "query": movie1[0]["name"],
                                     "search_times": 0,
-                                    "movie_id": movie1["id"],
-                                    "media_type": movie1["media_type"],
-                                    "adult": movie1["adult"],
-                                    "backdrop_path": movie1["backdrop_path"],
-                                    "release_date": movie1["release_date"],
-                                    "name": movie1["name"],
-                                    "original_name": movie1["original_name"],
-                                    "overview": movie1["overview"],
-                                    "poster_path": movie1["poster_path"],
-                                    "genres": movie1["genres"],
-                                    "runtime": movie1["runtime"],
+                                    "movie_id": movie1[0]["id"],
+                                    "media_type": movie1[0]["media_type"],
+                                    "adult": movie1[0]["adult"],
+                                    "backdrop_path": movie1[0]["backdrop_path"],
+                                    "release_date": movie1[0]["release_date"],
+                                    "name": movie1[0]["name"],
+                                    "original_name": movie1[0]["original_name"],
+                                    "overview": movie1[0]["overview"],
+                                    "poster_path": movie1[0]["poster_path"],
+                                    "genres": movie1[0]["genres"],
+                                    "runtime": movie1[0]["runtime"],
                                     "created_at": datetime.now(),
                                     "updated_at": datetime.now(),
                                 }
                             )
-                        elif movie1["media_type"] == "tv":
+                        elif movie1[0]["media_type"] == "tv":
                             result_inserted = self.__db["searchs"].insert_one(
                                 {
                                     "id": id_search,
                                     "type": "search",
-                                    "query": movie1["name"],
+                                    "query": movie1[0]["name"],
                                     "search_times": 0,
-                                    "movie_id": movie1["id"],
-                                    "media_type": movie1["media_type"],
-                                    "adult": movie1["adult"],
-                                    "backdrop_path": movie1["backdrop_path"],
-                                    "first_air_date": movie1["first_air_date"],
-                                    "last_air_date": movie1["last_air_date"],
-                                    "name": movie1["name"],
-                                    "original_name": movie1["original_name"],
-                                    "overview": movie1["overview"],
-                                    "poster_path": movie1["poster_path"],
-                                    "genres": movie1["genres"],
-                                    "episode_run_time": movie1["episode_run_time"],
+                                    "movie_id": movie1[0]["id"],
+                                    "media_type": movie1[0]["media_type"],
+                                    "adult": movie1[0]["adult"],
+                                    "backdrop_path": movie1[0]["backdrop_path"],
+                                    "first_air_date": movie1[0]["first_air_date"],
+                                    "last_air_date": movie1[0]["last_air_date"],
+                                    "name": movie1[0]["name"],
+                                    "original_name": movie1[0]["original_name"],
+                                    "overview": movie1[0]["overview"],
+                                    "poster_path": movie1[0]["poster_path"],
+                                    "genres": movie1[0]["genres"],
+                                    "episode_run_time": movie1[0]["episode_run_time"],
                                     "created_at": datetime.now(),
                                     "updated_at": datetime.now(),
                                 }
