@@ -773,7 +773,7 @@ class Search(Database):
                     }
                 )
 
-                if result_inserted != None:
+                if result_inserted.inserted_id != None:
                     search_history_inserted = self.__db["searchs"].find_one(
                         {
                             "id": id_search_history,
