@@ -387,8 +387,10 @@ class Search(Database):
 
     def add_search(self):
         try:
-            movie_id = request.form["movie_id"]
-            media_type = request.form["media_type"]
+            movie_id = request.form["movie_id"] if "movie_id" in request.form else None
+            media_type = (
+                request.form["media_type"] if "media_type" in request.form else None
+            )
             search_query = request.args.get("query", default="", type=str)
 
             if movie_id != None and media_type != None:
