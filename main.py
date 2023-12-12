@@ -20,8 +20,8 @@ sys.path.insert(0, "/mnt/d/Python/The-Movie-Flask-Api")
 app = Flask(__name__)
 
 
-log = logging.getLogger("werkzeug")
-log.setLevel(logging.ERROR)
+# log = logging.getLogger("werkzeug")
+# log.setLevel(logging.ERROR)
 
 CORS(
     app,
