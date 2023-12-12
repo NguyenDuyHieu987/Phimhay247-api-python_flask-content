@@ -281,8 +281,8 @@ class List(Database):
                 algorithms=["HS256"],
             )
 
-            movie_id = request.form["movie_id"]
-            media_type = request.form["media_type"]
+            movie_id = request.form.get("movie_id")
+            media_type = request.form.get("media_type")
             id_list = str(uuid.uuid4())
 
             if media_type == "movie":

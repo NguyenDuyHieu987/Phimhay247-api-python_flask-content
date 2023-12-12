@@ -73,7 +73,7 @@ class Rate(Database):
                 algorithms=["HS256"],
             )
 
-            rateValue = float(request.form["value"])
+            rateValue = float(request.form.get("value"))
             if type == "movie":
                 movie_dumps = self.__db["movies"].find_one({"id": str(id)})
 

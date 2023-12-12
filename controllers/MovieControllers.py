@@ -22,11 +22,7 @@ class Movie(Database):
                 "append_to_response", default="", type=str
             )
             # exceptValue = {"images": 0, "credits": 0, "videos": 0}
-            extraValue = {
-                "images": [],
-                "videos": [],
-                "credits": []
-            }
+            extraValue = {"images": [], "videos": [], "credits": []}
 
             if append_to_response != "":
                 if "images" in append_to_response.split(","):
@@ -34,20 +30,22 @@ class Movie(Database):
                     #     {"movie_id": str(id)})
                     # extraValue["images"] = images["items"]
 
-                    extraValue["images"] = [{
-                        "$lookup": {
-                            "from": 'images',
-                            "localField": 'id',
-                            "foreignField": 'movie_id',
-                            "as": 'images',
+                    extraValue["images"] = [
+                        {
+                            "$lookup": {
+                                "from": "images",
+                                "localField": "id",
+                                "foreignField": "movie_id",
+                                "as": "images",
+                            },
                         },
-                    },
-                        {"$unwind": '$images'},
+                        {"$unwind": "$images"},
                         {
                             "$addFields": {
-                                "images": '$images.items',
+                                "images": "$images.items",
                             },
-                    }]
+                        },
+                    ]
 
                 if "videos" in append_to_response.split(","):
                     # videos = self.__db["videos"].find_one(
@@ -57,16 +55,16 @@ class Movie(Database):
                     extraValue["videos"] = [
                         {
                             "$lookup": {
-                                "from": 'videos',
-                                "localField": 'id',
-                                "foreignField": 'movie_id',
-                                "as": 'videos',
+                                "from": "videos",
+                                "localField": "id",
+                                "foreignField": "movie_id",
+                                "as": "videos",
                             },
                         },
-                        {"$unwind": '$videos'},
+                        {"$unwind": "$videos"},
                         {
                             "$addFields": {
-                                "videos": '$videos.items',
+                                "videos": "$videos.items",
                             },
                         },
                     ]
@@ -79,26 +77,26 @@ class Movie(Database):
                     extraValue["credits"] = [
                         {
                             "$lookup": {
-                                "from": 'credits',
-                                "localField": 'id',
-                                "foreignField": 'movie_id',
-                                "as": 'credits',
+                                "from": "credits",
+                                "localField": "id",
+                                "foreignField": "movie_id",
+                                "as": "credits",
                             },
                         },
-                        {"$unwind": '$credits'},
+                        {"$unwind": "$credits"},
                         {
                             "$addFields": {
-                                "credits": '$credits.items',
+                                "credits": "$credits.items",
                             },
                         },
                     ]
-    
+
             headers = request.headers
-            
+
             extraValue2 = {
-                "list":[],
-                "history":[],
-                "rate":[],
+                "list": [],
+                "history": [],
+                "rate": [],
             }
 
             if "Authorization" in headers or request.cookies.get("user_token") != None:
@@ -122,34 +120,42 @@ class Movie(Database):
 
                 # if item_list != None:
                 #     extraValue2 = extraValue2 | {"in_list": True}
-                    
+
                 extraValue2["list"] = [
                     {
                         "$lookup": {
-                        "from": 'lists',
-                        "localField": 'id',
-                        "foreignField": 'movie_id',
-                        "pipeline": [
-                            {
-                            "$match": {
-                                "$and": [
-                                { "$expr": { "$eq": ['$media_type', 'movie'] } },
-                                { "$expr": { "$eq": ['$user_id', jwtUser["id"]] } },
-                                ],
-                            },
-                            },
-                        ],
-                        "as": 'in_list',
+                            "from": "lists",
+                            "localField": "id",
+                            "foreignField": "movie_id",
+                            "pipeline": [
+                                {
+                                    "$match": {
+                                        "$and": [
+                                            {
+                                                "$expr": {
+                                                    "$eq": ["$media_type", "movie"]
+                                                }
+                                            },
+                                            {
+                                                "$expr": {
+                                                    "$eq": ["$user_id", jwtUser["id"]]
+                                                }
+                                            },
+                                        ],
+                                    },
+                                },
+                            ],
+                            "as": "in_list",
                         },
                     },
                     {
                         "$addFields": {
                             "in_list": {
-                                "$eq": [{ "$size": '$in_list' }, 1],
+                                "$eq": [{"$size": "$in_list"}, 1],
                             },
                         },
                     },
-                ]   
+                ]
 
                 # item_history = self.__db["histories"].find_one(
                 #     {
@@ -167,24 +173,32 @@ class Movie(Database):
                 #             "seconds": item_history["seconds"],
                 #         },
                 #     }
-                
+
                 extraValue2["history"] = [
                     {
                         "$lookup": {
-                        "from": 'histories',
-                        "localField": 'id',
-                        "foreignField": 'movie_id',
-                        "pipeline": [
-                            {
-                            "$match": {
-                                "$and": [
-                                { "$expr": { "$eq": ['$media_type', 'movie'] } },
-                                { "$expr": { "$eq": ['$user_id', jwtUser["id"]] } },
-                                ],
-                            },
-                            },
-                        ],
-                        "as": 'history_progress',
+                            "from": "histories",
+                            "localField": "id",
+                            "foreignField": "movie_id",
+                            "pipeline": [
+                                {
+                                    "$match": {
+                                        "$and": [
+                                            {
+                                                "$expr": {
+                                                    "$eq": ["$media_type", "movie"]
+                                                }
+                                            },
+                                            {
+                                                "$expr": {
+                                                    "$eq": ["$user_id", jwtUser["id"]]
+                                                }
+                                            },
+                                        ],
+                                    },
+                                },
+                            ],
+                            "as": "history_progress",
                         },
                     },
                     {
@@ -192,21 +206,20 @@ class Movie(Database):
                             "history_progress": {
                                 "$cond": [
                                     {
-                                        "$eq": [{ "$size": '$history_progress' }, 1],
+                                        "$eq": [{"$size": "$history_progress"}, 1],
                                     },
                                     {
-                                        "duration": '$history_progress.duration',
-                                        "percent": '$history_progress.percent',
-                                        "seconds": '$history_progress.seconds',
+                                        "duration": "$history_progress.duration",
+                                        "percent": "$history_progress.percent",
+                                        "seconds": "$history_progress.seconds",
                                     },
-                                    '$$REMOVE',
+                                    "$$REMOVE",
                                 ],
                             },
                         },
                     },
-                ]   
-                
-                
+                ]
+
                 # rates = self.__db["rates"].find_one(
                 #     {
                 #         "user_id": jwtUser["id"],
@@ -219,59 +232,70 @@ class Movie(Database):
                 #     extraValue2 = extraValue2 | {
                 #         "rated_value": rates["rate_value"],
                 #     }
-                          
+
                 extraValue2["rate"] = [
                     {
                         "$lookup": {
-                        "from": 'rates',
-                        "localField": 'id',
-                        "foreignField": 'movie_id',
-                        "pipeline": [
-                            {
-                            "$match": {
-                                "$and": [
-                                { "$expr": { "$eq": ['$movie_type', 'movie'] } },
-                                { "$expr": { "$eq": ['$user_id', jwtUser["id"]] } },
-                                ],
-                            },
-                            },
-                        ],
-                        "as": 'rated_value',
+                            "from": "rates",
+                            "localField": "id",
+                            "foreignField": "movie_id",
+                            "pipeline": [
+                                {
+                                    "$match": {
+                                        "$and": [
+                                            {
+                                                "$expr": {
+                                                    "$eq": ["$movie_type", "movie"]
+                                                }
+                                            },
+                                            {
+                                                "$expr": {
+                                                    "$eq": ["$user_id", jwtUser["id"]]
+                                                }
+                                            },
+                                        ],
+                                    },
+                                },
+                            ],
+                            "as": "rated_value",
                         },
                     },
                     {
                         "$unwind": {
-                            "path": '$rated_value',
+                            "path": "$rated_value",
                             "preserveNullAndEmptyArrays": True,
                         },
                     },
                     {
                         "$addFields": {
-                            "rated_value": '$rated_value.rate_value',
+                            "rated_value": "$rated_value.rate_value",
                         },
                     },
-                ]   
-                
-                # return cvtJson(movie[0] | extraValue2)
-                
+                ]
 
-            movie = cvtJson(self.__db["movies"].aggregate([
-                {
-                    "$match": {"id": id},
-                },
-                *extraValue["images"],
-                *extraValue["videos"],
-                *extraValue["credits"],
-                *extraValue2["list"],
-                *extraValue2["history"],
-                *extraValue2["rate"],
-            ]))
+                # return cvtJson(movie[0] | extraValue2)
+
+            movie = cvtJson(
+                self.__db["movies"].aggregate(
+                    [
+                        {
+                            "$match": {"id": id},
+                        },
+                        *extraValue["images"],
+                        *extraValue["videos"],
+                        *extraValue["credits"],
+                        *extraValue2["list"],
+                        *extraValue2["history"],
+                        *extraValue2["rate"],
+                    ]
+                )
+            )
 
             if len(movie) == 0:
                 return {"not_found": True, "result": "Can not find the movie"}
-            
-            return cvtJson(movie[0]) 
-                    # | extraValue
+
+            return cvtJson(movie[0])
+            # | extraValue
 
         except jwt.ExpiredSignatureError as e:
             make_response().delete_cookie(
@@ -293,28 +317,28 @@ class Movie(Database):
             formMovie = request.form
 
             # id = uuid.uuid1().time_mid
-            movie = self.__db["phimles"].find_one({"id": int(formMovie["id"])})
-            tv = self.__db["phimbos"].find_one({"id": int(formMovie["id"])})
+            movie = self.__db["phimles"].find_one({"id": str(formMovie.get("id"))})
+            tv = self.__db["phimbos"].find_one({"id": str(formMovie.get("id"))})
             # while movie != None and tv != None:
             #     id = uuid.uuid1().time_mid
-            #     movie = self.__db["phimles"].find_one({"id": int(id)})
+            #     movie = self.__db["phimles"].find_one({"id": str(id)})
 
             if movie == None and tv == None:
                 self.__db["phimles"].insert_one(
                     {
-                        "id": int(formMovie["id"]),
-                        "name": formMovie["name"],
-                        "original_name": formMovie["original_name"],
-                        "original_language": formMovie["original_language"],
-                        "poster_path": formMovie["poster_path"],
-                        "backdrop_path": formMovie["backdrop_path"],
-                        "release_date": formMovie["release_date"],
-                        "genres": json.loads(formMovie["genres"]),
-                        "overview": formMovie["overview"],
-                        "budget": int(formMovie["budget"]),
-                        "revenue": int(formMovie["revenue"]),
-                        "runtime": int(formMovie["runtime"]),
-                        "status": formMovie["status"],
+                        "id": str(formMovie.get("id")),
+                        "name": formMovie.get("name"),
+                        "original_name": formMovie.get("original_name"),
+                        "original_language": formMovie.get("original_language"),
+                        "poster_path": formMovie.get("poster_path"),
+                        "backdrop_path": formMovie.get("backdrop_path"),
+                        "release_date": formMovie.get("release_date"),
+                        "genres": json.loads(formMovie.get("genres")),
+                        "overview": formMovie.get("overview"),
+                        "budget": int(formMovie.get("budget")),
+                        "revenue": int(formMovie.get("revenue")),
+                        "runtime": int(formMovie.get("runtime")),
+                        "status": formMovie.get("status"),
                         "views": 0,
                         "media_type": "movie",
                     },
@@ -340,17 +364,17 @@ class Movie(Database):
                 {"id": str(id)},
                 {
                     "$set": {
-                        "name": formMovie["name"],
-                        "original_name": formMovie["original_name"],
-                        "original_language": formMovie["original_language"],
-                        "release_date": formMovie["release_date"],
-                        "genres": json.loads(formMovie["genres"]),
-                        "overview": formMovie["overview"],
-                        "budget": int(formMovie["budget"]),
-                        "revenue": int(formMovie["revenue"]),
-                        "runtime": int(formMovie["runtime"]),
-                        "views": int(formMovie["views"]),
-                        "status": formMovie["status"],
+                        "name": formMovie.get("name"),
+                        "original_name": formMovie.get("original_name"),
+                        "original_language": formMovie.get("original_language"),
+                        "release_date": formMovie.get("release_date"),
+                        "genres": json.loads(formMovie.get("genres")),
+                        "overview": formMovie.get("overview"),
+                        "budget": int(formMovie.get("budget")),
+                        "revenue": int(formMovie.get("revenue")),
+                        "runtime": int(formMovie.get("runtime")),
+                        "views": int(formMovie.get("views")),
+                        "status": formMovie.get("status"),
                     },
                 },
                 return_document=ReturnDocument.AFTER,

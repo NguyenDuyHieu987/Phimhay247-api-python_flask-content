@@ -374,24 +374,24 @@ class TV(Database):
     def add_tv(self):
         try:
             formMovie = request.form
-            movie = self.__db["phimles"].find_one({"id": int(formMovie["id"])})
-            tv = self.__db["phimbos"].find_one({"id": int(formMovie["id"])})
+            movie = self.__db["phimles"].find_one({"id": str(formMovie.get("id"))})
+            tv = self.__db["phimbos"].find_one({"id": str(formMovie.get("id"))})
             if movie == None and tv == None:
                 self.__db["phimbos"].insert_one(
                     {
-                        "id": int(formMovie["id"]),
-                        "name": formMovie["name"],
-                        "original_name": formMovie["original_name"],
-                        "original_language": formMovie["original_language"],
-                        "poster_path": formMovie["poster_path"],
-                        "backdrop_path": formMovie["backdrop_path"],
-                        "first_air_date": formMovie["first_air_date"],
-                        "last_air_date": formMovie["last_air_date"],
-                        "genres": json.loads(formMovie["genres"]),
-                        "overview": formMovie["overview"],
-                        "episode_run_time": int(formMovie["episode_run_time"]),
-                        "number_of_episodes": int(formMovie["number_of_episodes"]),
-                        "status": formMovie["status"],
+                        "id": str(formMovie.get("id")),
+                        "name": formMovie.get("name"),
+                        "original_name": formMovie.get("original_name"),
+                        "original_language": formMovie.get("original_language"),
+                        "poster_path": formMovie.get("poster_path"),
+                        "backdrop_path": formMovie.get("backdrop_path"),
+                        "first_air_date": formMovie.get("first_air_date"),
+                        "last_air_date": formMovie.get("last_air_date"),
+                        "genres": json.loads(formMovie.get("genres")),
+                        "overview": formMovie.get("overview"),
+                        "episode_run_time": int(formMovie.get("episode_run_time")),
+                        "number_of_episodes": int(formMovie.get("number_of_episodes")),
+                        "status": formMovie.get("status"),
                         "views": 0,
                         "media_type": "tv",
                     },
@@ -417,17 +417,17 @@ class TV(Database):
                 {"id": str(id)},
                 {
                     "$set": {
-                        "name": formMovie["name"],
-                        "original_name": formMovie["original_name"],
-                        "original_language": formMovie["original_language"],
-                        "first_air_date": formMovie["first_air_date"],
-                        "last_air_date": formMovie["last_air_date"],
-                        "genres": json.loads(formMovie["genres"]),
-                        "overview": formMovie["overview"],
-                        "episode_run_time": int(formMovie["episode_run_time"]),
-                        "number_of_episodes": int(formMovie["number_of_episodes"]),
-                        "views": int(formMovie["views"]),
-                        "status": formMovie["status"],
+                        "name": formMovie.get("name"),
+                        "original_name": formMovie.get("original_name"),
+                        "original_language": formMovie.get("original_language"),
+                        "first_air_date": formMovie.get("first_air_date"),
+                        "last_air_date": formMovie.get("last_air_date"),
+                        "genres": json.loads(formMovie.get("genres")),
+                        "overview": formMovie.get("overview"),
+                        "episode_run_time": int(formMovie.get("episode_run_time")),
+                        "number_of_episodes": int(formMovie.get("number_of_episodes")),
+                        "views": int(formMovie.get("views")),
+                        "status": formMovie.get("status"),
                     },
                 },
                 return_document=ReturnDocument.AFTER,

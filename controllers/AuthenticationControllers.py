@@ -30,12 +30,13 @@ class Authentication(SendiblueEmail):
     def login(self):
         try:
             formUser = request.form
+
             account = self.__db["accounts"].find_one(
-                {"email": formUser["email"], "auth_type": "email"}
+                {"email": formUser.get("email"), "auth_type": "email"}
             )
             if account != None:
                 is_correct_password = verifyPassword(
-                    account["password"], formUser["password"]
+                    account["password"], formUser.get("password")
                 )
 
                 if is_correct_password == True:
@@ -488,11 +489,13 @@ class Authentication(SendiblueEmail):
         try:
             formUser = request.form
             # signup_token = request.headers["Authorization"].replace("Bearer ", "")
-            signup_token = request.cookies.get("vrf_signup_token") or formUser["token"]
+            signup_token = request.cookies.get("vrf_signup_token") or formUser.get(
+                "token"
+            )
 
             jwtUser = jwt.decode(
                 signup_token,
-                str(formUser["otp"]),
+                str(formUser.get("otp")),
                 algorithms=["HS256"],
             )
 
@@ -568,27 +571,27 @@ class Authentication(SendiblueEmail):
 
             if type == "email":
                 account = self.__db["accounts"].find_one(
-                    {"email": formUser["email"], "auth_type": "email"}
+                    {"email": formUser.get("email"), "auth_type": "email"}
                 )
 
                 if account == None:
-                    if Validate_Email(formUser["email"]):
+                    if Validate_Email(formUser.get("email")):
                         # if True:
                         OTP = generateOTP(length=6)
 
                         print(OTP)
 
-                        password_encrypted = encryptPassword(formUser["password"])
+                        password_encrypted = encryptPassword(formUser.get("password"))
 
                         encoded = jwt.encode(
                             {
-                                "id": formUser["id"],
-                                "username": formUser["username"],
+                                "id": formUser.get("id"),
+                                "username": formUser.get("username"),
                                 "password": password_encrypted,
-                                "full_name": formUser["full_name"],
-                                "avatar": formUser["avatar"],
+                                "full_name": formUser.get("full_name"),
+                                "avatar": formUser.get("avatar"),
                                 "role": "normal",
-                                "email": formUser["email"],
+                                "email": formUser.get("email"),
                                 "auth_type": "email",
                                 "description": "Register new account",
                                 "exp": (
@@ -624,7 +627,7 @@ class Authentication(SendiblueEmail):
                         )
 
                         email_response = self.Verification_OTP(
-                            to=formUser["email"],
+                            to=formUser.get("email"),
                             otp=OTP,
                             title="Xác nhận đăng ký tài khoản",
                             noteExp=os.getenv("OTP_EXP_OFFSET"),
@@ -656,13 +659,13 @@ class Authentication(SendiblueEmail):
             if type == "email":
                 account = self.__db["accounts"].find_one(
                     {
-                        "email": formUser["email"],
+                        "email": formUser.get("email"),
                         "auth_type": "email",
                     }
                 )
 
                 if account != None:
-                    # if Validate_Email(formUser["email"]):
+                    # if Validate_Email(formUser.get("email")):
                     if True:
                         encoded = jwt.encode(
                             {
@@ -688,7 +691,7 @@ class Authentication(SendiblueEmail):
                         print(reset_password_link)
 
                         email_response = self.Verification_Link(
-                            to=formUser["email"],
+                            to=formUser.get("email"),
                             title="Đặt lại mật khẩu của bạn",
                             subject="Hoàn thành yêu cầu đặt lại mật khẩu",
                             nameLink="Đặt lại mật khẩu",

@@ -712,7 +712,7 @@ class Search(Database):
                 algorithms=["HS256"],
             )
 
-            search_query = request.form["query"]
+            search_query = request.form.get("query")
 
             item_search_history = self.__db["searchs"].find_one(
                 {
@@ -813,7 +813,7 @@ class Search(Database):
                 algorithms=["HS256"],
             )
 
-            id = request.form["id"]
+            id = request.form.get("id")
 
             item_search_history = self.__db["searchs"].find_one(
                 {

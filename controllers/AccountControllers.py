@@ -97,12 +97,12 @@ class Account(Database, SendiblueEmail):
 
                 if account != None:
                     is_correct_password = verifyPassword(
-                        account["password"], formUser["old_password"]
+                        account["password"], formUser.get("old_password")
                     )
 
                     if is_correct_password == True:
                         new_password_encrypted = encryptPassword(
-                            formUser["new_password"]
+                            formUser.get("new_password")
                         )
 
                         encoded = jwt.encode(
@@ -111,7 +111,7 @@ class Account(Database, SendiblueEmail):
                                 "email": jwtUser["email"],
                                 "auth_type": "email",
                                 "new_password": new_password_encrypted,
-                                "logout_all_device": formUser["logout_all_device"],
+                                "logout_all_device": formUser.get("logout_all_device"),
                                 "description": "Change your password",
                                 "exp": (
                                     datetime.now(tz=timezone.utc)
@@ -154,20 +154,20 @@ class Account(Database, SendiblueEmail):
             elif type == "change-email":
                 account1 = self.__db["accounts"].find_one(
                     {
-                        "email": formUser["new_email"],
+                        "email": formUser.get("new_email"),
                         "auth_type": "email",
                     }
                 )
 
                 if account1 == None:
-                    # if SendiblueEmail(formUser.email):
+                    # if Validate_Email(formUser.get("email")):
                     if True:
                         encoded = jwt.encode(
                             {
                                 "id": jwtUser["id"],
                                 "email": jwtUser["email"],
                                 "auth_type": "email",
-                                "new_email": formUser["new_email"],
+                                "new_email": formUser.get("new_email"),
                                 "description": "Change your email",
                                 "exp": (
                                     datetime.now(tz=timezone.utc)
@@ -187,7 +187,7 @@ class Account(Database, SendiblueEmail):
                         print(change_email_link)
 
                         emailResponse = self.Verification_Link(
-                            to=formUser["new_email"],
+                            to=formUser.get("new_email"),
                             title="Thay đổi email của bạn",
                             subject="Hoàn thành yêu cầu đặt thay đổi email",
                             nameLink="Thay đổi email",
@@ -273,12 +273,12 @@ class Account(Database, SendiblueEmail):
                 algorithms=["HS256"],
             )
 
-            verify_token = request.cookies.get("chg_pwd_token") or formUser["token"]
+            verify_token = request.cookies.get("chg_pwd_token") or formUser.get("token")
 
             try:
                 decodeChangePassword = jwt.decode(
                     verify_token,
-                    str(formUser["otp"]),
+                    str(formUser.get("otp")),
                     algorithms=["HS256"],
                 )
             except jwt.ExpiredSignatureError as e:
@@ -409,8 +409,8 @@ class Account(Database, SendiblueEmail):
             )
 
             if (
-                formUser["new_full_name"] == None
-                or len(formUser["new_full_name"]) == 0
+                formUser.get("new_full_name") == None
+                or len(formUser.get("new_full_name")) == 0
             ):
                 return {
                     "success": False,
@@ -427,7 +427,7 @@ class Account(Database, SendiblueEmail):
                 },
                 {
                     "$set": {
-                        "full_name": formUser["new_full_name"],
+                        "full_name": formUser.get("new_full_name"),
                     },
                 },
                 return_document=ReturnDocument.AFTER,
@@ -503,14 +503,16 @@ class Account(Database, SendiblueEmail):
                 algorithms=["HS256"],
             )
 
-            verify_token = request.cookies.get("vrf_email_token") or formUser["token"]
+            verify_token = request.cookies.get("vrf_email_token") or formUser.get(
+                "token"
+            )
 
             formUser = request.form
 
             try:
                 decoded = jwt.decode(
                     verify_token,
-                    str(formUser["otp"]),
+                    str(formUser.get("otp")),
                     algorithms=["HS256"],
                 )
 

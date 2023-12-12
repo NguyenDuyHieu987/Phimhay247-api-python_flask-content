@@ -44,7 +44,7 @@ class Plan(Database):
 
             plan = self.__db["plans"].find_one({"id": id})
 
-            method = request.form["method"].upper()
+            method = request.form.get("method").upper()
 
             order_id = str(uuid.uuid4())
 

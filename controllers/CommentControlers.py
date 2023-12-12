@@ -376,66 +376,63 @@ class Comment(Database):
             if isExistMovies == True:
                 commentForm = request.form
 
-                if len(commentForm["content"]) == 0:
+                if len(commentForm.get("content")) == 0:
                     raise DefaultError("Content comment is not allowed empty")
 
                 idComment = str(uuid.uuid4())
 
                 result = None
 
-                if commentForm["type"] == "children" and "parent_id" in commentForm:
-                    if commentForm["parent_id"] != None:
-                        comment_document = {
-                            "id": idComment,
-                            "content": commentForm["content"],
-                            "user_id": str(jwtUser["id"]),
-                            "username": jwtUser["username"],
-                            "user_avatar": jwtUser["avatar"],
-                            "movie_id": str(id),
-                            "movie_type": str(movieType),
-                            "parent_id": commentForm["parent_id"],
-                            "type": "children",
-                            # "childrens": 0,
-                            # "like": 0,
-                            # "dislike": 0,
-                            "created_at": datetime.now(),
-                            "updated_at": datetime.now(),
-                        }
+                if commentForm.get("type") == "children" and "parent_id" in commentForm:
+                    comment_document = {
+                        "id": idComment,
+                        "content": commentForm.get("content"),
+                        "user_id": str(jwtUser["id"]),
+                        "username": jwtUser["username"],
+                        "user_avatar": jwtUser["avatar"],
+                        "movie_id": str(id),
+                        "movie_type": str(movieType),
+                        "parent_id": commentForm.get("parent_id"),
+                        "type": "children",
+                        # "childrens": 0,
+                        # "like": 0,
+                        # "dislike": 0,
+                        "created_at": datetime.now(),
+                        "updated_at": datetime.now(),
+                    }
 
-                        if "reply_to" in commentForm:
-                            comment_document["reply_to"] = commentForm["reply_to"]
+                    if "reply_to" in commentForm:
+                        comment_document["reply_to"] = commentForm.get("reply_to")
 
-                        result = self.__db["comments"].insert_one(comment_document)
+                    result = self.__db["comments"].insert_one(comment_document)
 
-                        # if resultInsert1.inserted_id != None:
-                        #     self.__db["comments"].update_one(
-                        #         {
-                        #             "id": commentForm["parent_id"],
-                        #             "movie_id": str(id),
-                        #             "movie_type": str(movieType),
-                        #             "type": "parent",
-                        #         },
-                        #         {
-                        #             "$inc": {"childrens": 1},
-                        #         },
-                        #     )
+                    # if resultInsert1.inserted_id != None:
+                    #     self.__db["comments"].update_one(
+                    #         {
+                    #             "id": commentForm.get("parent_id"),
+                    #             "movie_id": str(id),
+                    #             "movie_type": str(movieType),
+                    #             "type": "parent",
+                    #         },
+                    #         {
+                    #             "$inc": {"childrens": 1},
+                    #         },
+                    #     )
 
-                        if result.inserted_id == None:
-                            raise DefaultError("Post comment failed")
+                    if result.inserted_id == None:
+                        raise DefaultError("Post comment failed")
 
-                else:
+                elif commentForm.get("type") == "parent":
                     result = self.__db["comments"].insert_one(
                         {
                             "id": idComment,
-                            "content": commentForm["content"],
+                            "content": commentForm.get("content"),
                             "user_id": str(jwtUser["id"]),
                             "username": jwtUser["username"],
                             "user_avatar": jwtUser["avatar"],
                             "movie_id": str(id),
                             "movie_type": str(movieType),
-                            "type": commentForm["type"]
-                            if "type" in commentForm
-                            else "parent",
+                            "type": "parent",
                             # "parent_id": None,
                             # "childrens": 0,
                             # "like": 0,
@@ -461,15 +458,9 @@ class Comment(Database):
                             "user_avatar": jwtUser["avatar"],
                             "movie_id": str(id),
                             "movie_type": str(movieType),
-                            "parent_id": comment_inserted["parent_id"]
-                            if "parent_id" in comment_inserted
-                            else None,
-                            "reply_to": comment_inserted["reply_to"]
-                            if "reply_to" in comment_inserted
-                            else None,
-                            "type": comment_inserted["type"]
-                            if "type" in comment_inserted
-                            else "parent",
+                            "parent_id": comment_inserted.get("parent_id"),
+                            "reply_to": comment_inserted.get("reply_to"),
+                            "type": comment_inserted.get("type"),
                             "childrens": 0,
                             "like": 0,
                             "dislike": 0,
@@ -528,15 +519,15 @@ class Comment(Database):
 
                 resultUpdate = self.__db["comments"].update_one(
                     {
-                        "id": commentForm["id"],
+                        "id": commentForm.get("id"),
                         "user_id": str(jwtUser["id"]),
                         "movie_id": str(id),
                         "movie_type": str(movieType),
-                        # "type": commentForm["type"],
+                        # "type": commentForm.get("type"),
                     },
                     {
                         "$set": {
-                            "content": commentForm["content"],
+                            "content": commentForm.get("content"),
                             "updated": True,
                             "updated_at": datetime.now(),
                         },
@@ -544,7 +535,7 @@ class Comment(Database):
                 )
 
                 if resultUpdate.modified_count == 1:
-                    return {"success": True, "content": commentForm["content"]}
+                    return {"success": True, "content": commentForm.get("content")}
                 else:
                     raise DefaultError("Update comment failed")
             else:
@@ -593,10 +584,10 @@ class Comment(Database):
             if isExistMovies == True:
                 commentForm = request.form
 
-                if commentForm["type"] == "parent":
+                if commentForm.get("type") == "parent":
                     result1 = self.__db["comments"].delete_one(
                         {
-                            "id": commentForm["id"],
+                            "id": commentForm.get("id"),
                             "user_id": str(jwtUser["id"]),
                             "movie_id": str(id),
                             "movie_type": str(movieType),
@@ -609,7 +600,7 @@ class Comment(Database):
                         {
                             "movie_id": str(id),
                             "movie_type": str(movieType),
-                            "parent_id": commentForm["id"],
+                            "parent_id": commentForm.get("id"),
                             "type": "children",
                         }
                     )
@@ -619,7 +610,7 @@ class Comment(Database):
                             {
                                 "movie_id": str(id),
                                 "movie_type": str(movieType),
-                                "parent_id": commentForm["id"],
+                                "parent_id": commentForm.get("id"),
                                 "type": "children",
                             }
                         )
@@ -638,25 +629,21 @@ class Comment(Database):
                         else:
                             raise DefaultError("Delete comment failed")
 
-                elif commentForm["type"] == "children":
+                elif commentForm.get("type") == "children":
                     resultDel1 = self.__db["comments"].delete_one(
                         {
-                            "id": commentForm["id"],
+                            "id": commentForm.get("id"),
                             "user_id": str(jwtUser["id"]),
                             "movie_id": str(id),
                             "movie_type": str(movieType),
-                            "parent_id": commentForm["parent_id"]
-                            if "parent_id" in commentForm
-                            else None,
-                            "type": commentForm["type"]
-                            if "type" in commentForm
-                            else "parent",
+                            "parent_id": commentForm.get("parent_id"),
+                            "type": commentForm.get("type"),
                         }
                     )
 
                     # resultUpdate1 = self.__db["comments"].update_one(
                     #     {
-                    #         "id": commentForm["parent_id"],
+                    #         "id": commentForm.get("parent_id"),
                     #         "movie_id": str(id),
                     #         "movie_type": str(movieType),
                     #         "type": "parent",

@@ -275,11 +275,11 @@ class History(Database):
                 algorithms=["HS256"],
             )
 
-            movie_id = request.form["movie_id"]
-            media_type = request.form["media_type"]
-            duration = float(request.form["duration"])
-            percent = float(request.form["percent"])
-            seconds = float(request.form["seconds"])
+            movie_id = request.form.get("movie_id")
+            media_type = request.form.get("media_type")
+            duration = float(request.form.get("duration"))
+            percent = float(request.form.get("percent"))
+            seconds = float(request.form.get("seconds"))
 
             id_history = str(uuid.uuid4())
 
