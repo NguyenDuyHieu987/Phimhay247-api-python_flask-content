@@ -763,7 +763,7 @@ class Search(Database):
 
                 result_inserted = self.__db["searchs"].insert_one(
                     {
-                        id: id_search_history,
+                        "id": id_search_history,
                         "user_id": jwtUser["id"],
                         "type": "history",
                         "query": search_query,
