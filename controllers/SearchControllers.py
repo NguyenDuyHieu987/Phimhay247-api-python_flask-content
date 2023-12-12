@@ -419,8 +419,10 @@ class Search(Database):
                                 "type": "search",
                             },
                             {
+                                "$set": {
+                                    "updated_at": datetime.now(),
+                                },
                                 "$inc": {"search_times": 1},
-                                "updated_at": datetime.now(),
                             },
                         )
 
@@ -519,8 +521,10 @@ class Search(Database):
                             "query": search_query,
                         },
                         {
+                            "$set": {
+                                "updated_at": datetime.now(),
+                            },
                             "$inc": {"search_times": 1},
-                            "updated_at": datetime.now(),
                         },
                     )
 
@@ -601,8 +605,10 @@ class Search(Database):
                                     "type": "search",
                                 },
                                 {
+                                    "$set": {
+                                        "updated_at": datetime.now(),
+                                    },
                                     "$inc": {"search_times": 1},
-                                    "updated_at": datetime.now(),
                                 },
                             )
 
@@ -735,8 +741,10 @@ class Search(Database):
                         "query": search_query,
                     },
                     {
+                        "$set": {
+                            "updated_at": datetime.now(),
+                        },
                         "$inc": {"search_times": 1},
-                        "updated_at": datetime.now(),
                     },
                 )
 
