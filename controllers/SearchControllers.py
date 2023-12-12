@@ -592,8 +592,8 @@ class Search(Database):
                     if len(movie1) != 0:
                         item_search = self.__db["searchs"].find_one(
                             {
-                                "movie_id": movie1["id"],
-                                "media_type": movie1["media_type"],
+                                "movie_id": movie1[0]["id"],
+                                "media_type": movie1[0]["media_type"],
                                 "type": "search",
                             }
                         )
@@ -601,8 +601,8 @@ class Search(Database):
                         if item_search != None:
                             result_updated = self.__db["searchs"].update_one(
                                 {
-                                    "movie_id": movie1["id"],
-                                    "media_type": movie1["media_type"],
+                                    "movie_id": movie1[0]["id"],
+                                    "media_type": movie1[0]["media_type"],
                                     "type": "search",
                                 },
                                 {
