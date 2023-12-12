@@ -496,7 +496,7 @@ class Search(Database):
 
                             return {
                                 "added": True,
-                                "result": search_inserted,
+                                "result": cvtJson(search_inserted),
                             }
                         else:
                             return {
@@ -683,7 +683,7 @@ class Search(Database):
 
                             return {
                                 "added": True,
-                                "result": search_inserted,
+                                "result": cvtJson(search_inserted),
                             }
                         else:
                             return {
@@ -782,7 +782,7 @@ class Search(Database):
 
                     return {
                         "added": True,
-                        "result": search_history_inserted,
+                        "result": cvtJson(search_history_inserted),
                     }
                 else:
                     return {
