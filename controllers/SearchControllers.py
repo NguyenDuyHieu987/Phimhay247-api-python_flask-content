@@ -507,6 +507,7 @@ class Search(Database):
                     raise DefaultError("Movie is not exists")
 
             else:
+                print("Grhh")
                 item_search = self.__db["searchs"].find_one(
                     {
                         "type": "search",
