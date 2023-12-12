@@ -124,8 +124,8 @@ class Authentication(SendiblueEmail):
                         "email": formUser["email"],
                         "auth_type": "facebook",
                         "role": "normal",
-                        "created_at": str(datetime.now()),
-                        "updated_at": str(datetime.now()),
+                        "created_at": datetime.now(),
+                        "updated_at": datetime.now(),
                     },
                 )
 
@@ -288,8 +288,8 @@ class Authentication(SendiblueEmail):
                         "email": formUser["email"],
                         "auth_type": "google",
                         "role": "normal",
-                        "created_at": str(datetime.now()),
-                        "updated_at": str(datetime.now()),
+                        "created_at": datetime.now(),
+                        "updated_at": datetime.now(),
                     },
                 )
 
@@ -527,8 +527,8 @@ class Authentication(SendiblueEmail):
                         "email": jwtUser["email"],
                         "auth_type": jwtUser["auth_type"],
                         "role": jwtUser["role"],
-                        "created_at": str(datetime.now()),
-                        "updated_at": str(datetime.now()),
+                        "created_at": datetime.now(),
+                        "updated_at": datetime.now(),
                     }
                 )
 

@@ -1,8 +1,5 @@
 import pymongo
 from pymongo.errors import PyMongoError
-from utils.JsonResponse import ConvertJsonResponse as cvtJson
-from utils.ErrorMessage import BadRequestMessage, InternalServerErrorMessage
-from utils.exceptions import DefaultError
 from flask import *
 from pymongo import ReturnDocument
 from datetime import datetime
@@ -10,6 +7,9 @@ from configs.database import Database
 import os
 import jwt
 import uuid
+from utils.JsonResponse import ConvertJsonResponse as cvtJson
+from utils.ErrorMessage import BadRequestMessage, InternalServerErrorMessage
+from utils.exceptions import DefaultError
 
 
 class History(Database):
@@ -281,7 +281,7 @@ class History(Database):
             percent = float(request.form["percent"])
             seconds = float(request.form["seconds"])
 
-            idItemHistory = str(uuid.uuid4())
+            id_history = str(uuid.uuid4())
 
             if media_type == "movie":
                 movie = self.__db["movies"].find_one(
@@ -300,7 +300,7 @@ class History(Database):
                     if item_history == None:
                         self.__db["histories"].insert_one(
                             {
-                                "id": str(idItemHistory),
+                                "id": str(id_history),
                                 "user_id": jwtUser["id"],
                                 "movie_id": movie_id,
                                 "name": movie["name"],
@@ -317,8 +317,8 @@ class History(Database):
                                 "duration": float(duration),
                                 "percent": float(percent),
                                 "seconds": float(seconds),
-                                "created_at": str(datetime.now()),
-                                "updated_at": str(datetime.now()),
+                                "created_at": datetime.now(),
+                                "updated_at": datetime.now(),
                             }
                         )
 
@@ -345,7 +345,7 @@ class History(Database):
                                     "$set": {
                                         "percent": float(percent),
                                         "seconds": float(seconds),
-                                        "updated_at": str(datetime.now()),
+                                        "updated_at": datetime.now(),
                                     }
                                 },
                             )
@@ -361,7 +361,7 @@ class History(Database):
                                     "$set": {
                                         "percent": float(percent),
                                         "seconds": float(seconds),
-                                        "updated_at": str(datetime.now()),
+                                        "updated_at": datetime.now(),
                                     }
                                 },
                             )
@@ -390,7 +390,7 @@ class History(Database):
                     if item_history == None:
                         self.__db["histories"].insert_one(
                             {
-                                "id": str(idItemHistory),
+                                "id": str(id_history),
                                 "user_id": jwtUser["id"],
                                 "movie_id": movie_id,
                                 "name": tv["name"],
@@ -407,8 +407,8 @@ class History(Database):
                                 "duration": float(duration),
                                 "percent": float(percent),
                                 "seconds": float(seconds),
-                                "created_at": str(datetime.now()),
-                                "updated_at": str(datetime.now()),
+                                "created_at": datetime.now(),
+                                "updated_at": datetime.now(),
                             }
                         )
 
@@ -435,7 +435,7 @@ class History(Database):
                                     "$set": {
                                         "percent": float(percent),
                                         "seconds": float(seconds),
-                                        "updated_at": str(datetime.now()),
+                                        "updated_at": datetime.now(),
                                     }
                                 },
                             )
@@ -451,7 +451,7 @@ class History(Database):
                                     "$set": {
                                         "percent": float(percent),
                                         "seconds": float(seconds),
-                                        "updated_at": str(datetime.now()),
+                                        "updated_at": datetime.now(),
                                     }
                                 },
                             )

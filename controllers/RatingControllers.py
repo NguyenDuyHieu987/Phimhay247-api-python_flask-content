@@ -103,12 +103,12 @@ class Rate(Database):
                             "user_id": jwtUser["id"],
                             "movie_id": str(id),
                             "movie_type": "movie",
-                            "created_at": str(datetime.now()),
-                            "updated_at": str(datetime.now()),
+                            "created_at": datetime.now(),
+                            "updated_at": datetime.now(),
                         }
                     )
 
-                    if resultInsert1.acknowledged == False:
+                    if resultInsert1.inserted_id != None:
                         raise DefaultError("Rate movie failed")
                     else:
                         return {
@@ -147,8 +147,8 @@ class Rate(Database):
                             "user_id": jwtUser["id"],
                             "movie_id": str(id),
                             "movie_type": "tv",
-                            "created_at": str(datetime.now()),
-                            "updated_at": str(datetime.now()),
+                            "created_at": datetime.now(),
+                            "updated_at": datetime.now(),
                         }
                     )
 

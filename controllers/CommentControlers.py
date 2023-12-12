@@ -1,15 +1,15 @@
 import pymongo
 from pymongo.errors import PyMongoError
 from pymongo import ReturnDocument
-from utils.JsonResponse import ConvertJsonResponse as cvtJson
-from utils.ErrorMessage import BadRequestMessage, InternalServerErrorMessage
-from utils.exceptions import DefaultError
 from flask import *
 from configs.database import Database
 import uuid
 import os
 import jwt
 from datetime import datetime
+from utils.JsonResponse import ConvertJsonResponse as cvtJson
+from utils.ErrorMessage import BadRequestMessage, InternalServerErrorMessage
+from utils.exceptions import DefaultError, NotInTypeError
 
 
 class Comment(Database):
@@ -370,6 +370,8 @@ class Comment(Database):
                 isExistMovies = self.__db["movies"].find_one({"id": str(id)}) != None
             elif movieType == "tv":
                 isExistMovies = self.__db["tvs"].find_one({"id": str(id)}) != None
+            else:
+                raise NotInTypeError("movie", movieType)
 
             if isExistMovies == True:
                 commentForm = request.form
@@ -396,8 +398,8 @@ class Comment(Database):
                             # "childrens": 0,
                             # "like": 0,
                             # "dislike": 0,
-                            "created_at": str(datetime.now()),
-                            "updated_at": str(datetime.now()),
+                            "created_at": datetime.now(),
+                            "updated_at": datetime.now(),
                         }
 
                         if "reply_to" in commentForm:
@@ -438,8 +440,8 @@ class Comment(Database):
                             # "childrens": 0,
                             # "like": 0,
                             # "dislike": 0,
-                            "created_at": str(datetime.now()),
-                            "updated_at": str(datetime.now()),
+                            "created_at": datetime.now(),
+                            "updated_at": datetime.now(),
                         }
                     )
 
@@ -471,8 +473,8 @@ class Comment(Database):
                             "childrens": 0,
                             "like": 0,
                             "dislike": 0,
-                            "created_at": str(datetime.now()),
-                            "updated_at": str(datetime.now()),
+                            "created_at": datetime.now(),
+                            "updated_at": datetime.now(),
                         },
                     }
                 else:
@@ -493,6 +495,8 @@ class Comment(Database):
             InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
+        except NotInTypeError as e:
+            BadRequestMessage(e.message)
         except DefaultError as e:
             BadRequestMessage(e.message)
         except Exception as e:
@@ -516,6 +520,8 @@ class Comment(Database):
                 isExistMovies = self.__db["movies"].find_one({"id": str(id)}) != None
             elif movieType == "tv":
                 isExistMovies = self.__db["tvs"].find_one({"id": str(id)}) != None
+            else:
+                raise NotInTypeError("movie", movieType)
 
             if isExistMovies == True:
                 commentForm = request.form
@@ -532,7 +538,7 @@ class Comment(Database):
                         "$set": {
                             "content": commentForm["content"],
                             "updated": True,
-                            "updated_at": str(datetime.now()),
+                            "updated_at": datetime.now(),
                         },
                     },
                 )
@@ -556,6 +562,8 @@ class Comment(Database):
             InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
+        except NotInTypeError as e:
+            BadRequestMessage(e.message)
         except DefaultError as e:
             BadRequestMessage(e.message)
         except Exception as e:
@@ -579,6 +587,8 @@ class Comment(Database):
                 isExistMovies = self.__db["movies"].find_one({"id": str(id)}) != None
             elif movieType == "tv":
                 isExistMovies = self.__db["tvs"].find_one({"id": str(id)}) != None
+            else:
+                raise NotInTypeError("movie", movieType)
 
             if isExistMovies == True:
                 commentForm = request.form
@@ -681,6 +691,8 @@ class Comment(Database):
             InternalServerErrorMessage("Token is invalid")
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
+        except NotInTypeError as e:
+            BadRequestMessage(e.message)
         except DefaultError as e:
             BadRequestMessage(e.message)
         except Exception as e:
@@ -744,8 +756,8 @@ class Comment(Database):
                         "user_id": jwtUser["id"],
                         "comment_id": id,
                         "type": "like",
-                        "created_at": str(datetime.now()),
-                        "updated_at": str(datetime.now()),
+                        "created_at": datetime.now(),
+                        "updated_at": datetime.now(),
                     }
                 )
 
@@ -877,8 +889,8 @@ class Comment(Database):
                         "user_id": jwtUser["id"],
                         "comment_id": id,
                         "type": "dislike",
-                        "created_at": str(datetime.now()),
-                        "updated_at": str(datetime.now()),
+                        "created_at": datetime.now(),
+                        "updated_at": datetime.now(),
                     }
                 )
 

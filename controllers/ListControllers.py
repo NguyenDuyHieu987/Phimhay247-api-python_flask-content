@@ -1,8 +1,5 @@
 import pymongo
 from pymongo.errors import PyMongoError
-from utils.JsonResponse import ConvertJsonResponse as cvtJson
-from utils.ErrorMessage import BadRequestMessage, InternalServerErrorMessage
-from utils.exceptions import DefaultError
 from flask import *
 from pymongo import ReturnDocument
 from datetime import datetime
@@ -10,6 +7,9 @@ from configs.database import Database
 import os
 import jwt
 import uuid
+from utils.JsonResponse import ConvertJsonResponse as cvtJson
+from utils.ErrorMessage import BadRequestMessage, InternalServerErrorMessage
+from utils.exceptions import DefaultError
 
 
 class List(Database):
@@ -283,7 +283,7 @@ class List(Database):
 
             movie_id = request.form["movie_id"]
             media_type = request.form["media_type"]
-            idItemList = str(uuid.uuid4())
+            id_list = str(uuid.uuid4())
 
             if media_type == "movie":
                 movie = self.__db["movies"].find_one(
@@ -302,7 +302,7 @@ class List(Database):
                     if item_lists == None:
                         self.__db["lists"].insert_one(
                             {
-                                "id": str(idItemList),
+                                "id": str(id_list),
                                 "user_id": jwtUser["id"],
                                 "movie_id": movie_id,
                                 "name": movie["name"],
@@ -316,8 +316,8 @@ class List(Database):
                                     "dominant_backdrop_color"
                                 ],
                                 "dominant_poster_color": movie["dominant_poster_color"],
-                                "created_at": str(datetime.now()),
-                                "updated_at": str(datetime.now()),
+                                "created_at": datetime.now(),
+                                "updated_at": datetime.now(),
                             }
                         )
 
@@ -350,7 +350,7 @@ class List(Database):
                     else:
                         self.__db["lists"].insert_one(
                             {
-                                "id": str(idItemList),
+                                "id": str(id_list),
                                 "user_id": jwtUser["id"],
                                 "movie_id": movie_id,
                                 "name": tv["name"],
@@ -364,8 +364,8 @@ class List(Database):
                                     "dominant_backdrop_color"
                                 ],
                                 "dominant_poster_color": tv["dominant_poster_color"],
-                                "created_at": str(datetime.now()),
-                                "updated_at": str(datetime.now()),
+                                "created_at": datetime.now(),
+                                "updated_at": datetime.now(),
                             }
                         )
 

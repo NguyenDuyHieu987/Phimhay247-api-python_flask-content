@@ -317,8 +317,8 @@ class List(Database):
                                                 "dominant_poster_color": movie[
                                                     "dominant_poster_color"
                                                 ],
-                                                "created_at": str(datetime.now()),
-                                                "updated_at": str(datetime.now()),
+                                                "created_at": datetime.now(),
+                                                "updated_at": datetime.now(),
                                             }
                                         ],
                                         "$position": 0,
@@ -386,8 +386,8 @@ class List(Database):
                                                 "dominant_poster_color": tv[
                                                     "dominant_poster_color"
                                                 ],
-                                                "created_at": str(datetime.now()),
-                                                "updated_at": str(datetime.now()),
+                                                "created_at": datetime.now(),
+                                                "updated_at": datetime.now(),
                                             }
                                         ],
                                         "$position": 0,
