@@ -55,7 +55,7 @@ def cors_app(app):
         #     r"/genre/*": api_normal_cors_config1,
         #     r"/year/*": api_normal_cors_config1,
         #     r"/sortby/*": api_normal_cors_config1,
-        #     r"/ranking/*": api_normal_cors_config1,
+        #     r"/ranks/*": api_normal_cors_config1,
         #     r"/list/*": api_normal_cors_config2,
         #     r"/history/*": api_normal_cors_config2,
         #     r"/rating/*": api_normal_cors_config2,
