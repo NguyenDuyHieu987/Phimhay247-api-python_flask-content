@@ -127,7 +127,7 @@ def route(app, cache):
     recommend_routes(app, cache)
 
     # Ranking
-    from routes.RankingRoutes import ranking_routes
+    from routes.RanksRoutes import ranking_routes
 
     ranking_routes(app, cache)
 
