@@ -108,14 +108,14 @@ class TVSlug(Database):
                     return {
                         "first_air_date": {
                             "$gte": date_gte,
-                            "$lt": data_lte,
+                            "$lte": data_lte,
                         }
                     }
 
                 elif date_gte == "" and data_lte != "":
                     return {
                         "first_air_date": {
-                            "$lt": data_lte,
+                            "$lte": data_lte,
                         }
                     }
 

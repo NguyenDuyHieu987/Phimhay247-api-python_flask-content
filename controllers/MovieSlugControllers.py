@@ -106,14 +106,14 @@ class MovieSlug(Database):
                     return {
                         "release_date": {
                             "$gte": date_gte,
-                            "$lt": data_lte,
+                            "$lte": data_lte,
                         }
                     }
 
                 elif date_gte == "" and data_lte != "":
                     return {
                         "release_date": {
-                            "$lt": data_lte,
+                            "$lte": data_lte,
                         }
                     }
                 return {}
