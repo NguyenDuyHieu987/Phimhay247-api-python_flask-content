@@ -74,6 +74,7 @@ class Rate(Database):
             )
 
             rateValue = float(request.form.get("value"))
+
             if type == "movie":
                 movie_dumps = self.__db["movies"].find_one({"id": str(id)})
 
@@ -108,13 +109,14 @@ class Rate(Database):
                         }
                     )
 
-                    if resultInsert1.inserted_id != None:
-                        raise DefaultError("Rate movie failed")
+                    if resultInsert1.inserted_id == None:
+                        return {"success": False, "result": "Rate movie failed"}
                     else:
                         return {
                             "success": True,
                             "vote_average": new_movie["vote_average"],
                             "vote_count": new_movie["vote_count"],
+                            "result": "Rate movie successfully",
                         }
                 else:
                     raise DefaultError("Movie is not exists")
@@ -152,13 +154,14 @@ class Rate(Database):
                         }
                     )
 
-                    if resultInsert2.acknowledged == False:
-                        raise DefaultError("Update rate movie failed")
+                    if resultInsert2.inserted_id == None:
+                        return {"success": False, "result": "Rate movie failed"}
                     else:
                         return {
                             "success": True,
                             "vote_average": new_tv["vote_average"],
                             "vote_count": new_tv["vote_count"],
+                            "result": "Rate movie successfully",
                         }
                 else:
                     raise DefaultError("Movie is not exists")
