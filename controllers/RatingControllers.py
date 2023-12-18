@@ -155,16 +155,16 @@ class Rate(Database):
                     )
 
                     if resultInsert2.inserted_id == None:
-                        return {"success": False, "result": "Rate movie failed"}
+                        return {"success": False, "result": "Rate tv failed"}
                     else:
                         return {
                             "success": True,
                             "vote_average": new_tv["vote_average"],
                             "vote_count": new_tv["vote_count"],
-                            "result": "Rate movie successfully",
+                            "result": "Rate tv successfully",
                         }
                 else:
-                    raise DefaultError("Movie is not exists")
+                    raise DefaultError("TV is not exists")
 
         except jwt.ExpiredSignatureError as e:
             make_response().delete_cookie(
