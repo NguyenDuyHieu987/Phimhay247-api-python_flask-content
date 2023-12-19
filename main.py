@@ -64,7 +64,7 @@ cache = Cache(
         "CACHE_REDIS_HOST": os.getenv("REDIS_HOST"),
         "CACHE_REDIS_PORT": os.getenv("REDIS_PORT"),
         "CACHE_REDIS_PASSWORD": os.getenv("REDIS_PASSWORD"),
-        "CACHE_DEFAULT_TIMEOUT": int(os.getenv("REDIS_CACHE_TIME")),
+        "CACHE_DEFAULT_TIMEOUT": os.getenv("REDIS_CACHE_TIME"),
     },
 )
 
