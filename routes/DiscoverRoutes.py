@@ -1,4 +1,5 @@
 from flask import *
+
 # from flask_cors import cross_origin
 import configs
 from controllers.DiscoverControllers import Discover
