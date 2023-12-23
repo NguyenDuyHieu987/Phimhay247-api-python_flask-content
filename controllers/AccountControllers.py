@@ -597,7 +597,7 @@ class Account(Database, SendiblueEmail):
 
     def change_email(self):
         try:
-            token = request.cookies.get("chg_email_token") or request.form["token"]
+            token = request.cookies.get("chg_email_token") or request.form.get("token")
 
             if token == None:
                 return {"isInvalidToken": True, "result": "Token is invalid"}
@@ -757,7 +757,7 @@ class Account(Database, SendiblueEmail):
 
     def reset_password(self):
         try:
-            token = request.cookies.get("rst_pwd_token") or request.form["token"]
+            token = request.cookies.get("rst_pwd_token") or request.form.get("token")
 
             if token == None:
                 return {"isInvalidToken": True, "result": "Token is invalid"}
@@ -776,7 +776,7 @@ class Account(Database, SendiblueEmail):
                 algorithms=["HS256"],
             )
 
-            new_password_encrypted = encryptPassword(request.form["new_password"])
+            new_password_encrypted = encryptPassword(request.form.get("new_password"))
 
             account = self.__db["accounts"].find_one_and_update(
                 {
