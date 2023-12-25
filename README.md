@@ -1,4 +1,4 @@
-# The-Movie-NodeJS-Api
+# The-Movie-Flask-Api
 
 
 ### Scripts
