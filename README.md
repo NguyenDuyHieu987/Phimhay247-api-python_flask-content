@@ -1,7 +1,7 @@
 # Phimhay247-api-python_flask-content
 
 
-### Start
+### Scripts
 
 Starts the app in development 
 
