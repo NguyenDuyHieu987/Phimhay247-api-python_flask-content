@@ -3,6 +3,7 @@ from pymongo.errors import PyMongoError
 from flask import *
 from pymongo import ReturnDocument
 import jwt
+import uuid
 import os
 from datetime import datetime, timezone, timedelta
 import time
@@ -111,18 +112,23 @@ class Authentication(SendiblueEmail):
                 f"https://graph.facebook.com/v15.0/me?access_token={accessToken}&fields=id,name,email,picture"
             )
 
-            formUser = faceBookUser.json()
+            faceBookUser = faceBookUser.json()
 
-            account = self.__db["accounts"].find_one({"id": formUser["id"]})
+            account = self.__db["accounts"].find_one(
+                {"facebook_user_id": faceBookUser["id"], "auth_type": "facebook"}
+            )
 
             if account == None:
+                idAccount = str(uuid.uuid4())
+
                 self.__db["accounts"].insert_one(
                     {
-                        "id": formUser["id"],
-                        "username": formUser["name"],
-                        "full_name": formUser["name"],
-                        "avatar": formUser["picture"]["data"]["url"],
-                        "email": formUser["email"],
+                        "id": idAccount,
+                        "facebook_user_id": faceBookUser["id"],
+                        "username": faceBookUser["name"],
+                        "full_name": faceBookUser["name"],
+                        "avatar": faceBookUser["picture"]["data"]["url"],
+                        "email": faceBookUser["email"],
                         "auth_type": "facebook",
                         "role": "normal",
                         "created_at": datetime.now(),
@@ -131,9 +137,7 @@ class Authentication(SendiblueEmail):
                 )
 
                 get_account = self.__db["accounts"].find_one(
-                    {
-                        "id": formUser["id"],
-                    },
+                    {"facebook_user_id": faceBookUser["id"], "auth_type": "facebook"}
                 )
 
                 encoded = jwt.encode(
@@ -189,10 +193,10 @@ class Authentication(SendiblueEmail):
 
             else:
                 account_modified = self.__db["accounts"].find_one_and_update(
-                    {"id": formUser["id"]},
+                    {"id": account["id"], "auth_type": "facebook"},
                     {
                         "$set": {
-                            "avatar": formUser["picture"]["data"]["url"],
+                            "avatar": faceBookUser["picture"]["data"]["url"],
                         }
                     },
                     return_document=ReturnDocument.AFTER,
@@ -217,31 +221,19 @@ class Authentication(SendiblueEmail):
                     algorithm="HS256",
                 )
 
-                # get_account = self.__db["accounts"].find_one_and_update(
-                # get_account = self.__db["accounts"].find_one(
-                #     {"id": formUser["id"]},
-                #     # {
-                #     #     "$set": {
-                #     #         "user_token": encoded,
-                #     #         # "avatar": formUser["avatar"],
-                #     #     },
-                #     # },
-                #     # return_document=ReturnDocument.AFTER,
-                # )
-
                 response = make_response(
                     {
                         "isLogin": True,
                         "exp_token_hours": int(os.getenv("JWT_EXP_OFFSET")),
                         "result": {
-                            "id": account["id"],
-                            "username": account["username"],
-                            "full_name": account["full_name"],
-                            "avatar": account["avatar"],
-                            "email": account["email"],
-                            "auth_type": account["auth_type"],
-                            "role": account["role"],
-                            "created_at": account["created_at"],
+                            "id": account_modified["id"],
+                            "username": account_modified["username"],
+                            "full_name": account_modified["full_name"],
+                            "avatar": account_modified["avatar"],
+                            "email": account_modified["email"],
+                            "auth_type": account_modified["auth_type"],
+                            "role": account_modified["role"],
+                            "created_at": account_modified["created_at"],
                         },
                     }
                 )
@@ -275,18 +267,23 @@ class Authentication(SendiblueEmail):
                 f"https://www.googleapis.com/oauth2/v3/userinfo", headers=Headers
             )
 
-            formUser = googleUser.json()
+            googleUser = googleUser.json()
 
-            account = self.__db["accounts"].find_one({"id": formUser["sub"]})
+            account = self.__db["accounts"].find_one(
+                {"google_user_id": googleUser["sub"], "auth_type": "google"}
+            )
 
             if account == None:
+                idAccount = str(uuid.uuid4())
+
                 self.__db["accounts"].insert_one(
                     {
-                        "id": formUser["sub"],
-                        "username": formUser["name"],
-                        "full_name": formUser["name"],
-                        "avatar": formUser["picture"],
-                        "email": formUser["email"],
+                        "id": idAccount,
+                        "google_user_id": googleUser["sub"],
+                        "username": googleUser["name"],
+                        "full_name": googleUser["name"],
+                        "avatar": googleUser["picture"],
+                        "email": googleUser["email"],
                         "auth_type": "google",
                         "role": "normal",
                         "created_at": datetime.now(),
@@ -295,9 +292,7 @@ class Authentication(SendiblueEmail):
                 )
 
                 get_account = self.__db["accounts"].find_one(
-                    {
-                        "id": formUser["sub"],
-                    },
+                    {"google_user_id": googleUser["sub"], "auth_type": "google"},
                 )
 
                 encoded = jwt.encode(
@@ -520,9 +515,11 @@ class Authentication(SendiblueEmail):
                 #     )
                 # else:
 
+                idAccount = str(uuid.uuid4())
+
                 self.__db["accounts"].insert_one(
                     {
-                        "id": jwtUser["id"],
+                        "id": idAccount,
                         "username": jwtUser["username"],
                         "password": jwtUser["password"],
                         "full_name": jwtUser["full_name"],
@@ -585,7 +582,6 @@ class Authentication(SendiblueEmail):
 
                         encoded = jwt.encode(
                             {
-                                "id": formUser.get("id"),
                                 "username": formUser.get("username"),
                                 "password": password_encrypted,
                                 "full_name": formUser.get("full_name"),
