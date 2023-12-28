@@ -16,7 +16,7 @@ class Comment(Database):
     def __init__(self):
         self.__db = self.ConnectMongoDB()
 
-    def get_parent(self, movieType, movieId):
+    def get_all_parent(self, movieType, movieId):
         try:
             skip = request.args.get("skip", default=1, type=int) - 1
             limit = request.args.get("limit", default=20, type=int)
@@ -352,7 +352,7 @@ class Comment(Database):
         except Exception as e:
             InternalServerErrorMessage(e)
 
-    def post_comment(self, movieType, id):
+    def post(self, movieType, id):
         try:
             user_token = request.headers["Authorization"].replace(
                 "Bearer ", ""
@@ -493,7 +493,7 @@ class Comment(Database):
         except Exception as e:
             InternalServerErrorMessage(e)
 
-    def edit_comment(self, movieType, id):
+    def edit(self, movieType, id):
         try:
             user_token = request.headers["Authorization"].replace(
                 "Bearer ", ""
@@ -560,7 +560,7 @@ class Comment(Database):
         except Exception as e:
             InternalServerErrorMessage(e)
 
-    def delete_comment(self, movieType, id):
+    def delete(self, movieType, id):
         try:
             user_token = request.headers["Authorization"].replace(
                 "Bearer ", ""

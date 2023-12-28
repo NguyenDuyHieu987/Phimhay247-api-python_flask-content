@@ -16,7 +16,7 @@ class History(Database):
     def __init__(self):
         self.__db = self.ConnectMongoDB()
 
-    def getall_history(self, type):
+    def get_all(self, type):
         try:
             user_token = request.headers["Authorization"].replace(
                 "Bearer ", ""
@@ -128,7 +128,7 @@ class History(Database):
         except Exception as e:
             InternalServerErrorMessage(e)
 
-    def search_history(self, type):
+    def search(self, type):
         try:
             user_token = request.headers["Authorization"].replace(
                 "Bearer ", ""
@@ -213,7 +213,7 @@ class History(Database):
         except Exception as e:
             InternalServerErrorMessage(e)
 
-    def get_history(self, type, movieId):
+    def get(self, type, movieId):
         try:
             user_token = request.headers["Authorization"].replace(
                 "Bearer ", ""
@@ -263,7 +263,7 @@ class History(Database):
         except Exception as e:
             InternalServerErrorMessage(e)
 
-    def add_history(self):
+    def add(self):
         try:
             user_token = request.headers["Authorization"].replace(
                 "Bearer ", ""
@@ -480,7 +480,7 @@ class History(Database):
         except Exception as e:
             InternalServerErrorMessage(e)
 
-    def remove_history(self):
+    def remove(self):
         try:
             user_token = request.headers["Authorization"].replace(
                 "Bearer ", ""
@@ -527,7 +527,7 @@ class History(Database):
         except Exception as e:
             InternalServerErrorMessage(e)
 
-    def clear_history(self):
+    def clear(self):
         try:
             user_token = request.headers["Authorization"].replace(
                 "Bearer ", ""

@@ -6,45 +6,48 @@ from controllers.ListControllers import List
 
 
 def list_routes(app, cache):
+    prefix_route = "list"
+
     list = List()
+
     ## Get list
 
-    @app.route("/list/get-all/<type>", methods=["GET"])
+    @app.route(f"/{prefix_route}/get-all/<type>", methods=["GET"])
     # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def getall_list_route(type):
-        return list.getall_list(type)
+        return list.get_all(type)
 
     ## Search list
 
-    @app.route("/list/search/<type>", methods=["GET"])
+    @app.route(f"/{prefix_route}/search/<type>", methods=["GET"])
     # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def search_list_route(type):
-        return list.search_list(type)
+        return list.search(type)
 
     ## Get item list
 
-    @app.route("/list/get/<type>/<movieId>", methods=["GET"])
+    @app.route(f"/{prefix_route}/get/<type>/<movieId>", methods=["GET"])
     # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def get_list_route(type, movieId):
-        return list.get_list(type, movieId)
+        return list.get(type, movieId)
 
     ## Add item to list
 
-    @app.route("/list/add", methods=["POST"])
+    @app.route(f"/{prefix_route}/add", methods=["POST"])
     # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def add_list_route():
-        return list.add_list()
+        return list.add()
 
     ## Remove item from list
 
-    @app.route("/list/remove", methods=["DELETE"])
+    @app.route(f"/{prefix_route}/remove", methods=["DELETE"])
     # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def remove_list_route():
-        return list.remove_list()
+        return list.remove()
 
     ## Remove all item from list
 
-    @app.route("/list/clear", methods=["DELETE"])
+    @app.route(f"/{prefix_route}/clear", methods=["DELETE"])
     # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def clear_list_route():
-        return list.clear_list()
+        return list.clear()

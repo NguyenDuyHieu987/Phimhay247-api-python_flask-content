@@ -16,7 +16,7 @@ class Rate(Database):
     def __init__(self):
         self.__db = self.ConnectMongoDB()
 
-    def get_rating(self, type, id):
+    def get(self, type, id):
         try:
             user_token = request.headers["Authorization"].replace(
                 "Bearer ", ""
@@ -61,7 +61,7 @@ class Rate(Database):
         except Exception as e:
             InternalServerErrorMessage(e)
 
-    def rating(self, type, id):
+    def rate(self, type, id):
         try:
             user_token = request.headers["Authorization"].replace(
                 "Bearer ", ""

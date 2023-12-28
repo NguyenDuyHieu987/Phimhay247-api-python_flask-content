@@ -11,7 +11,7 @@ class MovieSlug(Database):
     def __init__(self):
         self.__db = self.ConnectMongoDB()
 
-    def movie_slug(self, slug):
+    def get_slug(self, slug):
         try:
             page = request.args.get("page", default=1, type=int) - 1
             limit = request.args.get("limit", default=20, type=int)

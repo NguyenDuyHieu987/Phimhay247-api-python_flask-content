@@ -11,13 +11,12 @@ class Genre(Database):
     def __init__(self):
         self.__db = self.ConnectMongoDB()
 
-    def genres(self, type):
+    def get_all(self, type):
         try:
-            if type == "all":
-                genres = cvtJson(self.__db["genres"].find())
-                return {"results": genres}
-            else:
-                raise NotInTypeError("genre", type)
+            genres = cvtJson(self.__db["genres"].find())
+
+            return {"results": genres}
+
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except NotInTypeError as e:

@@ -11,7 +11,7 @@ class Episode(Database):
     def __init__(self):
         self.__db = self.ConnectMongoDB()
 
-    def getList(self, movieId, seasonId):
+    def get_list(self, movieId, seasonId):
         try:
             episodes = cvtJson(
                 self.__db["episodes"].find(

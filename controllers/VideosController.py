@@ -11,7 +11,7 @@ class Videos(Database):
     def __init__(self):
         self.__db = self.ConnectMongoDB()
 
-    def get_videos(self, id):
+    def get(self, id):
         try:
             videos = self.__db["videos"].find_one({"movie_id": str(id)})
             return cvtJson(videos)

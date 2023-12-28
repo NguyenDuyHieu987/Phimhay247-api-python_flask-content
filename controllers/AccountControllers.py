@@ -24,7 +24,7 @@ class Account(Database, SendiblueEmail):
         self.__db = self.ConnectMongoDB()
         self.__jwtredis = JwtRedis()
 
-    def account_confirm(self, type):
+    def confirm(self, type):
         try:
             formUser = request.form
 

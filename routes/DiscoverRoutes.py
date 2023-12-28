@@ -6,10 +6,12 @@ from controllers.DiscoverControllers import Discover
 
 
 def discover_routes(app, cache):
+    prefix_route = "discover"
+
     discover = Discover()
 
-    @app.route("/discover/<type>", methods=["GET"])
+    @app.route(f"/{prefix_route}/<type>", methods=["GET"])
     # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     @cache.cached(query_string=True)
-    def discover_route(type):
-        return discover.discover(type)
+    def get_slug_discover_route(type):
+        return discover.get_slug(type)

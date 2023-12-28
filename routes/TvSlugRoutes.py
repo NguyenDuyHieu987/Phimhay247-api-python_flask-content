@@ -6,15 +6,17 @@ from controllers.TvSlugControllers import TVSlug
 
 
 def tv_slug_routes(app, cache):
+    prefix_route = "tv"
+
     tvslug = TVSlug()
 
-    @app.route("/tv/<slug>", methods=["GET"])
+    @app.route(f"/{prefix_route}/<slug>", methods=["GET"])
     # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     @cache.cached(query_string=True)
-    def tv_slug_route(slug):
-        return tvslug.tv_slug(slug)
+    def get_tv_slug_route(slug):
+        return tvslug.get_slug(slug)
 
-    @app.route("/tv/discover/<slug>", methods=["GET"])
+    @app.route(f"/{prefix_route}/discover/<slug>", methods=["GET"])
     @cache.cached(query_string=True)
-    def tv_slug_filter_route(slug):
+    def filter_tv_slug_route(slug):
         return tvslug.filter(slug)

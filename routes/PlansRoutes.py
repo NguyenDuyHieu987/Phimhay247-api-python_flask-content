@@ -6,20 +6,22 @@ from controllers.PlansControllers import Plan
 
 
 def plans_routes(app, cache):
+    prefix_route = "plan"
+
     plan = Plan()
 
-    @app.route("/plan/get", methods=["GET"])
+    @app.route(f"/{prefix_route}/get-all", methods=["GET"])
     # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     @cache.cached()
-    def plans_route():
-        return plan.plans()
+    def get_all_plans_route():
+        return plan.get_all()
 
-    @app.route("/plan/register/<id>", methods=["POST"])
+    @app.route(f"/{prefix_route}/register/<id>", methods=["POST"])
     # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    def plans_register_route(id):
+    def register_plans_register_route(id):
         return plan.register(id)
 
-    @app.route("/plan/<method>/retrieve/<id>", methods=["GET"])
+    @app.route(f"/{prefix_route}/<method>/retrieve/<id>", methods=["GET"])
     # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    def plans_retrieve_route(method, id):
+    def retrieve_plans_route(method, id):
         return plan.retrieve(method, id)

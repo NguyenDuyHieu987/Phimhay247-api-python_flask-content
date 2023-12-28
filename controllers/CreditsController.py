@@ -11,7 +11,7 @@ class Credits(Database):
     def __init__(self):
         self.__db = self.ConnectMongoDB()
 
-    def get_credits(self, id):
+    def get(self, id):
         try:
             credits = self.__db["credits"].find_one({"movie_id": str(id)})
             return cvtJson(credits)

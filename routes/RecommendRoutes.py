@@ -6,10 +6,12 @@ from controllers.RecommendControllers import Recommend
 
 
 def recommend_routes(app, cache):
+    prefix_route = "recommend"
+
     recomment = Recommend()
 
-    @app.route("/recommend/get", methods=["GET"])
+    @app.route(f"/{prefix_route}/get-all", methods=["GET"])
     # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     # @cache.cached(query_string=True)
-    def recommend_route():
-        return recomment.get_recommend()
+    def get_all_recommend_route():
+        return recomment.get_all()

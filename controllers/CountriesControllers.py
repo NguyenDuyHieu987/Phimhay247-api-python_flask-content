@@ -10,13 +10,11 @@ class Country(Database):
     def __init__(self):
         self.__db = self.ConnectMongoDB()
 
-    def countries(self, type):
+    def get_all(self):
         try:
-            if type == "all":
-                countries = cvtJson(self.__db["countries"].find())
-                return {"results": countries}
-            else:
-                raise NotInTypeError("country", type)
+            countries = cvtJson(self.__db["countries"].find())
+
+            return {"results": countries}
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except NotInTypeError as e:

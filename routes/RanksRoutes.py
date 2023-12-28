@@ -5,11 +5,13 @@ import configs
 from controllers.RanksControllers import Rank
 
 
-def ranking_routes(app, cache):
+def ranks_routes(app, cache):
+    prefix_route = "ranks"
+
     rank = Rank()
 
-    @app.route("/ranks/<slug>", methods=["GET"])
+    @app.route(f"/{prefix_route}/<slug>", methods=["GET"])
     # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     @cache.cached()
-    def ranking_route(slug):
-        return rank.ranking(slug)
+    def get_slug_ranks_route(slug):
+        return rank.get_slug(slug)

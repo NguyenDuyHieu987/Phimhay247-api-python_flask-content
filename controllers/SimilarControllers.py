@@ -13,7 +13,7 @@ class Similar(Database):
     def __init__(self):
         self.__db = self.ConnectMongoDB()
 
-    def get_similar(self, type, movieid):
+    def get_slug(self, type, movieid):
         try:
             page = request.args.get("page", default=1, type=int) - 1
             limit = request.args.get("limit", default=20, type=int)

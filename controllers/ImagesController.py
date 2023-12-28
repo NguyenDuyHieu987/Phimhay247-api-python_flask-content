@@ -11,7 +11,7 @@ class Images(Database):
     def __init__(self):
         self.__db = self.ConnectMongoDB()
 
-    def get_images(self, id):
+    def get(self, id):
         try:
             images = self.__db["images"].find_one({"movie_id": str(id)})
             return cvtJson(images)

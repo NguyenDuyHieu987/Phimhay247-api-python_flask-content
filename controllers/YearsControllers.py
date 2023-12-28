@@ -11,13 +11,12 @@ class Year(Database):
     def __init__(self):
         self.__db = self.ConnectMongoDB()
 
-    def years(self, type):
+    def get_all(self, type):
         try:
-            if type == "all":
-                years = cvtJson(self.__db["years"].find())
-                return {"results": years}
-            else:
-                raise NotInTypeError("country", type)
+            years = cvtJson(self.__db["years"].find())
+
+            return {"results": years}
+
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except NotInTypeError as e:

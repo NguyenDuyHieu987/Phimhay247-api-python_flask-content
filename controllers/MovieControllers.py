@@ -16,7 +16,7 @@ class Movie(Database):
     def __init__(self):
         self.__db = self.ConnectMongoDB()
 
-    def detail_movie(self, id):
+    def get(self, id):
         try:
             append_to_response = request.args.get(
                 "append_to_response", default="", type=str
@@ -312,7 +312,7 @@ class Movie(Database):
         except Exception as e:
             InternalServerErrorMessage(e)
 
-    def add_movie(self):
+    def add(self):
         try:
             formMovie = request.form
 
@@ -356,7 +356,7 @@ class Movie(Database):
         except Exception as e:
             InternalServerErrorMessage(e)
 
-    def edit_movie(self, id):
+    def edit(self, id):
         try:
             formMovie = request.form
 

@@ -13,7 +13,7 @@ class TV(Database):
     def __init__(self):
         self.__db = self.ConnectMongoDB()
 
-    def detail_tv(self, id):
+    def get(self, id):
         try:
             append_to_response = request.args.get(
                 "append_to_response", default="", type=str
@@ -371,7 +371,7 @@ class TV(Database):
         except Exception as e:
             InternalServerErrorMessage(e)
 
-    def add_tv(self):
+    def add(self):
         try:
             formMovie = request.form
             movie = self.__db["phimles"].find_one({"id": str(formMovie.get("id"))})
@@ -409,7 +409,7 @@ class TV(Database):
         except Exception as e:
             InternalServerErrorMessage(e)
 
-    def edit_tv(self, id):
+    def edit(self, id):
         try:
             formMovie = request.form
 

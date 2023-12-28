@@ -10,7 +10,7 @@ class Trending(Database):
     def __init__(self):
         self.__db = self.ConnectMongoDB()
 
-    def get_trending(self, type):
+    def get_slug(self, type):
         try:
             if type == "all":
                 page = request.args.get("page", default=1, type=int) - 1

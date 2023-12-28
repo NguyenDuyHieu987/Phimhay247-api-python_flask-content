@@ -12,7 +12,7 @@ class Discover(Database):
         self.__db = self.ConnectMongoDB()
         # self.discoverutils = DiscoverUtils(self.ConnectMongoDB())
 
-    def discover(self, type):
+    def get_slug(self, type):
         try:
             page = request.args.get("page", default=1, type=int) - 1
             limit = request.args.get("limit", default=20, type=int)

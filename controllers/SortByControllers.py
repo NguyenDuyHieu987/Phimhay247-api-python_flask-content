@@ -10,13 +10,12 @@ class Sortby(Database):
     def __init__(self):
         self.__db = self.ConnectMongoDB()
 
-    def sortby(self, type):
+    def get_all(self, type):
         try:
-            if type == "all":
-                all_sortbys = cvtJson(self.__db["sortbys"].find())
-                return {"results": all_sortbys}
-            else:
-                raise NotInTypeError("country", type)
+            all_sortbys = cvtJson(self.__db["sortbys"].find())
+
+            return {"results": all_sortbys}
+
         except PyMongoError as e:
             InternalServerErrorMessage(e._message)
         except NotInTypeError as e:

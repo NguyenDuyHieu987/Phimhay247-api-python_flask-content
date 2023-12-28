@@ -14,7 +14,7 @@ class Recommend(Database):
     def __init__(self):
         self.__db = self.ConnectMongoDB()
 
-    def get_recommend(self):
+    def get_all(self):
         try:
             user_token = request.headers["Authorization"].replace(
                 "Bearer ", ""

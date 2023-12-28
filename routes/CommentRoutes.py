@@ -6,44 +6,46 @@ from controllers.CommentControlers import Comment
 
 
 def comment_routes(app):
+    prefix_route = "comment"
+
     comment = Comment()
 
-    @app.route("/comment/get-all/<movieType>/<movieId>", methods=["GET"])
+    @app.route(f"/{prefix_route}/get-all/<movieType>/<movieId>", methods=["GET"])
     # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    def get_comment_parent_route(movieType, movieId):
-        return comment.get_parent(movieType, movieId)
+    def get_all_parent_comment_route(movieType, movieId):
+        return comment.get_all_parent(movieType, movieId)
 
-    @app.route("/comment/get/<movieType>/<movieId>/<parentId>", methods=["GET"])
+    @app.route(f"/{prefix_route}/get/<movieType>/<movieId>/<parentId>", methods=["GET"])
     # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    def get_comment_child_route(movieType, movieId, parentId):
+    def get_child_comment_route(movieType, movieId, parentId):
         return comment.get_child(movieType, movieId, parentId)
 
-    @app.route("/comment/post/<movieType>/<id>", methods=["POST"])
+    @app.route(f"/{prefix_route}/post/<movieType>/<id>", methods=["POST"])
     # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
-    def comment_route(movieType, id):
-        return comment.post_comment(movieType, id)
+    def post_comment_route(movieType, id):
+        return comment.post(movieType, id)
 
-    @app.route("/comment/edit/<movieType>/<id>", methods=["PUT"])
+    @app.route(f"/{prefix_route}/edit/<movieType>/<id>", methods=["PUT"])
     # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def edit_comment_route(movieType, id):
-        return comment.edit_comment(movieType, id)
+        return comment.edit(movieType, id)
 
-    @app.route("/comment/delete/<movieType>/<id>", methods=["DELETE"])
+    @app.route(f"/{prefix_route}/delete/<movieType>/<id>", methods=["DELETE"])
     # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def delete_comment_route(movieType, id):
-        return comment.delete_comment(movieType, id)
+        return comment.delete(movieType, id)
 
-    @app.route("/comment/like/<id>", methods=["POST"])
+    @app.route(f"/{prefix_route}/like/<id>", methods=["POST"])
     # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def like_comment_route(id):
         return comment.like(id)
 
-    @app.route("/comment/dislike/<id>", methods=["POST"])
+    @app.route(f"/{prefix_route}/dislike/<id>", methods=["POST"])
     # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def dislike_comment_route(id):
         return comment.dislike(id)
 
-    @app.route("/comment/check-like-dislike/<id>", methods=["GET"])
+    @app.route(f"/{prefix_route}/check-like-dislike/<id>", methods=["GET"])
     # @cross_origin(origins=configs.ALL_ORIGINS_CONFIG)
     def check_like_dislike_comment_route(id):
         return comment.check_like_dislike(id)

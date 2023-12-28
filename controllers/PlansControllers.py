@@ -16,7 +16,7 @@ class Plan(Database):
     def __init__(self):
         self.__db = self.ConnectMongoDB()
 
-    def plans(self):
+    def get_all(self):
         try:
             plans = cvtJson(
                 self.__db["plans"].find().sort([("order", pymongo.ASCENDING)])
