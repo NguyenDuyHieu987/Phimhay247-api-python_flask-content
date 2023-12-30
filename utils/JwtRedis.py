@@ -1,4 +1,4 @@
-import redis
+import json
 import os
 from datetime import datetime, timezone, timedelta
 from configs.RedisCache import RedisCache
@@ -24,7 +24,7 @@ class JwtRedis(RedisCache):
     def sign(self, jwt, option={"exp": None}):
         key = self.__init_key(jwt)
 
-        self.__rd.set(key, "True", ex=option["exp"])
+        self.__rd.set(key, json.dumps(True), ex=option["exp"], nx=True)
 
     def verify(self, jwt):
         key = self.__init_key(jwt)
